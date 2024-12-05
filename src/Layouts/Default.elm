@@ -1,10 +1,12 @@
 module Layouts.Default exposing (Model, Msg, Props, layout)
 
+import Dict
 import Effect exposing (Effect)
-import Html exposing (Html)
+import Html
 import Html.Attributes exposing (class)
 import Layout exposing (Layout)
 import Route exposing (Route)
+import Route.Path
 import Shared
 import View exposing (View)
 
@@ -14,7 +16,7 @@ type alias Props =
 
 
 layout : Props -> Shared.Model -> Route () -> Layout () Model Msg contentMsg
-layout props shared route =
+layout _ _ _ =
     Layout.new
         { init = init
         , update = update
@@ -33,9 +35,7 @@ type alias Model =
 
 init : () -> ( Model, Effect Msg )
 init _ =
-    ( {}
-    , Effect.none
-    )
+    ( {}, Effect.none )
 
 
 
@@ -50,13 +50,11 @@ update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
         ReplaceMe ->
-            ( model
-            , Effect.none
-            )
+            ( model, Effect.none )
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
@@ -65,10 +63,22 @@ subscriptions model =
 
 
 view : { toContentMsg : Msg -> contentMsg, content : View contentMsg, model : Model } -> View contentMsg
-view { toContentMsg, model, content } =
-    { title = content.title
-    , body = 
-        [ Html.text  "Default"
+view { content } =
+    { title =
+        if String.isEmpty content.title then
+            "Secret Demo Club HQ"
+
+        else
+            "Secret Demo Club HQ - " ++ content.title
+    , body =
+        [ Html.a
+            [ Route.href
+                { path = Route.Path.Home_
+                , hash = Nothing
+                , query = Dict.empty
+                }
+            ]
+            [ Html.text "Secret Demo Club HQ" ]
         , Html.div [ class "page" ] content.body
         ]
     }
