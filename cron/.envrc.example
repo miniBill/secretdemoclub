@@ -1,0 +1,2 @@
+export rssUrl="https://www.patreon.com/rss/orlagartland?auth=something-something_something"
+export cookie="patreon_device_id=something; patreon_location_country_code=IT; patreon_locale_code=en-US; G_ENABLED_IDPS=google; __ssid=something; did_accept_ccpa=1; SOCS=something; session_id=something; patreon_locale_code=en-US"

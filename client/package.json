@@ -1,0 +1,9 @@
+{
+    "license": "BSD-3-Clause",
+    "scripts": {
+        "start": "elm-land server"
+    },
+    "devDependencies": {
+        "elm-land": "^0.20.1"
+    }
+}
