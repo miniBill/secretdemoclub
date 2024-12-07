@@ -29,12 +29,25 @@ decode : Node -> Result ErrorWithPath (List Post)
 decode node =
     node
         |> expectElement "rss"
-        |> Result.map children
-        |> Result.andThen (forAll <| expectElement "channel")
-        |> Result.map (List.concatMap children)
-        |> Result.map (List.filterMap <| Result.toMaybe << expectElement "item")
+        |> Result.andThen
+            (\rss ->
+                rss
+                    |> children
+                    |> Result.Extra.combineMap (expectElement "channel")
+            )
+        |> Result.map
+            (\channels ->
+                channels
+                    |> List.concatMap children
+                    |> List.filterMap
+                        (\child ->
+                            child
+                                |> expectElement "item"
+                                |> Result.toMaybe
+                        )
+            )
         |> withPath []
-        |> Result.andThen (forAll parseItem)
+        |> Result.andThen (Result.Extra.combineMap parseItem)
         |> Result.map List.reverse
 
 
@@ -228,7 +241,7 @@ demoParser =
 
 voiceMemoParser : Parser Title
 voiceMemoParser =
-    Parser.succeed (VoiceMemo << cleanQuotes)
+    Parser.succeed (\title -> VoiceMemo (cleanQuotes title))
         |= Parser.oneOf
             [ Parser.succeed "Christmas Eve"
                 |. Parser.token "a Christmas Eve voice memo for you"
@@ -258,7 +271,7 @@ voiceMemoParser =
 
 bonusDemoParser : Parser Title
 bonusDemoParser =
-    Parser.succeed (BonusDemo << cleanQuotes)
+    Parser.succeed (\title -> BonusDemo (cleanQuotes title))
         |= Parser.oneOf
             [ Parser.succeed "I don't care"
                 |. Parser.token "your October bonus demo: 'I don't care'"
@@ -296,7 +309,7 @@ bonusDemoParser =
 
 songIdeaParser : Parser Title
 songIdeaParser =
-    Parser.succeed (SongIdea << cleanQuotes)
+    Parser.succeed (\title -> SongIdea (cleanQuotes title))
         |= Parser.oneOf
             [ Parser.succeed "Salt"
                 |. Parser.token "voice memo: song idea + a THANK U!"
@@ -622,11 +635,6 @@ extractContent cs =
 foldlResult : (elem -> acc -> Result err acc) -> Result err acc -> List elem -> Result err acc
 foldlResult step =
     List.foldl (\e -> Result.andThen (step e))
-
-
-forAll : (a -> Result x b) -> List a -> Result x (List b)
-forAll =
-    Result.Extra.combineMap
 
 
 expectElement : String -> Node -> Result Error Element
