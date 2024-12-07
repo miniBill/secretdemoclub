@@ -25,7 +25,7 @@ onPageLoad shared route =
             }
 
     else
-        Auth.Action.loadPageWithUser shared
+        Auth.Action.loadPageWithUser { rss = shared.rss }
 
 
 {-| Renders whenever `Auth.Action.loadCustomPage` is returned from `onPageLoad`.

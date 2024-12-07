@@ -7,6 +7,7 @@ port module Effect exposing
     , loadExternalUrl, back
     , loadedRss, saveRss
     , map, toCmd
+    , hereAndNow
     )
 
 {-|
@@ -36,6 +37,7 @@ import Serialize
 import Shared.Model
 import Shared.Msg
 import Task
+import Time
 import Url exposing (Url)
 
 
@@ -56,6 +58,7 @@ type Effect msg
 
 type Unmapped
     = SaveRss { url : String, posts : List Post }
+    | HereAndNow (Time.Zone -> Time.Posix -> Shared.Msg.Msg)
 
 
 {-| Don't send any effect.
@@ -100,6 +103,11 @@ loadedRss options =
 saveRss : { url : String, posts : List Post } -> Effect msg
 saveRss data =
     Unmapped (SaveRss data)
+
+
+hereAndNow : (Time.Zone -> Time.Posix -> Shared.Msg.Msg) -> Effect msg
+hereAndNow toMsg =
+    Unmapped (HereAndNow toMsg)
 
 
 
@@ -251,6 +259,10 @@ toCmd options effect =
             ]
                 |> List.map sendToLocalStorage
                 |> Cmd.batch
+
+        Unmapped (HereAndNow toMsg) ->
+            Task.map2 toMsg Time.here Time.now
+                |> Task.perform options.fromSharedMsg
 
 
 port sendToLocalStorage :

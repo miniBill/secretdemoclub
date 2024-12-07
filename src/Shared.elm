@@ -80,7 +80,9 @@ init flagsResult _ =
         model =
             case flagsResult of
                 Ok flags ->
-                    flags
+                    { rss = flags.rss
+                    , time = Nothing
+                    }
 
                 Err e ->
                     let
@@ -91,9 +93,10 @@ init flagsResult _ =
                         { url = Rss.Parser.rssPrefix
                         , posts = []
                         }
+                    , time = Nothing
                     }
     in
-    ( model, Effect.none )
+    ( model, Effect.hereAndNow Shared.Msg.HereAndNow )
 
 
 
@@ -118,6 +121,9 @@ update route msg model =
                 , Effect.saveRss newRss
                 ]
             )
+
+        Shared.Msg.HereAndNow here now ->
+            ( { model | time = Just ( here, now ) }, Effect.none )
 
 
 

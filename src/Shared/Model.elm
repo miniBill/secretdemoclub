@@ -3,6 +3,7 @@ module Shared.Model exposing (Model)
 {-| -}
 
 import Rss exposing (Post)
+import Time
 
 
 {-| Normally, this value would live in "Shared.elm"
@@ -17,4 +18,5 @@ type alias Model =
         { url : String
         , posts : List Post
         }
+    , time : Maybe ( Time.Zone, Time.Posix )
     }

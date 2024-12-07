@@ -3,6 +3,7 @@ module Shared.Msg exposing (Msg(..))
 {-| -}
 
 import Rss exposing (Post)
+import Time
 
 
 {-| Normally, this value would live in "Shared.elm"
@@ -14,3 +15,4 @@ own file, so they can be imported by `Effect.elm`
 -}
 type Msg
     = LoadedRss { url : String, posts : List Post }
+    | HereAndNow Time.Zone Time.Posix

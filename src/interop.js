@@ -5,7 +5,6 @@ export const flags = ({ env }) => {
         const key = localStorage.key(i);
         result[key] = JSON.parse(localStorage[key]);
     }
-    console.info(result);
     return result;
 };
 
