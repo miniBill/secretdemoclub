@@ -215,7 +215,13 @@ titleParser =
 
 demoParser : Parser Title
 demoParser =
-    Parser.succeed (\( a, b ) -> Demo a <| cleanQuotes b)
+    Parser.succeed
+        (\( number, name ) ->
+            name
+                |> String.replace " (+ London show this tuesday)" ""
+                |> cleanQuotes
+                |> Demo number
+        )
         |= Parser.oneOf
             [ Parser.succeed ( Nothing, "lifeline" )
                 |. Parser.token "March demo 'lifeline': lyrics & an amended mix!"
