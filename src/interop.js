@@ -1,8 +1,12 @@
 export const flags = ({ env }) => {
     // Called before our Elm application starts
-    return {
-        rss: JSON.parse(window.localStorage.rss || null),
-    };
+    const result = {};
+    for (var i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        result[key] = JSON.parse(localStorage[key]);
+    }
+    console.info(result);
+    return result;
 };
 
 export const onReady = ({ env, app }) => {

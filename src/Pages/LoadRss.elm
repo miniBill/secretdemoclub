@@ -15,9 +15,9 @@ import View exposing (View)
 
 
 page : Shared.Model -> Route () -> Page Model Msg
-page _ _ =
+page shared _ =
     Page.new
-        { init = init
+        { init = init shared
         , update = update
         , subscriptions = subscriptions
         , view = view
@@ -35,9 +35,9 @@ type alias Model =
     }
 
 
-init : () -> ( Model, Effect Msg )
-init () =
-    ( { rssUrl = Rss.Parser.rssPrefix
+init : Shared.Model -> () -> ( Model, Effect Msg )
+init shared _ =
+    ( { rssUrl = shared.rss.url
       , loading = False
       , error = Nothing
       }

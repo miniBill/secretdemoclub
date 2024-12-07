@@ -36,28 +36,33 @@ type alias Flags =
 decoder : Json.Decode.Decoder Flags
 decoder =
     Json.Decode.map Flags
-        (Json.Decode.field
-            "rss"
-            (Json.Decode.map2 (\url posts -> { url = url, posts = posts })
-                (Json.Decode.field "url" Json.Decode.string)
-                (Json.Decode.field "posts" Json.Decode.string
-                    |> Json.Decode.andThen
-                        (\raw ->
-                            case Base64.toBytes raw of
-                                Just bytes ->
-                                    case Serialize.decodeFromBytes Rss.lastCodec bytes of
-                                        Ok posts ->
-                                            Json.Decode.succeed posts
-
-                                        Err _ ->
-                                            Json.Decode.fail "Invalid bytes encoding"
-
-                                Nothing ->
-                                    Json.Decode.fail "Invalid base64 encoding"
-                        )
+        (Json.Decode.map2 (\url posts -> { url = url, posts = posts })
+            (Json.Decode.field "url" Json.Decode.string)
+            (Json.Decode.map (Maybe.withDefault [])
+                (Json.Decode.maybe
+                    (Json.Decode.field "posts" postsDecoder)
                 )
             )
         )
+
+
+postsDecoder : Json.Decode.Decoder (List Post)
+postsDecoder =
+    Json.Decode.string
+        |> Json.Decode.andThen
+            (\raw ->
+                case Base64.toBytes raw of
+                    Just bytes ->
+                        case Serialize.decodeFromBytes Rss.lastCodec bytes of
+                            Ok posts ->
+                                Json.Decode.succeed posts
+
+                            Err _ ->
+                                Json.Decode.fail "Invalid bytes encoding"
+
+                    Nothing ->
+                        Json.Decode.fail "Invalid base64 encoding"
+            )
 
 
 
@@ -73,8 +78,15 @@ init flagsResult _ =
     let
         model : Model
         model =
-            flagsResult
-                |> Result.withDefault
+            case flagsResult of
+                Ok flags ->
+                    flags
+
+                Err e ->
+                    let
+                        _ =
+                            Debug.log "Error decoding flags" e
+                    in
                     { rss =
                         { url = Rss.Parser.rssPrefix
                         , posts = []
