@@ -21,7 +21,7 @@
             "elmcraft/core-extra": "2.1.0",
             "folkertdev/elm-sha2": "1.0.0",
             "lydell/elm-app-url": "1.0.4",
-            "miniBill/elm-xml-parser": "1.0.1"
+            "miniBill/elm-xml-parser": "1.0.2"
         },
         "indirect": {
             "bburdette/toop": "1.2.0",
