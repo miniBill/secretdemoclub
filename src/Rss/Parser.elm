@@ -227,6 +227,8 @@ demoParser =
                 |. Parser.token "demo no:12 'lifeline'"
             , Parser.succeed ( Nothing, "party by myself" )
                 |. Parser.token "a 2016 demo: 'party by myself'"
+            , Parser.succeed ( Just 20, "cookie cutter love" )
+                |. Parser.token "another live demo: 'cookie cutter lover'"
             , Parser.succeed Tuple.pair
                 |. Parser.oneOf
                     [ Parser.token "another live"
