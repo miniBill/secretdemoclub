@@ -14,4 +14,3 @@ own file, so they can be imported by `Effect.elm`
 -}
 type Msg
     = LoadedRss { url : String, posts : List Post }
-    | Logout

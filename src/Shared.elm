@@ -105,7 +105,7 @@ type alias Msg =
 
 
 update : Route () -> Msg -> Model -> ( Model, Effect Msg )
-update route msg ({ rss } as model) =
+update route msg model =
     case msg of
         Shared.Msg.LoadedRss newRss ->
             ( { model | rss = newRss }
@@ -118,9 +118,6 @@ update route msg ({ rss } as model) =
                 , Effect.saveRss newRss
                 ]
             )
-
-        Shared.Msg.Logout ->
-            ( { model | rss = { rss | posts = [] } }, Effect.pushRoutePath Path.Home_ )
 
 
 

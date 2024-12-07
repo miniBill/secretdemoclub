@@ -7,7 +7,6 @@ port module Effect exposing
     , loadExternalUrl, back
     , loadedRss, saveRss
     , map, toCmd
-    , logout
     )
 
 {-|
@@ -57,7 +56,6 @@ type Effect msg
 
 type Unmapped
     = SaveRss { url : String, posts : List Post }
-    | Logout
 
 
 {-| Don't send any effect.
@@ -97,11 +95,6 @@ sendMsg msg =
 loadedRss : { url : String, posts : List Post } -> Effect msg
 loadedRss options =
     SendSharedMsg (Shared.Msg.LoadedRss options)
-
-
-logout : Effect msg
-logout =
-    Unmapped Logout
 
 
 saveRss : { url : String, posts : List Post } -> Effect msg
@@ -258,12 +251,6 @@ toCmd options effect =
             ]
                 |> List.map sendToLocalStorage
                 |> Cmd.batch
-
-        Unmapped Logout ->
-            Cmd.batch
-                [ sendToLocalStorage { key = "posts", value = Json.Encode.list never [] }
-                , Task.perform options.fromSharedMsg (Task.succeed Shared.Msg.Logout)
-                ]
 
 
 port sendToLocalStorage :

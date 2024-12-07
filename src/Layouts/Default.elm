@@ -4,7 +4,6 @@ import Dict
 import Effect exposing (Effect)
 import Html
 import Html.Attributes exposing (class)
-import Html.Events
 import Layout exposing (Layout)
 import Route exposing (Route)
 import Route.Path
@@ -44,14 +43,14 @@ init _ =
 
 
 type Msg
-    = Logout
+    = Noop
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        Logout ->
-            ( model, Effect.logout )
+        Noop ->
+            ( model, Effect.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -69,7 +68,7 @@ view :
     , model : Model
     }
     -> View contentMsg
-view { toContentMsg, content } =
+view { content } =
     { title =
         if String.isEmpty content.title then
             "Secret Demo Club HQ"
@@ -88,10 +87,6 @@ view { toContentMsg, content } =
                     }
                 ]
                 [ Html.text "Secret Demo Club HQ" ]
-            , Html.button
-                [ Html.Events.onClick (toContentMsg Logout)
-                ]
-                [ Html.text "Logout" ]
             ]
         , Html.div [ class "page" ] content.body
         ]
