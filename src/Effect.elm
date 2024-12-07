@@ -7,6 +7,7 @@ port module Effect exposing
     , loadExternalUrl, back
     , loadedRss, saveRss
     , map, toCmd
+    , logout
     )
 
 {-|
@@ -51,11 +52,12 @@ type Effect msg
     | Back
       -- SHARED
     | SendSharedMsg Shared.Msg.Msg
-    | SendToLocalStorage { key : String, value : Json.Encode.Value }
+    | Unmapped Unmapped
 
 
-
--- BASICS
+type Unmapped
+    = SendToLocalStorage { key : String, value : Json.Encode.Value }
+    | Logout
 
 
 {-| Don't send any effect.
@@ -97,29 +99,29 @@ loadedRss options =
     SendSharedMsg (Shared.Msg.LoadedRss options)
 
 
-port sendToLocalStorage :
-    { key : String
-    , value : Json.Encode.Value
-    }
-    -> Cmd msg
+logout : Effect msg
+logout =
+    Unmapped Logout
 
 
 saveRss : { url : String, rss : Rss } -> Effect msg
 saveRss { url, rss } =
-    SendToLocalStorage
-        { key = "rss"
-        , value =
-            [ ( "url", Json.Encode.string url )
-            , ( "rss"
-              , rss
-                    |> Serialize.encodeToBytes Rss.lastCodec
-                    |> Base64.fromBytes
-                    |> Maybe.withDefault ""
-                    |> Json.Encode.string
-              )
-            ]
-                |> Json.Encode.object
-        }
+    Unmapped
+        (SendToLocalStorage
+            { key = "rss"
+            , value =
+                [ ( "url", Json.Encode.string url )
+                , ( "rss"
+                  , rss
+                        |> Serialize.encodeToBytes Rss.lastCodec
+                        |> Base64.fromBytes
+                        |> Maybe.withDefault ""
+                        |> Json.Encode.string
+                  )
+                ]
+                    |> Json.Encode.object
+            }
+        )
 
 
 
@@ -213,8 +215,8 @@ map fn effect =
         SendSharedMsg sharedMsg ->
             SendSharedMsg sharedMsg
 
-        SendToLocalStorage data ->
-            SendToLocalStorage data
+        Unmapped data ->
+            Unmapped data
 
 
 {-| Elm Land depends on this function to perform your effects.
@@ -256,5 +258,15 @@ toCmd options effect =
             Task.succeed sharedMsg
                 |> Task.perform options.fromSharedMsg
 
-        SendToLocalStorage data ->
+        Unmapped (SendToLocalStorage data) ->
             sendToLocalStorage data
+
+        Unmapped Logout ->
+            sendToLocalStorage { key = "rss", value = Json.Encode.null }
+
+
+port sendToLocalStorage :
+    { key : String
+    , value : Json.Encode.Value
+    }
+    -> Cmd msg

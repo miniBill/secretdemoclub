@@ -23,7 +23,7 @@ onPageLoad shared route =
 
         Nothing ->
             Auth.Action.pushRoute
-                { path = Route.Path.SignIn
+                { path = Route.Path.LoadRSS
                 , query = Dict.fromList [ ( "from", route.url.path ) ]
                 , hash = Nothing
                 }

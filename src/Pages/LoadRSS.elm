@@ -1,4 +1,4 @@
-module Pages.SignIn exposing (Model, Msg, page)
+module Pages.LoadRSS exposing (Model, Msg, page)
 
 import Effect exposing (Effect)
 import Html exposing (Html)
@@ -11,7 +11,6 @@ import Rss exposing (Rss)
 import Rss.Parser
 import Shared
 import Url
-import Url.Builder
 import View exposing (View)
 
 

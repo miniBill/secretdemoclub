@@ -4,6 +4,7 @@ import Dict
 import Effect exposing (Effect)
 import Html
 import Html.Attributes exposing (class)
+import Html.Events
 import Layout exposing (Layout)
 import Route exposing (Route)
 import Route.Path
@@ -43,14 +44,14 @@ init _ =
 
 
 type Msg
-    = ReplaceMe
+    = Logout
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        ReplaceMe ->
-            ( model, Effect.none )
+        Logout ->
+            ( model, Effect.logout )
 
 
 subscriptions : Model -> Sub Msg
@@ -62,8 +63,13 @@ subscriptions _ =
 -- VIEW
 
 
-view : { toContentMsg : Msg -> contentMsg, content : View contentMsg, model : Model } -> View contentMsg
-view { content } =
+view :
+    { toContentMsg : Msg -> contentMsg
+    , content : View contentMsg
+    , model : Model
+    }
+    -> View contentMsg
+view { toContentMsg, content } =
     { title =
         if String.isEmpty content.title then
             "Secret Demo Club HQ"
@@ -71,14 +77,22 @@ view { content } =
         else
             "Secret Demo Club HQ - " ++ content.title
     , body =
-        [ Html.a
-            [ Route.href
-                { path = Route.Path.Home_
-                , hash = Nothing
-                , query = Dict.empty
-                }
+        [ Html.div
+            [ Html.Attributes.style "display" "flex"
             ]
-            [ Html.text "Secret Demo Club HQ" ]
+            [ Html.a
+                [ Route.href
+                    { path = Route.Path.Home_
+                    , hash = Nothing
+                    , query = Dict.empty
+                    }
+                ]
+                [ Html.text "Secret Demo Club HQ" ]
+            , Html.button
+                [ Html.Events.onClick (toContentMsg Logout)
+                ]
+                [ Html.text "Logout" ]
+            ]
         , Html.div [ class "page" ] content.body
         ]
     }

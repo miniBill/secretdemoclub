@@ -35,6 +35,7 @@ decode node =
         |> Result.map (List.filterMap <| Result.toMaybe << expectElement "item")
         |> withPath []
         |> Result.andThen (forAll parseItem)
+        |> Result.map List.reverse
 
 
 parseItem : Element -> Result ErrorWithPath Post
