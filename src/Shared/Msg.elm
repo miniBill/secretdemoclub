@@ -2,7 +2,7 @@ module Shared.Msg exposing (Msg(..))
 
 {-| -}
 
-import Rss exposing (Rss)
+import Rss exposing (Post)
 
 
 {-| Normally, this value would live in "Shared.elm"
@@ -13,4 +13,5 @@ own file, so they can be imported by `Effect.elm`
 
 -}
 type Msg
-    = LoadedRss { url : String, rss : Rss }
+    = LoadedRss { url : String, posts : List Post }
+    | Logout

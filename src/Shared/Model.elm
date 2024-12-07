@@ -2,7 +2,7 @@ module Shared.Model exposing (Model)
 
 {-| -}
 
-import Rss exposing (Rss)
+import Rss exposing (Post)
 
 
 {-| Normally, this value would live in "Shared.elm"
@@ -13,4 +13,8 @@ own file, so they can be imported by `Effect.elm`
 
 -}
 type alias Model =
-    { rss : Maybe { url : String, rss : Rss } }
+    { rss :
+        { url : String
+        , posts : List Post
+        }
+    }

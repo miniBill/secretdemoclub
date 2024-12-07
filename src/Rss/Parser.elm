@@ -4,13 +4,13 @@ import Imf.DateTime
 import List.Extra
 import Parser exposing ((|.), (|=), Parser)
 import Result.Extra
-import Rss exposing (Post, Rss, Title(..))
+import Rss exposing (Post, Title(..))
 import Serialize as Codec exposing (Codec)
 import Time
 import XmlParser exposing (Attribute, Node(..))
 
 
-parse : String -> Result ErrorWithPath Rss
+parse : String -> Result ErrorWithPath (List Post)
 parse xml =
     case XmlParser.parse xml of
         Ok { root } ->
@@ -20,12 +20,12 @@ parse xml =
             withPath [] <| Err InvalidXml
 
 
-parsedCodec : Codec () (Result ErrorWithPath Rss)
+parsedCodec : Codec () (Result ErrorWithPath (List Post))
 parsedCodec =
     Codec.result errorWithPathCodec Rss.lastCodec
 
 
-decode : Node -> Result ErrorWithPath Rss
+decode : Node -> Result ErrorWithPath (List Post)
 decode node =
     node
         |> expectElement "rss"

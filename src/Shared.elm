@@ -18,7 +18,8 @@ import Effect exposing (Effect)
 import Json.Decode
 import Route exposing (Route)
 import Route.Path as Path
-import Rss exposing (Rss)
+import Rss exposing (Post)
+import Rss.Parser
 import Serialize
 import Shared.Model
 import Shared.Msg
@@ -29,7 +30,7 @@ import Shared.Msg
 
 
 type alias Flags =
-    { rss : Maybe { url : String, rss : Rss } }
+    { rss : { url : String, posts : List Post } }
 
 
 decoder : Json.Decode.Decoder Flags
@@ -37,25 +38,23 @@ decoder =
     Json.Decode.map Flags
         (Json.Decode.field
             "rss"
-            (Json.Decode.maybe
-                (Json.Decode.map2 (\url rss -> { url = url, rss = rss })
-                    (Json.Decode.field "url" Json.Decode.string)
-                    (Json.Decode.field "rss" Json.Decode.string
-                        |> Json.Decode.andThen
-                            (\raw ->
-                                case Base64.toBytes raw of
-                                    Just bytes ->
-                                        case Serialize.decodeFromBytes Rss.lastCodec bytes of
-                                            Ok rss ->
-                                                Json.Decode.succeed rss
+            (Json.Decode.map2 (\url posts -> { url = url, posts = posts })
+                (Json.Decode.field "url" Json.Decode.string)
+                (Json.Decode.field "posts" Json.Decode.string
+                    |> Json.Decode.andThen
+                        (\raw ->
+                            case Base64.toBytes raw of
+                                Just bytes ->
+                                    case Serialize.decodeFromBytes Rss.lastCodec bytes of
+                                        Ok posts ->
+                                            Json.Decode.succeed posts
 
-                                            Err _ ->
-                                                Json.Decode.fail "Invalid bytes encoding"
+                                        Err _ ->
+                                            Json.Decode.fail "Invalid bytes encoding"
 
-                                    Nothing ->
-                                        Json.Decode.fail "Invalid base64 encoding"
-                            )
-                    )
+                                Nothing ->
+                                    Json.Decode.fail "Invalid base64 encoding"
+                        )
                 )
             )
         )
@@ -72,14 +71,17 @@ type alias Model =
 init : Result Json.Decode.Error Flags -> Route () -> ( Model, Effect Msg )
 init flagsResult _ =
     let
-        flags : Flags
-        flags =
+        model : Model
+        model =
             flagsResult
-                |> Result.withDefault { rss = Nothing }
+                |> Result.withDefault
+                    { rss =
+                        { url = Rss.Parser.rssPrefix
+                        , posts = []
+                        }
+                    }
     in
-    ( { rss = flags.rss }
-    , Effect.none
-    )
+    ( model, Effect.none )
 
 
 
@@ -91,19 +93,22 @@ type alias Msg =
 
 
 update : Route () -> Msg -> Model -> ( Model, Effect Msg )
-update route msg model =
+update route msg ({ rss } as model) =
     case msg of
-        Shared.Msg.LoadedRss data ->
-            ( { model | rss = Just data }
+        Shared.Msg.LoadedRss newRss ->
+            ( { model | rss = newRss }
             , Effect.batch
                 [ route.query
                     |> Dict.get "from"
                     |> Maybe.andThen Path.fromString
                     |> Maybe.withDefault Path.Home_
                     |> Effect.pushRoutePath
-                , Effect.saveRss data
+                , Effect.saveRss newRss
                 ]
             )
+
+        Shared.Msg.Logout ->
+            ( { model | rss = { rss | posts = [] } }, Effect.pushRoutePath Path.Home_ )
 
 
 

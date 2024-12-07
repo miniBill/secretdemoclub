@@ -32,7 +32,7 @@ import Dict exposing (Dict)
 import Json.Encode
 import Route
 import Route.Path
-import Rss exposing (Rss)
+import Rss exposing (Post)
 import Serialize
 import Shared.Model
 import Shared.Msg
@@ -56,7 +56,7 @@ type Effect msg
 
 
 type Unmapped
-    = SendToLocalStorage { key : String, value : Json.Encode.Value }
+    = SaveRss { url : String, posts : List Post }
     | Logout
 
 
@@ -94,7 +94,7 @@ sendMsg msg =
 -- SHARED
 
 
-loadedRss : { url : String, rss : Rss } -> Effect msg
+loadedRss : { url : String, posts : List Post } -> Effect msg
 loadedRss options =
     SendSharedMsg (Shared.Msg.LoadedRss options)
 
@@ -104,24 +104,9 @@ logout =
     Unmapped Logout
 
 
-saveRss : { url : String, rss : Rss } -> Effect msg
-saveRss { url, rss } =
-    Unmapped
-        (SendToLocalStorage
-            { key = "rss"
-            , value =
-                [ ( "url", Json.Encode.string url )
-                , ( "rss"
-                  , rss
-                        |> Serialize.encodeToBytes Rss.lastCodec
-                        |> Base64.fromBytes
-                        |> Maybe.withDefault ""
-                        |> Json.Encode.string
-                  )
-                ]
-                    |> Json.Encode.object
-            }
-        )
+saveRss : { url : String, posts : List Post } -> Effect msg
+saveRss data =
+    Unmapped (SaveRss data)
 
 
 
@@ -258,11 +243,27 @@ toCmd options effect =
             Task.succeed sharedMsg
                 |> Task.perform options.fromSharedMsg
 
-        Unmapped (SendToLocalStorage data) ->
-            sendToLocalStorage data
+        Unmapped (SaveRss { url, posts }) ->
+            [ { key = "posts"
+              , value =
+                    posts
+                        |> Serialize.encodeToBytes Rss.lastCodec
+                        |> Base64.fromBytes
+                        |> Maybe.withDefault ""
+                        |> Json.Encode.string
+              }
+            , { key = "url"
+              , value = Json.Encode.string url
+              }
+            ]
+                |> List.map sendToLocalStorage
+                |> Cmd.batch
 
         Unmapped Logout ->
-            sendToLocalStorage { key = "rss", value = Json.Encode.null }
+            Cmd.batch
+                [ sendToLocalStorage { key = "posts", value = Json.Encode.list never [] }
+                , Task.perform options.fromSharedMsg (Task.succeed Shared.Msg.Logout)
+                ]
 
 
 port sendToLocalStorage :

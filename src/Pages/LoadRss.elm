@@ -1,4 +1,4 @@
-module Pages.LoadRSS exposing (Model, Msg, page)
+module Pages.LoadRss exposing (Model, Msg, page)
 
 import Effect exposing (Effect)
 import Html exposing (Html)
@@ -7,7 +7,7 @@ import Html.Events
 import Http
 import Page exposing (Page)
 import Route exposing (Route)
-import Rss exposing (Rss)
+import Rss exposing (Post)
 import Rss.Parser
 import Shared
 import Url
@@ -52,7 +52,7 @@ init () =
 type Msg
     = UserUpdatedInput String
     | UserPressedLoad
-    | FetchRssResult (Result String { url : String, rss : Rss })
+    | FetchRssResult (Result String { url : String, posts : List Post })
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -93,7 +93,7 @@ update msg model =
                                                                 Rss.Parser.errorToString error
                                                             )
                                                 )
-                                            |> Result.map (\rss -> { url = model.rssUrl, rss = rss })
+                                            |> Result.map (\posts -> { url = model.rssUrl, posts = posts })
                                             |> FetchRssResult
                                     )
                             }
@@ -133,56 +133,60 @@ subscriptions _ =
 
 view : Model -> View Msg
 view model =
-    { title = "Loading RSS feed"
+    { title = "Load RSS feed"
     , body = [ viewPage model ]
     }
 
 
 viewPage : Model -> Html Msg
 viewPage model =
-    Html.div
-        [ Html.Attributes.style "display" "flex"
-        , Html.Attributes.style "width" "100%"
-        , Html.Attributes.style "gap" "8px"
-        , Html.Attributes.style "flex-direction" "column"
-        ]
-        [ Html.div
+    if model.loading then
+        Html.text ("Loading " ++ model.rssUrl ++ "...")
+
+    else
+        Html.div
             [ Html.Attributes.style "display" "flex"
             , Html.Attributes.style "width" "100%"
             , Html.Attributes.style "gap" "8px"
+            , Html.Attributes.style "flex-direction" "column"
             ]
-            [ Html.label
+            [ Html.div
                 [ Html.Attributes.style "display" "flex"
-                , Html.Attributes.style "flex-grow" "1"
+                , Html.Attributes.style "width" "100%"
                 , Html.Attributes.style "gap" "8px"
                 ]
-                [ Html.span []
-                    [ Html.text "Insert the "
-                    , Html.a
-                        [ Html.Attributes.href "https://www.patreon.com/c/orlagartland/membership"
-                        , Html.Attributes.target "_blank"
-                        ]
-                        [ Html.text "podcast URL" ]
-                    ]
-                , Html.input
-                    [ Html.Attributes.type_ "url"
-                    , Html.Attributes.value model.rssUrl
-                    , Html.Events.onInput UserUpdatedInput
+                [ Html.label
+                    [ Html.Attributes.style "display" "flex"
                     , Html.Attributes.style "flex-grow" "1"
+                    , Html.Attributes.style "gap" "8px"
                     ]
-                    []
+                    [ Html.span []
+                        [ Html.text "Insert the "
+                        , Html.a
+                            [ Html.Attributes.href "https://www.patreon.com/c/orlagartland/membership"
+                            , Html.Attributes.target "_blank"
+                            ]
+                            [ Html.text "podcast URL" ]
+                        ]
+                    , Html.input
+                        [ Html.Attributes.type_ "url"
+                        , Html.Attributes.value model.rssUrl
+                        , Html.Events.onInput UserUpdatedInput
+                        , Html.Attributes.style "flex-grow" "1"
+                        ]
+                        []
+                    ]
+                , Html.text " "
+                , Html.button
+                    [ Html.Events.onClick UserPressedLoad ]
+                    [ Html.text "Load" ]
                 ]
-            , Html.text " "
-            , Html.button
-                [ Html.Events.onClick UserPressedLoad ]
-                [ Html.text "Load" ]
-            ]
-        , case model.error of
-            Nothing ->
-                Html.text ""
+            , case model.error of
+                Nothing ->
+                    Html.text ""
 
-            Just error ->
-                Html.div
-                    [ Html.Attributes.style "background" "#ffcccc" ]
-                    [ Html.text error ]
-        ]
+                Just error ->
+                    Html.div
+                        [ Html.Attributes.style "background" "#ffcccc" ]
+                        [ Html.text error ]
+            ]

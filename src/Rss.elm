@@ -1,20 +1,16 @@
-module Rss exposing (Post, Rss, Title(..), getAlbum, lastCodec, titleToString, v1Codec)
+module Rss exposing (Post, Title(..), getAlbum, lastCodec, titleToString, v1Codec)
 
 import Serialize as Codec exposing (Codec)
 import String.Extra
 import Time
 
 
-type alias Rss =
-    List Post
-
-
-v1Codec : Codec () Rss
+v1Codec : Codec () (List Post)
 v1Codec =
     Codec.list v1PostCodec
 
 
-lastCodec : Codec () Rss
+lastCodec : Codec () (List Post)
 lastCodec =
     v1Codec
 

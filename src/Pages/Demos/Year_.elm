@@ -5,7 +5,7 @@ import Effect exposing (Effect)
 import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
-import Rss exposing (Rss)
+import Rss exposing (Post)
 import Shared
 import Time
 import View exposing (View)
@@ -68,8 +68,8 @@ subscriptions _ =
 -- VIEW
 
 
-view : { year : String } -> { a | rss : Rss } -> Model -> View Msg
-view { year } { rss } _ =
+view : { year : String } -> { a | posts : List Post } -> Model -> View Msg
+view { year } { posts } _ =
     { title = year ++ "'s demos"
     , body =
         List.filterMap
@@ -93,5 +93,5 @@ view { year } { rss } _ =
                     _ ->
                         Nothing
             )
-            rss
+            posts
     }
