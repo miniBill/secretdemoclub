@@ -2,6 +2,8 @@ module Pages.Demos.Year_ exposing (Model, Msg, page)
 
 import Auth
 import Effect exposing (Effect)
+import Html
+import Html.Attributes
 import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
@@ -72,26 +74,33 @@ view : { year : String } -> { a | posts : List Post } -> Model -> View Msg
 view { year } { posts } _ =
     { title = year ++ "'s demos"
     , body =
-        List.filterMap
-            (\post ->
-                case post.title of
-                    Rss.Demo number title ->
-                        let
-                            yearString =
-                                post.pubDate
-                                    |> Time.toYear
-                                        -- (Yes, I know UTC is wrong half of the year, shush, we're getting the Year and Orla doesn't post at midnight on new Year's eve)
-                                        Time.utc
-                                    |> String.fromInt
-                        in
-                        if yearString == year then
-                            Just (View.Demo.view number title post)
+        posts
+            |> List.filterMap
+                (\post ->
+                    case post.title of
+                        Rss.Demo number title ->
+                            let
+                                yearString =
+                                    post.pubDate
+                                        |> Time.toYear
+                                            -- (Yes, I know UTC is wrong half of the year, shush, we're getting the Year and Orla doesn't post at midnight on new Year's eve)
+                                            Time.utc
+                                        |> String.fromInt
+                            in
+                            if yearString == year then
+                                Just (View.Demo.view number title post)
 
-                        else
+                            else
+                                Nothing
+
+                        _ ->
                             Nothing
-
-                    _ ->
-                        Nothing
-            )
-            posts
+                )
+            |> Html.div
+                [ Html.Attributes.style "display" "flex"
+                , Html.Attributes.style "flex-wrap" "wrap"
+                , Html.Attributes.style "gap" "8px"
+                , Html.Attributes.style "align-items" "stretch"
+                ]
+            |> List.singleton
     }

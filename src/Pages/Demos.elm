@@ -2,6 +2,8 @@ module Pages.Demos exposing (Model, Msg, page)
 
 import Auth
 import Effect exposing (Effect)
+import Html
+import Html.Attributes
 import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
@@ -67,14 +69,21 @@ view : { a | posts : List Post } -> Model -> View Msg
 view { posts } _ =
     { title = "demos"
     , body =
-        List.filterMap
-            (\post ->
-                case post.title of
-                    Rss.Demo number title ->
-                        Just (View.Demo.view number title post)
+        posts
+            |> List.filterMap
+                (\post ->
+                    case post.title of
+                        Rss.Demo number title ->
+                            Just (View.Demo.view number title post)
 
-                    _ ->
-                        Nothing
-            )
-            posts
+                        _ ->
+                            Nothing
+                )
+            |> Html.div
+                [ Html.Attributes.style "display" "flex"
+                , Html.Attributes.style "flex-wrap" "wrap"
+                , Html.Attributes.style "gap" "8px"
+                , Html.Attributes.style "align-items" "stretch"
+                ]
+            |> List.singleton
     }

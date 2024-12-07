@@ -113,7 +113,22 @@ parseItem element =
                                     Ok acc
 
                                 "itunes:image" ->
-                                    Ok acc
+                                    case
+                                        List.Extra.findMap
+                                            (\{ name, value } ->
+                                                if name == "href" then
+                                                    Just value
+
+                                                else
+                                                    Nothing
+                                            )
+                                            eAttrs
+                                    of
+                                        Nothing ->
+                                            Err <| ExpectedAttributeNotFound { expected = "href", attributes = eAttrs }
+
+                                        Just image ->
+                                            Ok { acc | image = Just image }
 
                                 _ ->
                                     Err <| UnexpectedAttribute eName
@@ -124,6 +139,7 @@ parseItem element =
             (Ok
                 { title = Nothing
                 , link = Nothing
+                , image = Nothing
 
                 -- , description = Nothing
                 , mediaUrl = Nothing
@@ -159,11 +175,12 @@ parseItem element =
                         check ""
                 in
                 withPath subpath <|
-                    Result.map4
-                        (\title link mediaUrl pubDate ->
+                    Result.map5
+                        (\title image link mediaUrl pubDate ->
                             { title =
                                 Parser.run titleParser title
                                     |> Result.withDefault (Other title)
+                            , image = image
                             , originalTitle = title
                             , link = link
 
@@ -173,6 +190,7 @@ parseItem element =
                             }
                         )
                         (checkString "title" acc.title)
+                        (checkString "image" acc.image)
                         (checkString "link" acc.link)
                         -- (checkString "description" acc.description)
                         (checkString "enclosure.url" acc.mediaUrl)

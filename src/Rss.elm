@@ -17,6 +17,7 @@ lastCodec =
 
 type alias Post =
     { title : Title
+    , image : String
     , originalTitle : String
     , link : String
     , mediaUrl : String
@@ -32,8 +33,9 @@ v1PostCodec =
             "https://www.patreon.com/posts/"
     in
     Codec.record
-        (\title originalTitle link mediaUrl pubDate ->
+        (\title image originalTitle link mediaUrl pubDate ->
             { title = title
+            , image = image
             , originalTitle = originalTitle
             , link = postPrefix ++ link
             , mediaUrl = mediaUrl
@@ -41,6 +43,7 @@ v1PostCodec =
             }
         )
         |> Codec.field .title titleCodec
+        |> Codec.field .image Codec.string
         |> Codec.field .originalTitle Codec.string
         |> Codec.field (\{ link } -> String.dropLeft (String.length postPrefix) link) Codec.string
         |> Codec.field .mediaUrl Codec.string
