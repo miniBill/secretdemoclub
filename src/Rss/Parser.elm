@@ -221,7 +221,7 @@ demoParser =
                 |. Parser.token "March demo 'lifeline': lyrics & an amended mix!"
             , Parser.succeed ( Nothing, "ragdoll" )
                 |. Parser.token "your may demo is not ready (but here is another demo while you wait)"
-            , Parser.succeed ( Nothing, "too many feelings" )
+            , Parser.succeed ( Just 36, "too many feelings (preview)" )
                 |. Parser.token "preview: 'too many feelings' (jan demo)"
             , Parser.succeed ( Just 12, "lifeline (version 2)" )
                 |. Parser.token "demo no:12 'lifeline'"
@@ -229,6 +229,8 @@ demoParser =
                 |. Parser.token "a 2016 demo: 'party by myself'"
             , Parser.succeed ( Just 20, "cookie cutter love" )
                 |. Parser.token "another live demo: 'cookie cutter lover'"
+            , Parser.succeed ( Just 37, "for you" )
+                |. Parser.token "demo no (?) - 'for you"
             , Parser.succeed Tuple.pair
                 |. Parser.oneOf
                     [ Parser.token "another live"
@@ -248,6 +250,7 @@ demoParser =
                     ]
                 |. Parser.spaces
                 |. maybe (Parser.token "(!)")
+                |. maybe (Parser.token "(!!!!!!!)")
                 |. Parser.spaces
                 |. Parser.oneOf [ Parser.token ":", Parser.token "-" ]
                 |. Parser.spaces
