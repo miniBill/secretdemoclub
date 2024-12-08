@@ -33,3 +33,23 @@ img {
     max-width: 100%;
     height: auto;
 }
+
+a:visited {
+    color: blue;
+}
+
+/* Dark mode */
+@media screen and (prefers-color-scheme: dark) {
+    body {
+        background-color: black;
+        color: white;
+    }
+
+    a {
+        color: #4b81fe;
+    }
+
+    a:visited {
+        color: #4b81fe;
+    }
+}
