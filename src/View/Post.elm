@@ -3,6 +3,7 @@ module View.Post exposing (isMatch, view, viewList)
 import Date
 import Html exposing (Html)
 import Html.Attributes
+import Html.Keyed
 import Rss exposing (Post, Title(..))
 import Shared
 
@@ -215,8 +216,8 @@ isMatch needle post =
 viewList : Shared.Model -> List Post -> Html.Html msg
 viewList shared posts =
     posts
-        |> List.map (view shared)
-        |> Html.div
+        |> List.map (\post -> ( post.link, view shared post ))
+        |> Html.Keyed.node "div"
             [ Html.Attributes.style "display" "flex"
             , Html.Attributes.style "flex-wrap" "wrap"
             , Html.Attributes.style "gap" "8px"
