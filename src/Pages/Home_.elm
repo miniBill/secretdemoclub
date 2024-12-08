@@ -121,7 +121,7 @@ view shared model =
                 |> List.filterMap
                     (\post ->
                         if View.Post.isMatch model.search post then
-                            Just (View.Post.view { showKind = True } post)
+                            Just (View.Post.view shared { showKind = True } post)
 
                         else
                             Nothing

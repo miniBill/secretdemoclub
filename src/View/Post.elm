@@ -1,68 +1,87 @@
 module View.Post exposing (isMatch, view)
 
+import Date
 import Html exposing (Html)
 import Html.Attributes
 import Rss exposing (Post, Title(..))
+import Shared
 
 
-view : { showKind : Bool } -> Post -> Html msg
-view config post =
+view : Shared.Model -> { showKind : Bool } -> Post -> Html msg
+view shared config post =
     Html.div
         [ Html.Attributes.style "max-width" "300px"
         , Html.Attributes.style "display" "flex"
         , Html.Attributes.style "flex-direction" "column"
         , Html.Attributes.style "gap" "8px"
         ]
-        [ Html.div [ Html.Attributes.style "flex" "1" ]
+        [ Html.span
+            [ Html.Attributes.style "font-size" "1.4rem"
+            , Html.Attributes.style "font-weight" "semibold"
+            , Html.Attributes.style "text-align" "center"
+            , Html.Attributes.style "flex" "1"
+            ]
+            [ let
+                title : String
+                title =
+                    Rss.titleToString post.title
+              in
+              (if config.showKind || String.isEmpty title then
+                let
+                    number : String
+                    number =
+                        toNumber post
+                in
+                toKind post
+                    ++ (if String.isEmpty number then
+                            ""
+
+                        else
+                            " " ++ number
+                       )
+                    ++ (if String.isEmpty title then
+                            ""
+
+                        else
+                            " - " ++ title
+                       )
+
+               else
+                title
+              )
+                |> Html.text
+            ]
+        , Html.div
+            [ Html.Attributes.style "display" "flex"
+            ]
             [ Html.a
-                [ Html.Attributes.href post.link ]
-                [ Html.h2 []
-                    [ let
-                        title : String
-                        title =
-                            Rss.titleToString post.title
-                      in
-                      (if config.showKind || String.isEmpty title then
-                        let
-                            number : String
-                            number =
-                                toNumber post
-                        in
-                        toKind post
-                            ++ (if String.isEmpty number then
-                                    ""
-
-                                else
-                                    " " ++ number
-                               )
-                            ++ (if String.isEmpty title then
-                                    ""
-
-                                else
-                                    " - " ++ title
-                               )
-
-                       else
-                        title
-                      )
-                        |> Html.text
-                    ]
+                [ Html.Attributes.href post.link
+                , Html.Attributes.style "flex" "1"
                 ]
+                [ case shared.time of
+                    Nothing ->
+                        Html.text ""
+
+                    Just ( here, _ ) ->
+                        Date.fromPosix here post.pubDate
+                            |> Date.toIsoString
+                            |> Html.text
+                ]
+            , Html.a
+                [ Html.Attributes.href post.mediaUrl
+                ]
+                [ Html.text "Download" ]
             ]
         , Html.img
             [ Html.Attributes.src post.image
             , Html.Attributes.style "width" "100%"
             ]
             []
-        , Html.div []
-            [ Html.audio
-                [ Html.Attributes.controls True
-                , Html.Attributes.src post.mediaUrl
-                ]
-                []
-            , Html.br [] []
-            , Html.a [ Html.Attributes.href post.mediaUrl ] [ Html.text "Download" ]
+        , Html.audio
+            [ Html.Attributes.controls True
+            , Html.Attributes.src post.mediaUrl
             ]
+            []
         ]
 
 

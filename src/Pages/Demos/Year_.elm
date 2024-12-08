@@ -16,12 +16,12 @@ import View.Post
 
 
 page : Auth.User -> Shared.Model -> Route { year : String } -> Page Model Msg
-page { rss } _ route =
+page _ shared route =
     Page.new
         { init = init
         , update = update
         , subscriptions = subscriptions
-        , view = view route.params rss
+        , view = view route.params shared
         }
         |> Page.withLayout (\_ -> Layouts.Default {})
 
@@ -69,11 +69,11 @@ subscriptions _ =
 -- VIEW
 
 
-view : { year : String } -> { a | posts : List Post } -> Model -> View Msg
-view { year } { posts } model =
+view : { year : String } -> Shared.Model -> Model -> View Msg
+view { year } shared model =
     { title = year ++ "'s demos"
     , body =
-        posts
+        shared.rss.posts
             |> List.filterMap
                 (\post ->
                     case post.title of
@@ -87,7 +87,7 @@ view { year } { posts } model =
                                         |> String.fromInt
                             in
                             if yearString == year && View.Post.isMatch model.search post then
-                                Just (View.Post.view { showKind = False } post)
+                                Just (View.Post.view shared { showKind = False } post)
 
                             else
                                 Nothing

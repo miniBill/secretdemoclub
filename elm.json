@@ -20,6 +20,7 @@
             "elm/url": "1.0.0",
             "elmcraft/core-extra": "2.1.0",
             "folkertdev/elm-sha2": "1.0.0",
+            "justinmimbs/date": "4.1.0",
             "lydell/elm-app-url": "1.0.4",
             "miniBill/elm-xml-parser": "1.0.2"
         },
@@ -29,7 +30,6 @@
             "elm/file": "1.0.5",
             "elm/regex": "1.0.0",
             "elm/virtual-dom": "1.0.3",
-            "justinmimbs/date": "4.1.0",
             "justinmimbs/time-extra": "1.2.0",
             "lazamar/dict-parser": "1.0.2",
             "rtfeldman/elm-hex": "1.0.0",

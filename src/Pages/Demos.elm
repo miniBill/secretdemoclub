@@ -8,19 +8,19 @@ import Html.Events
 import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
-import Rss exposing (Post)
+import Rss
 import Shared
 import View exposing (View)
 import View.Post
 
 
 page : Auth.User -> Shared.Model -> Route () -> Page Model Msg
-page { rss } _ _ =
+page _ shared _ =
     Page.new
         { init = init
         , update = update
         , subscriptions = subscriptions
-        , view = view rss
+        , view = view shared
         }
         |> Page.withLayout (\_ -> Layouts.Default {})
 
@@ -68,17 +68,17 @@ subscriptions _ =
 -- VIEW
 
 
-view : { a | posts : List Post } -> Model -> View Msg
-view { posts } model =
+view : Shared.Model -> Model -> View Msg
+view shared model =
     { title = "demos"
     , body =
-        posts
+        shared.rss.posts
             |> List.filterMap
                 (\post ->
                     case post.title of
                         Rss.Demo _ _ ->
                             if View.Post.isMatch model.search post then
-                                Just (View.Post.view { showKind = False } post)
+                                Just (View.Post.view shared { showKind = False } post)
 
                             else
                                 Nothing

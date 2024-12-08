@@ -93,5 +93,7 @@ view { content } =
             ]
         , Html.div [ class "page" ] content.body
         ]
+            |> Html.div [ Html.Attributes.style "padding" "8px" ]
+            |> List.singleton
     , toolbar = []
     }
