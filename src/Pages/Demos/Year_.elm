@@ -73,7 +73,7 @@ view : { year : String } -> Shared.Model -> Model -> View Msg
 view { year } shared model =
     { title = year ++ "'s demos"
     , body =
-        shared.rss.posts
+        [ shared.rss.posts
             |> List.filterMap
                 (\post ->
                     case post.title of
@@ -87,7 +87,7 @@ view { year } shared model =
                                         |> String.fromInt
                             in
                             if yearString == year && View.Post.isMatch model.search post then
-                                Just (View.Post.view shared { showKind = False } post)
+                                Just post
 
                             else
                                 Nothing
@@ -95,13 +95,8 @@ view { year } shared model =
                         _ ->
                             Nothing
                 )
-            |> Html.div
-                [ Html.Attributes.style "display" "flex"
-                , Html.Attributes.style "flex-wrap" "wrap"
-                , Html.Attributes.style "gap" "8px"
-                , Html.Attributes.style "align-items" "stretch"
-                ]
-            |> List.singleton
+            |> View.Post.viewList shared { showKind = False }
+        ]
     , toolbar =
         [ Html.label []
             [ Html.text "Search "

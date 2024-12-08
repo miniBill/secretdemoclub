@@ -117,21 +117,16 @@ view shared model =
     else
         { title = ""
         , body =
-            shared.rss.posts
+            [ shared.rss.posts
                 |> List.filterMap
                     (\post ->
                         if View.Post.isMatch model.search post then
-                            Just (View.Post.view shared { showKind = True } post)
+                            Just post
 
                         else
                             Nothing
                     )
-                |> Html.div
-                    [ Html.Attributes.style "display" "flex"
-                    , Html.Attributes.style "flex-wrap" "wrap"
-                    , Html.Attributes.style "gap" "8px"
-                    , Html.Attributes.style "align-items" "stretch"
-                    ]
-                |> List.singleton
+                |> View.Post.viewList shared { showKind = True }
+            ]
         , toolbar = toolbar
         }
