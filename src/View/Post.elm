@@ -65,15 +65,27 @@ view play shared post =
             ]
         , Html.div
             [ Html.Attributes.style "position" "absolute"
-            , Html.Attributes.style "top" "0"
-            , Html.Attributes.style "left" "0"
-            , Html.Attributes.style "right" "0"
-            , Html.Attributes.style "bottom" "0"
+            , Html.Attributes.style "top" "32px"
+            , Html.Attributes.style "left" "32px"
+            , Html.Attributes.style "right" "32px"
+            , Html.Attributes.style "bottom" "32px"
             , Html.Attributes.style "border-radius" "9999px"
             , Html.Attributes.class "show-on-parent-hover"
             , Html.Attributes.style "background-color" "#0008"
             ]
-            []
+            [ Html.div
+                [ Html.Attributes.style "position" "absolute"
+                , Html.Attributes.style "top" "50%"
+                , Html.Attributes.style "left" "50%"
+                , Html.Attributes.style "transform" "translate(-50%,-50%)"
+                , Html.Attributes.style "width" "0"
+                , Html.Attributes.style "height" "0"
+                , Html.Attributes.style "border-top" "48px solid transparent"
+                , Html.Attributes.style "border-bottom" "48px solid transparent"
+                , Html.Attributes.style "border-left" "78px solid #fff4"
+                ]
+                []
+            ]
         , Html.div
             [ Html.Attributes.style "position" "absolute"
             , Html.Attributes.style "top" "50%"

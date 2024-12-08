@@ -1,3 +1,4 @@
+/* Reset */
 html {
     box-sizing: border-box;
     font-size: 16px;
@@ -34,10 +35,7 @@ img {
     height: auto;
 }
 
-a:visited {
-    color: blue;
-}
-
+/* Utils */
 .show-on-parent-hover {
     opacity: 0;
     transition: opacity 0.25s ease-in-out;
@@ -51,6 +49,11 @@ a:visited {
     .show-if-hover-none {
         opacity: 1;
     }
+}
+
+/* Colors */
+a:visited {
+    color: blue;
 }
 
 /* Dark mode */
