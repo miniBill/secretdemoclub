@@ -1,11 +1,11 @@
-module View.Demo exposing (view)
+module View.Demo exposing (isMatch, view)
 
 import Html exposing (Html)
 import Html.Attributes
-import Rss
+import Rss exposing (Post, Title(..))
 
 
-view : Maybe Float -> String -> Rss.Post -> Html msg
+view : Maybe Float -> String -> Post -> Html msg
 view number title post =
     Html.div
         [ Html.Attributes.style "max-width" "300px"
@@ -42,3 +42,40 @@ view number title post =
             , Html.a [ Html.Attributes.href post.mediaUrl ] [ Html.text "Download" ]
             ]
         ]
+
+
+isMatch : String -> Post -> Bool
+isMatch needle post =
+    String.isEmpty (String.trim needle)
+        || (let
+                haystack =
+                    case post.title of
+                        Demo _ title ->
+                            title
+
+                        VoiceMemo title ->
+                            title
+
+                        BonusDemo title ->
+                            title
+
+                        SongIdea title ->
+                            title
+
+                        Podcast _ title ->
+                            title
+
+                        AnIdeaADay _ title ->
+                            title
+
+                        FirstDraftFebruary _ title ->
+                            title
+
+                        AudioDiary _ title ->
+                            title
+
+                        Other title ->
+                            title
+            in
+            String.contains (String.toLower (String.trim needle)) (String.toLower (String.trim haystack))
+           )

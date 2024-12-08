@@ -23,7 +23,7 @@ type alias Msg =
 
 
 page : Shared.Model -> Route () -> Page Model Msg
-page shared route =
+page shared _ =
     Page.new
         { init = \_ -> ( {}, Effect.none )
         , view = view shared
@@ -81,4 +81,5 @@ view shared _ =
                         )
                     |> Html.ul []
         ]
+    , toolbar = []
     }

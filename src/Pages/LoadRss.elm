@@ -5,6 +5,7 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Http
+import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
 import Rss exposing (Post)
@@ -22,6 +23,7 @@ page shared _ =
         , subscriptions = subscriptions
         , view = view
         }
+        |> Page.withLayout (\_ -> Layouts.Default {})
 
 
 
@@ -135,6 +137,7 @@ view : Model -> View Msg
 view model =
     { title = "Load RSS feed"
     , body = [ viewPage model ]
+    , toolbar = []
     }
 
 

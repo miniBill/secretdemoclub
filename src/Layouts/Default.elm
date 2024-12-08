@@ -79,15 +79,19 @@ view { content } =
         [ Html.div
             [ Html.Attributes.style "display" "flex"
             ]
-            [ Html.a
-                [ Route.href
-                    { path = Route.Path.Home_
-                    , hash = Nothing
-                    , query = Dict.empty
-                    }
+            [ Html.div [ Html.Attributes.style "flex" "1" ]
+                [ Html.a
+                    [ Route.href
+                        { path = Route.Path.Home_
+                        , hash = Nothing
+                        , query = Dict.empty
+                        }
+                    ]
+                    [ Html.text "Secret Demo Club HQ" ]
                 ]
-                [ Html.text "Secret Demo Club HQ" ]
+            , Html.div [] content.toolbar
             ]
         , Html.div [ class "page" ] content.body
         ]
+    , toolbar = []
     }

@@ -4,6 +4,7 @@ import Auth
 import Effect exposing (Effect)
 import Html
 import Html.Attributes
+import Html.Events
 import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
@@ -29,12 +30,14 @@ page { rss } _ _ =
 
 
 type alias Model =
-    {}
+    { search : String }
 
 
 init : () -> ( Model, Effect Msg )
 init () =
-    ( {}, Effect.none )
+    ( { search = "" }
+    , Effect.none
+    )
 
 
 
@@ -42,14 +45,14 @@ init () =
 
 
 type Msg
-    = NoOp
+    = Search String
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        NoOp ->
-            ( model, Effect.none )
+        Search search ->
+            ( { model | search = search }, Effect.none )
 
 
 
@@ -66,7 +69,7 @@ subscriptions _ =
 
 
 view : { a | posts : List Post } -> Model -> View Msg
-view { posts } _ =
+view { posts } model =
     { title = "demos"
     , body =
         posts
@@ -74,7 +77,11 @@ view { posts } _ =
                 (\post ->
                     case post.title of
                         Rss.Demo number title ->
-                            Just (View.Demo.view number title post)
+                            if View.Demo.isMatch model.search post then
+                                Just (View.Demo.view number title post)
+
+                            else
+                                Nothing
 
                         _ ->
                             Nothing
@@ -86,4 +93,15 @@ view { posts } _ =
                 , Html.Attributes.style "align-items" "stretch"
                 ]
             |> List.singleton
+    , toolbar =
+        [ Html.label []
+            [ Html.text "Search "
+            , Html.input
+                [ Html.Attributes.type_ "search"
+                , Html.Attributes.value model.search
+                , Html.Events.onInput Search
+                ]
+                []
+            ]
+        ]
     }
