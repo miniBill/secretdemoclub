@@ -3,7 +3,7 @@ module Layouts.Default exposing (Model, Msg, Props, layout)
 import Dict
 import Effect exposing (Effect)
 import Html
-import Html.Attributes exposing (class)
+import Html.Attributes
 import Layout exposing (Layout)
 import Route exposing (Route)
 import Route.Path
