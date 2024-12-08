@@ -14,6 +14,7 @@ import Route.Path as Path
 import Shared
 import Time
 import View exposing (View)
+import View.Post
 
 
 type alias Model =
@@ -63,7 +64,7 @@ view shared model =
                 ]
             ]
     in
-    if String.isEmpty model.search then
+    if String.isEmpty model.search || List.isEmpty shared.rss.posts then
         { title = ""
         , body =
             [ Html.a
@@ -115,6 +116,22 @@ view shared model =
 
     else
         { title = ""
-        , body = []
+        , body =
+            shared.rss.posts
+                |> List.filterMap
+                    (\post ->
+                        if View.Post.isMatch model.search post then
+                            Just (View.Post.view { showKind = True } post)
+
+                        else
+                            Nothing
+                    )
+                |> Html.div
+                    [ Html.Attributes.style "display" "flex"
+                    , Html.Attributes.style "flex-wrap" "wrap"
+                    , Html.Attributes.style "gap" "8px"
+                    , Html.Attributes.style "align-items" "stretch"
+                    ]
+                |> List.singleton
         , toolbar = toolbar
         }
