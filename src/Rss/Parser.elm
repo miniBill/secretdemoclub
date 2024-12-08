@@ -236,7 +236,7 @@ demoParser =
             , Parser.succeed ( Just 20, "cookie cutter love" )
                 |. Parser.token "another live demo: 'cookie cutter lover'"
             , Parser.succeed ( Just 37, "for you" )
-                |. Parser.token "demo no (?) - 'for you"
+                |. Parser.token "demo no (?) - 'for you'"
             , Parser.succeed Tuple.pair
                 |. Parser.oneOf
                     [ Parser.token "another live"
