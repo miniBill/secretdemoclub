@@ -11,7 +11,7 @@ import Route exposing (Route)
 import Rss exposing (Post)
 import Shared
 import View exposing (View)
-import View.Demo
+import View.Post
 
 
 page : Auth.User -> Shared.Model -> Route () -> Page Model Msg
@@ -76,9 +76,9 @@ view { posts } model =
             |> List.filterMap
                 (\post ->
                     case post.title of
-                        Rss.Demo number title ->
-                            if View.Demo.isMatch model.search post then
-                                Just (View.Demo.view number title post)
+                        Rss.Demo _ _ ->
+                            if View.Post.isMatch model.search post then
+                                Just (View.Post.view { showKind = False } post)
 
                             else
                                 Nothing

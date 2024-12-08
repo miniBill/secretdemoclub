@@ -2,7 +2,9 @@ module Pages.Home_ exposing (Model, Msg, page)
 
 import Dict
 import Effect
-import Html
+import Html exposing (Html)
+import Html.Attributes
+import Html.Events
 import Layouts
 import List.Extra
 import Maybe.Extra
@@ -15,71 +17,104 @@ import View exposing (View)
 
 
 type alias Model =
-    {}
+    { search : String }
 
 
-type alias Msg =
-    {}
+type Msg
+    = Search String
 
 
 page : Shared.Model -> Route () -> Page Model Msg
 page shared _ =
     Page.new
-        { init = \_ -> ( {}, Effect.none )
+        { init = init
         , view = view shared
-        , update = \_ model -> ( model, Effect.none )
+        , update = update
         , subscriptions = \_ -> Sub.none
         }
         |> Page.withLayout (\_ -> Layouts.Default {})
 
 
-view : Shared.Model -> model -> View msg
-view shared _ =
-    { title = ""
-    , body =
-        [ Html.a
-            [ Route.href
-                { path = Path.Demos
-                , query = Dict.empty
-                , hash = Nothing
-                }
+init : () -> ( Model, Effect.Effect Msg )
+init _ =
+    ( { search = "" }, Effect.none )
+
+
+update : Msg -> Model -> ( Model, Effect.Effect Msg )
+update msg model =
+    case msg of
+        Search search ->
+            ( { model | search = search }, Effect.none )
+
+
+view : Shared.Model -> Model -> View Msg
+view shared model =
+    let
+        toolbar : List (Html Msg)
+        toolbar =
+            [ Html.label []
+                [ Html.text "Search "
+                , Html.input
+                    [ Html.Attributes.type_ "search"
+                    , Html.Attributes.value model.search
+                    , Html.Events.onInput Search
+                    ]
+                    []
+                ]
             ]
-            [ Html.text "Demos" ]
-        , let
-            lastPosted =
-                shared.rss.posts
-                    |> List.Extra.last
-                    |> Maybe.map .pubDate
-                    |> Maybe.Extra.orElseLazy (\_ -> Maybe.map Tuple.second shared.time)
+    in
+    if String.isEmpty model.search then
+        { title = ""
+        , body =
+            [ Html.a
+                [ Route.href
+                    { path = Path.Demos
+                    , query = Dict.empty
+                    , hash = Nothing
+                    }
+                ]
+                [ Html.text "Demos" ]
+            , let
+                lastPosted =
+                    shared.rss.posts
+                        |> List.Extra.last
+                        |> Maybe.map .pubDate
+                        |> Maybe.Extra.orElseLazy (\_ -> Maybe.map Tuple.second shared.time)
 
-            here =
-                shared.time
-                    |> Maybe.map Tuple.first
-                    |> Maybe.withDefault Time.utc
+                here =
+                    shared.time
+                        |> Maybe.map Tuple.first
+                        |> Maybe.withDefault Time.utc
 
-            maybeLastYear =
-                Maybe.map (Time.toYear here) lastPosted
-          in
-          case maybeLastYear of
-            Nothing ->
-                Html.text ""
+                maybeLastYear =
+                    Maybe.map (Time.toYear here) lastPosted
+              in
+              case maybeLastYear of
+                Nothing ->
+                    Html.text ""
 
-            Just lastYear ->
-                List.range 2015 lastYear
-                    |> List.map
-                        (\year ->
-                            Html.li []
-                                [ Html.a
-                                    [ Route.href
-                                        { path = Path.Demos_Year_ { year = String.fromInt year }
-                                        , query = Dict.empty
-                                        , hash = Nothing
-                                        }
+                Just lastYear ->
+                    List.range 2015 lastYear
+                        |> List.map
+                            (\year ->
+                                Html.li []
+                                    [ Html.a
+                                        [ Route.href
+                                            { path = Path.Demos_Year_ { year = String.fromInt year }
+                                            , query = Dict.empty
+                                            , hash = Nothing
+                                            }
+                                        ]
+                                        [ Html.text (String.fromInt year) ]
                                     ]
-                                    [ Html.text (String.fromInt year) ]
-                                ]
-                        )
-                    |> Html.ul []
-        ]
-    , toolbar = []
-    }
+                            )
+                        |> Html.ul []
+            ]
+        , toolbar = toolbar
+        }
+
+    else
+        { title = ""
+        , body = []
+        , toolbar = toolbar
+        }

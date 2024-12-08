@@ -161,27 +161,14 @@ titleToString title =
         Podcast _ podcastTitle ->
             firstUpperWithQuotes podcastTitle
 
-        AnIdeaADay number ideaTitle ->
-            if String.isEmpty ideaTitle then
-                case number of
-                    Ok n ->
-                        "An idea a day - Day " ++ String.fromInt n
-
-                    Err day ->
-                        "An idea a day - " ++ firstUpperWithQuotes day
-
-            else
-                firstUpperWithQuotes ideaTitle
+        AnIdeaADay _ ideaTitle ->
+            firstUpperWithQuotes ideaTitle
 
         FirstDraftFebruary _ draftTitle ->
             firstUpperWithQuotes draftTitle
 
-        AudioDiary date diaryTitle ->
-            if String.isEmpty diaryTitle then
-                "Audio diary - " ++ Maybe.withDefault "" date
-
-            else
-                firstUpperWithQuotes diaryTitle
+        AudioDiary _ diaryTitle ->
+            firstUpperWithQuotes diaryTitle
 
         Other otherTitle ->
             firstUpperWithQuotes otherTitle

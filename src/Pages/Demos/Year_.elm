@@ -12,7 +12,7 @@ import Rss exposing (Post)
 import Shared
 import Time
 import View exposing (View)
-import View.Demo
+import View.Post
 
 
 page : Auth.User -> Shared.Model -> Route { year : String } -> Page Model Msg
@@ -77,7 +77,7 @@ view { year } { posts } model =
             |> List.filterMap
                 (\post ->
                     case post.title of
-                        Rss.Demo number title ->
+                        Rss.Demo _ _ ->
                             let
                                 yearString =
                                     post.pubDate
@@ -86,8 +86,8 @@ view { year } { posts } model =
                                             Time.utc
                                         |> String.fromInt
                             in
-                            if yearString == year && View.Demo.isMatch model.search post then
-                                Just (View.Demo.view number title post)
+                            if yearString == year && View.Post.isMatch model.search post then
+                                Just (View.Post.view { showKind = False } post)
 
                             else
                                 Nothing
