@@ -8,6 +8,18 @@ import Rss exposing (Post, Title(..))
 import Shared
 
 
+viewList : Shared.Model -> List Post -> Html.Html msg
+viewList shared posts =
+    posts
+        |> List.map (\post -> ( post.link, view shared post ))
+        |> Html.Keyed.node "div"
+            [ Html.Attributes.style "display" "flex"
+            , Html.Attributes.style "flex-wrap" "wrap"
+            , Html.Attributes.style "gap" "8px"
+            , Html.Attributes.style "align-items" "stretch"
+            ]
+
+
 view : Shared.Model -> Post -> Html msg
 view shared post =
     Html.div
@@ -211,15 +223,3 @@ isMatch needle post =
             in
             String.contains (String.toLower (String.trim needle)) (String.toLower (String.trim haystack))
            )
-
-
-viewList : Shared.Model -> List Post -> Html.Html msg
-viewList shared posts =
-    posts
-        |> List.map (\post -> ( post.link, view shared post ))
-        |> Html.Keyed.node "div"
-            [ Html.Attributes.style "display" "flex"
-            , Html.Attributes.style "flex-wrap" "wrap"
-            , Html.Attributes.style "gap" "8px"
-            , Html.Attributes.style "align-items" "stretch"
-            ]
