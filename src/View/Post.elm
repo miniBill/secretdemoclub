@@ -63,44 +63,35 @@ view shared post =
                 ]
                 [ Html.text (Rss.titleToString post.title)
                 ]
-            , Html.div
+            , Html.a
                 [ Html.Attributes.style "position" "absolute"
                 , Html.Attributes.style "bottom" "0"
                 , Html.Attributes.style "left" "0"
                 , Html.Attributes.style "padding" "8px"
-                , Html.Attributes.style "width" "100%"
-                , Html.Attributes.style "display" "flex"
-                ]
-                [ Html.a
-                    [ Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
-                    , Html.Attributes.href post.link
-                    , Html.Attributes.style "flex" "1"
-                    ]
-                    [ case shared.time of
-                        Nothing ->
-                            Html.text ""
-
-                        Just ( here, _ ) ->
-                            Date.fromPosix here post.pubDate
-                                |> Date.toIsoString
-                                |> Html.text
-                    ]
-                , Html.a
-                    [ Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
-                    , Html.Attributes.href post.mediaUrl
-                    ]
-                    [ Html.text "Download" ]
-                ]
-            , Html.audio
-                [ Html.Attributes.style "position" "absolute"
-                , Html.Attributes.style "bottom" "24px"
-                , Html.Attributes.style "left" "50%"
-                , Html.Attributes.style "transform" "translate(-50%,-50%)"
+                , Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
                 , Html.Attributes.class "show-on-parent-hover"
-                , Html.Attributes.controls True
-                , Html.Attributes.src post.mediaUrl
+                , Html.Attributes.href post.link
+                , Html.Attributes.style "flex" "1"
                 ]
-                []
+                [ case shared.time of
+                    Nothing ->
+                        Html.text ""
+
+                    Just ( here, _ ) ->
+                        Date.fromPosix here post.pubDate
+                            |> Date.toIsoString
+                            |> Html.text
+                ]
+            , Html.a
+                [ Html.Attributes.style "position" "absolute"
+                , Html.Attributes.style "bottom" "0"
+                , Html.Attributes.style "right" "0"
+                , Html.Attributes.style "padding" "8px"
+                , Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
+                , Html.Attributes.class "show-on-parent-hover"
+                , Html.Attributes.href post.mediaUrl
+                ]
+                [ Html.text "Download" ]
             , Html.img
                 [ Html.Attributes.src post.image
                 , Html.Attributes.style "width" "100%"

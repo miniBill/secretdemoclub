@@ -19,4 +19,5 @@ type alias Model =
         , posts : List Post
         }
     , time : Maybe ( Time.Zone, Time.Posix )
+    , playing : Maybe String
     }

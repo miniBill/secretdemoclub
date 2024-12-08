@@ -8,7 +8,7 @@ import Html.Events
 import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
-import Rss exposing (Post)
+import Rss
 import Shared
 import Time
 import View exposing (View)

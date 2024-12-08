@@ -82,6 +82,7 @@ init flagsResult _ =
                 Ok flags ->
                     { rss = flags.rss
                     , time = Nothing
+                    , playing = Nothing
                     }
 
                 Err e ->
@@ -94,6 +95,7 @@ init flagsResult _ =
                         , posts = []
                         }
                     , time = Nothing
+                    , playing = Nothing
                     }
     in
     ( model, Effect.hereAndNow Shared.Msg.HereAndNow )
