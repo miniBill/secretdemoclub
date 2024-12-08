@@ -23,6 +23,7 @@ type alias Model =
 
 type Msg
     = Search String
+    | Play String
 
 
 page : Shared.Model -> Route () -> Page Model Msg
@@ -46,6 +47,9 @@ update msg model =
     case msg of
         Search search ->
             ( { model | search = search }, Effect.none )
+
+        Play url ->
+            ( model, Effect.play url )
 
 
 view : Shared.Model -> Model -> View Msg
@@ -126,7 +130,7 @@ view shared model =
                         else
                             Nothing
                     )
-                |> View.Post.viewList shared
+                |> View.Post.viewList Play shared
             ]
         , toolbar = toolbar
         }

@@ -127,6 +127,9 @@ update route msg model =
         Shared.Msg.HereAndNow here now ->
             ( { model | time = Just ( here, now ) }, Effect.none )
 
+        Shared.Msg.Play url ->
+            ( { model | playing = Just url }, Effect.none )
+
 
 
 -- SUBSCRIPTIONS

@@ -47,6 +47,7 @@ init () =
 
 type Msg
     = Search String
+    | Play String
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -54,6 +55,9 @@ update msg model =
     case msg of
         Search search ->
             ( { model | search = search }, Effect.none )
+
+        Play url ->
+            ( model, Effect.play url )
 
 
 
@@ -95,7 +99,7 @@ view { year } shared model =
                         _ ->
                             Nothing
                 )
-            |> View.Post.viewList shared
+            |> View.Post.viewList Play shared
         ]
     , toolbar =
         [ Html.label []

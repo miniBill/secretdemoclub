@@ -3,15 +3,16 @@ module View.Post exposing (isMatch, view, viewList)
 import Date
 import Html exposing (Html)
 import Html.Attributes
+import Html.Events
 import Html.Keyed
 import Rss exposing (Post, Title(..))
 import Shared
 
 
-viewList : Shared.Model -> List Post -> Html.Html msg
-viewList shared posts =
+viewList : (String -> msg) -> Shared.Model -> List Post -> Html.Html msg
+viewList play shared posts =
     posts
-        |> List.map (\post -> ( post.link, view shared post ))
+        |> List.map (\post -> ( post.link, view play shared post ))
         |> Html.Keyed.node "div"
             [ Html.Attributes.style "display" "flex"
             , Html.Attributes.style "flex-wrap" "wrap"
@@ -20,97 +21,105 @@ viewList shared posts =
             ]
 
 
-view : Shared.Model -> Post -> Html msg
-view shared post =
+view : (String -> msg) -> Shared.Model -> Post -> Html msg
+view play shared post =
     Html.div
         [ Html.Attributes.style "max-width" "300px"
         , Html.Attributes.style "display" "flex"
         , Html.Attributes.style "flex-direction" "column"
         , Html.Attributes.style "gap" "8px"
+        , Html.Attributes.style "position" "relative"
+        , Html.Attributes.style "color" "white"
+        , Html.Events.onClick (play post.mediaUrl)
         ]
         [ Html.div
-            [ Html.Attributes.style "position" "relative"
-            , Html.Attributes.style "color" "white"
+            [ Html.Attributes.style "position" "absolute"
+            , Html.Attributes.style "top" "0"
+            , Html.Attributes.style "left" "0"
+            , Html.Attributes.style "bottom" "0"
+            , Html.Attributes.style "right" "0"
+            , Html.Attributes.style "background-color" "#0008"
             ]
-            [ Html.div
-                [ Html.Attributes.style "position" "absolute"
-                , Html.Attributes.style "top" "0"
-                , Html.Attributes.style "left" "0"
-                , Html.Attributes.style "bottom" "0"
-                , Html.Attributes.style "right" "0"
-                , Html.Attributes.style "background-color" "#0008"
-                ]
-                []
-            , Html.div
-                [ Html.Attributes.style "position" "absolute"
-                , Html.Attributes.style "top" "0"
-                , Html.Attributes.style "left" "0"
-                , Html.Attributes.style "padding" "8px 8px 24px 8px"
-                , Html.Attributes.style "width" "100%"
-                , Html.Attributes.style "font-size" "1.2rem"
-                , Html.Attributes.style "font-weight" "semibold"
-                , Html.Attributes.style "text-align" "center"
-                , Html.Attributes.style "flex" "1"
-                ]
-                [ let
-                    number : String
-                    number =
-                        toNumber post
-                  in
-                  if String.isEmpty number then
-                    Html.text (toKind post)
-
-                  else
-                    Html.text (toKind post ++ " " ++ number)
-                ]
-            , Html.div
-                [ Html.Attributes.style "position" "absolute"
-                , Html.Attributes.style "top" "50%"
-                , Html.Attributes.style "left" "50%"
-                , Html.Attributes.style "transform" "translate(-50%,-50%)"
-                , Html.Attributes.style "padding" "8px"
-                , Html.Attributes.style "width" "100%"
-                , Html.Attributes.style "font-size" "2rem"
-                , Html.Attributes.style "font-weight" "semibold"
-                , Html.Attributes.style "text-align" "center"
-                ]
-                [ Html.text (Rss.titleToString post.title)
-                ]
-            , Html.a
-                [ Html.Attributes.style "position" "absolute"
-                , Html.Attributes.style "bottom" "0"
-                , Html.Attributes.style "left" "0"
-                , Html.Attributes.style "padding" "8px"
-                , Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
-                , Html.Attributes.class "show-on-parent-hover"
-                , Html.Attributes.href post.link
-                , Html.Attributes.style "flex" "1"
-                ]
-                [ case shared.time of
-                    Nothing ->
-                        Html.text ""
-
-                    Just ( here, _ ) ->
-                        Date.fromPosix here post.pubDate
-                            |> Date.toIsoString
-                            |> Html.text
-                ]
-            , Html.a
-                [ Html.Attributes.style "position" "absolute"
-                , Html.Attributes.style "bottom" "0"
-                , Html.Attributes.style "right" "0"
-                , Html.Attributes.style "padding" "8px"
-                , Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
-                , Html.Attributes.class "show-on-parent-hover"
-                , Html.Attributes.href post.mediaUrl
-                ]
-                [ Html.text "Download" ]
-            , Html.img
-                [ Html.Attributes.src post.image
-                , Html.Attributes.style "width" "100%"
-                ]
-                []
+            []
+        , Html.div
+            [ Html.Attributes.style "position" "absolute"
+            , Html.Attributes.style "top" "0"
+            , Html.Attributes.style "left" "0"
+            , Html.Attributes.style "padding" "8px 8px 24px 8px"
+            , Html.Attributes.style "width" "100%"
+            , Html.Attributes.style "font-size" "1.2rem"
+            , Html.Attributes.style "font-weight" "semibold"
+            , Html.Attributes.style "text-align" "center"
+            , Html.Attributes.style "flex" "1"
             ]
+            [ let
+                number : String
+                number =
+                    toNumber post
+              in
+              if String.isEmpty number then
+                Html.text (toKind post)
+
+              else
+                Html.text (toKind post ++ " " ++ number)
+            ]
+        , Html.div
+            [ Html.Attributes.style "position" "absolute"
+            , Html.Attributes.style "top" "0"
+            , Html.Attributes.style "left" "0"
+            , Html.Attributes.style "right" "0"
+            , Html.Attributes.style "top" "0"
+            , Html.Attributes.style "border-radius" "9999px"
+            , Html.Attributes.style "background-color" "black"
+            ]
+            []
+        , Html.div
+            [ Html.Attributes.style "position" "absolute"
+            , Html.Attributes.style "top" "50%"
+            , Html.Attributes.style "left" "50%"
+            , Html.Attributes.style "transform" "translate(-50%,-50%)"
+            , Html.Attributes.style "padding" "8px"
+            , Html.Attributes.style "width" "100%"
+            , Html.Attributes.style "font-size" "2rem"
+            , Html.Attributes.style "font-weight" "semibold"
+            , Html.Attributes.style "text-align" "center"
+            ]
+            [ Html.text (Rss.titleToString post.title)
+            ]
+        , Html.a
+            [ Html.Attributes.style "position" "absolute"
+            , Html.Attributes.style "bottom" "0"
+            , Html.Attributes.style "left" "0"
+            , Html.Attributes.style "padding" "8px"
+            , Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
+            , Html.Attributes.class "show-on-parent-hover"
+            , Html.Attributes.href post.link
+            , Html.Attributes.style "flex" "1"
+            ]
+            [ case shared.time of
+                Nothing ->
+                    Html.text ""
+
+                Just ( here, _ ) ->
+                    Date.fromPosix here post.pubDate
+                        |> Date.toIsoString
+                        |> Html.text
+            ]
+        , Html.a
+            [ Html.Attributes.style "position" "absolute"
+            , Html.Attributes.style "bottom" "0"
+            , Html.Attributes.style "right" "0"
+            , Html.Attributes.style "padding" "8px"
+            , Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
+            , Html.Attributes.class "show-on-parent-hover"
+            , Html.Attributes.href post.mediaUrl
+            ]
+            [ Html.text "Download" ]
+        , Html.img
+            [ Html.Attributes.src post.image
+            , Html.Attributes.style "width" "100%"
+            ]
+            []
         ]
 
 

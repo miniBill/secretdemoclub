@@ -7,7 +7,7 @@ port module Effect exposing
     , loadExternalUrl, back
     , loadedRss, saveRss
     , map, toCmd
-    , hereAndNow
+    , hereAndNow, play
     )
 
 {-|
@@ -108,6 +108,11 @@ saveRss data =
 hereAndNow : (Time.Zone -> Time.Posix -> Shared.Msg.Msg) -> Effect msg
 hereAndNow toMsg =
     Unmapped (HereAndNow toMsg)
+
+
+play : String -> Effect msg
+play url =
+    SendSharedMsg (Shared.Msg.Play url)
 
 
 
