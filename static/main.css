@@ -48,7 +48,7 @@ a:visited {
 }
 
 @media (hover: none) {
-    .show-on-parent-hover {
+    .show-if-hover-none {
         opacity: 1;
     }
 }

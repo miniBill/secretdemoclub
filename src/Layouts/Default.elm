@@ -80,6 +80,13 @@ view shared { content } =
     , body =
         [ [ Html.div
                 [ Html.Attributes.style "display" "flex"
+                , Html.Attributes.style "position" "sticky"
+                , Html.Attributes.style "top" "0"
+                , Html.Attributes.style "left" "0"
+                , Html.Attributes.style "right" "0"
+                , Html.Attributes.style "z-index" "1"
+                , Html.Attributes.style "background-color" "black"
+                , Html.Attributes.style "padding" "8px"
                 ]
                 [ Html.div [ Html.Attributes.style "flex" "1" ]
                     [ Html.a
@@ -93,11 +100,19 @@ view shared { content } =
                     ]
                 , Html.div [] content.toolbar
                 ]
-          , Html.div [ class "page" ] content.body
+          , Html.div [ Html.Attributes.style "padding" "0 8px" ] content.body
           , case shared.playing of
                 Just url ->
                     Html.audio
-                        [ Html.Attributes.style "width" "100%"
+                        [ Html.Attributes.style "position" "sticky"
+                        , Html.Attributes.style "bottom" "0"
+                        , Html.Attributes.style "left" "0"
+                        , Html.Attributes.style "right" "0"
+                        , Html.Attributes.style "z-index" "1"
+                        , Html.Attributes.style "background-color" "black"
+                        , Html.Attributes.style "padding" "8px"
+
+                        --
                         , Html.Attributes.controls True
                         , Html.Attributes.autoplay True
                         , Html.Attributes.src url
@@ -108,8 +123,7 @@ view shared { content } =
                     Html.text ""
           ]
             |> Html.div
-                [ Html.Attributes.style "padding" "8px"
-                , Html.Attributes.style "gap" "8px"
+                [ Html.Attributes.style "gap" "8px"
                 , Html.Attributes.style "display" "flex"
                 , Html.Attributes.style "flex-direction" "column"
                 ]
