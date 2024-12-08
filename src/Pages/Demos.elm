@@ -86,7 +86,7 @@ view shared model =
                         _ ->
                             Nothing
                 )
-            |> View.Post.viewList shared { showKind = False }
+            |> View.Post.viewList shared
         ]
     , toolbar =
         [ Html.label []

@@ -126,7 +126,7 @@ view shared model =
                         else
                             Nothing
                     )
-                |> View.Post.viewList shared { showKind = True }
+                |> View.Post.viewList shared
             ]
         , toolbar = toolbar
         }

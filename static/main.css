@@ -38,6 +38,21 @@ a:visited {
     color: blue;
 }
 
+.show-on-parent-hover {
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+}
+
+*:hover > .show-on-parent-hover {
+    opacity: 1;
+}
+
+@media (hover: none) {
+    .show-on-parent-hover {
+        opacity: 1;
+    }
+}
+
 /* Dark mode */
 @media screen and (prefers-color-scheme: dark) {
     body {
@@ -46,10 +61,10 @@ a:visited {
     }
 
     a {
-        color: #4b81fe;
+        color: oklch(70.71% 0.1512 264.05300810418345);
     }
 
     a:visited {
-        color: #4b81fe;
+        color: oklch(70.71% 0.1512 264.05300810418345);
     }
 }

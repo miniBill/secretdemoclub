@@ -93,7 +93,12 @@ view { content } =
             ]
         , Html.div [ class "page" ] content.body
         ]
-            |> Html.div [ Html.Attributes.style "padding" "8px" ]
+            |> Html.div
+                [ Html.Attributes.style "padding" "8px"
+                , Html.Attributes.style "gap" "8px"
+                , Html.Attributes.style "display" "flex"
+                , Html.Attributes.style "flex-direction" "column"
+                ]
             |> List.singleton
     , toolbar = []
     }

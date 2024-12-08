@@ -7,81 +7,106 @@ import Rss exposing (Post, Title(..))
 import Shared
 
 
-view : Shared.Model -> { showKind : Bool } -> Post -> Html msg
-view shared config post =
+view : Shared.Model -> Post -> Html msg
+view shared post =
     Html.div
         [ Html.Attributes.style "max-width" "300px"
         , Html.Attributes.style "display" "flex"
         , Html.Attributes.style "flex-direction" "column"
         , Html.Attributes.style "gap" "8px"
         ]
-        [ Html.span
-            [ Html.Attributes.style "font-size" "1.4rem"
-            , Html.Attributes.style "font-weight" "semibold"
-            , Html.Attributes.style "text-align" "center"
-            , Html.Attributes.style "flex" "1"
+        [ Html.div
+            [ Html.Attributes.style "position" "relative"
+            , Html.Attributes.style "color" "white"
             ]
-            [ let
-                title : String
-                title =
-                    Rss.titleToString post.title
-              in
-              (if config.showKind || String.isEmpty title then
-                let
+            [ Html.div
+                [ Html.Attributes.style "position" "absolute"
+                , Html.Attributes.style "top" "0"
+                , Html.Attributes.style "left" "0"
+                , Html.Attributes.style "bottom" "0"
+                , Html.Attributes.style "right" "0"
+                , Html.Attributes.style "background-color" "#0008"
+                ]
+                []
+            , Html.div
+                [ Html.Attributes.style "position" "absolute"
+                , Html.Attributes.style "top" "0"
+                , Html.Attributes.style "left" "0"
+                , Html.Attributes.style "padding" "8px 8px 24px 8px"
+                , Html.Attributes.style "width" "100%"
+                , Html.Attributes.style "font-size" "1.2rem"
+                , Html.Attributes.style "font-weight" "semibold"
+                , Html.Attributes.style "text-align" "center"
+                , Html.Attributes.style "flex" "1"
+                ]
+                [ let
                     number : String
                     number =
                         toNumber post
-                in
-                toKind post
-                    ++ (if String.isEmpty number then
-                            ""
+                  in
+                  if String.isEmpty number then
+                    Html.text (toKind post)
 
-                        else
-                            " " ++ number
-                       )
-                    ++ (if String.isEmpty title then
-                            ""
-
-                        else
-                            " - " ++ title
-                       )
-
-               else
-                title
-              )
-                |> Html.text
-            ]
-        , Html.div
-            [ Html.Attributes.style "display" "flex"
-            ]
-            [ Html.a
-                [ Html.Attributes.href post.link
-                , Html.Attributes.style "flex" "1"
+                  else
+                    Html.text (toKind post ++ " " ++ number)
                 ]
-                [ case shared.time of
-                    Nothing ->
-                        Html.text ""
+            , Html.div
+                [ Html.Attributes.style "position" "absolute"
+                , Html.Attributes.style "top" "50%"
+                , Html.Attributes.style "left" "50%"
+                , Html.Attributes.style "transform" "translate(-50%,-50%)"
+                , Html.Attributes.style "padding" "8px"
+                , Html.Attributes.style "width" "100%"
+                , Html.Attributes.style "font-size" "2rem"
+                , Html.Attributes.style "font-weight" "semibold"
+                , Html.Attributes.style "text-align" "center"
+                ]
+                [ Html.text (Rss.titleToString post.title)
+                ]
+            , Html.div
+                [ Html.Attributes.style "position" "absolute"
+                , Html.Attributes.style "bottom" "0"
+                , Html.Attributes.style "left" "0"
+                , Html.Attributes.style "padding" "8px"
+                , Html.Attributes.style "width" "100%"
+                , Html.Attributes.style "display" "flex"
+                ]
+                [ Html.a
+                    [ Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
+                    , Html.Attributes.href post.link
+                    , Html.Attributes.style "flex" "1"
+                    ]
+                    [ case shared.time of
+                        Nothing ->
+                            Html.text ""
 
-                    Just ( here, _ ) ->
-                        Date.fromPosix here post.pubDate
-                            |> Date.toIsoString
-                            |> Html.text
+                        Just ( here, _ ) ->
+                            Date.fromPosix here post.pubDate
+                                |> Date.toIsoString
+                                |> Html.text
+                    ]
+                , Html.a
+                    [ Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
+                    , Html.Attributes.href post.mediaUrl
+                    ]
+                    [ Html.text "Download" ]
                 ]
-            , Html.a
-                [ Html.Attributes.href post.mediaUrl
+            , Html.audio
+                [ Html.Attributes.style "position" "absolute"
+                , Html.Attributes.style "bottom" "24px"
+                , Html.Attributes.style "left" "50%"
+                , Html.Attributes.style "transform" "translate(-50%,-50%)"
+                , Html.Attributes.class "show-on-parent-hover"
+                , Html.Attributes.controls True
+                , Html.Attributes.src post.mediaUrl
                 ]
-                [ Html.text "Download" ]
+                []
+            , Html.img
+                [ Html.Attributes.src post.image
+                , Html.Attributes.style "width" "100%"
+                ]
+                []
             ]
-        , Html.img
-            [ Html.Attributes.src post.image
-            , Html.Attributes.style "width" "100%"
-            ]
-            []
-        , Html.audio
-            [ Html.Attributes.controls True
-            , Html.Attributes.src post.mediaUrl
-            ]
-            []
         ]
 
 
@@ -196,10 +221,10 @@ isMatch needle post =
            )
 
 
-viewList : Shared.Model -> { showKind : Bool } -> List Post -> Html.Html msg
-viewList shared config posts =
+viewList : Shared.Model -> List Post -> Html.Html msg
+viewList shared posts =
     posts
-        |> List.map (view shared config)
+        |> List.map (view shared)
         |> Html.div
             [ Html.Attributes.style "display" "flex"
             , Html.Attributes.style "flex-wrap" "wrap"
