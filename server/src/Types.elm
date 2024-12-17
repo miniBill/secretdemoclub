@@ -13,8 +13,6 @@ type alias FrontendModel =
 type InnerModel
     = Initial
     | WithCode String
-    | CouldNotGetToken
-    | WithToken TokenData
     | CouldNotGetIdentity
     | WithIdentity String
 
@@ -29,8 +27,7 @@ type alias BackendModel =
 
 
 type BackendMsg
-    = GotToken ClientId (Result Http.Error TokenData)
-    | GotIdentity ClientId (Result Http.Error String)
+    = GotIdentity ClientId (Result Http.Error String)
 
 
 type alias TokenData =
@@ -42,10 +39,8 @@ type alias TokenData =
 
 
 type ToBackend
-    = GetTokenRequest { code : String }
-    | GetIdentityRequest TokenData
+    = GetIdentityRequest { code : String }
 
 
 type ToFrontend
-    = GetTokenResponse (Result () TokenData)
-    | GetIdentityResponse (Result () String)
+    = GetIdentityResponse (Result () String)

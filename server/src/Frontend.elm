@@ -47,7 +47,7 @@ init url key =
               , inner = WithCode code
               }
             , Cmd.batch
-                [ Lamdera.sendToBackend (GetTokenRequest { code = code })
+                [ Lamdera.sendToBackend (GetIdentityRequest { code = code })
                 , Browser.Navigation.replaceUrl key "/"
                 ]
             )
@@ -78,15 +78,6 @@ view model =
 
                     WithCode code ->
                         [ Html.text ("Code: " ++ code) ]
-
-                    CouldNotGetToken ->
-                        [ Html.text "Could not get token."
-                        , Html.br [] []
-                        , loginLink
-                        ]
-
-                    WithToken token ->
-                        [ Html.text ("Token: " ++ token.accessToken) ]
 
                     CouldNotGetIdentity ->
                         [ Html.text "Could not get identity."
@@ -122,14 +113,6 @@ loginLink =
 updateFromBackend : ToFrontend -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 updateFromBackend msg model =
     case msg of
-        GetTokenResponse (Err ()) ->
-            ( { model | inner = CouldNotGetToken }, Cmd.none )
-
-        GetTokenResponse (Ok data) ->
-            ( { model | inner = WithToken data }
-            , Lamdera.sendToBackend (GetIdentityRequest data)
-            )
-
         GetIdentityResponse (Err ()) ->
             ( { model | inner = CouldNotGetIdentity }, Cmd.none )
 

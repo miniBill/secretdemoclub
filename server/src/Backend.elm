@@ -37,7 +37,7 @@ updateFromFrontend :
     -> ( BackendModel, Cmd BackendMsg )
 updateFromFrontend _ clientId msg model =
     case msg of
-        GetTokenRequest { code } ->
+        GetIdentityRequest { code } ->
             ( model
             , Http.task
                 { method = "POST"
@@ -61,24 +61,22 @@ updateFromFrontend _ clientId msg model =
                             (Json.Decode.field "scope" <| Json.Decode.map (String.split " ") Json.Decode.string)
                         )
                 }
-                |> Task.attempt (GotToken clientId)
-            )
-
-        GetIdentityRequest { accessToken } ->
-            ( model
-            , Http.task
-                { method = "GET"
-                , headers = [ Http.header "Authorization" ("Bearer " ++ accessToken) ]
-                , url =
-                    Url.Builder.crossOrigin "https://www.patreon.com"
-                        [ "api", "oauth2", "v2", "identity" ]
-                        [ Url.Builder.string "include" "memberships.currently_entitled_tiers.campaign"
-                        , Url.Builder.string "fields[tier]" "title"
-                        ]
-                , body = Http.emptyBody
-                , resolver = jsonResolver identityDecoder
-                , timeout = Nothing
-                }
+                |> Task.andThen
+                    (\{ accessToken } ->
+                        Http.task
+                            { method = "GET"
+                            , headers = [ Http.header "Authorization" ("Bearer " ++ accessToken) ]
+                            , url =
+                                Url.Builder.crossOrigin "https://www.patreon.com"
+                                    [ "api", "oauth2", "v2", "identity" ]
+                                    [ Url.Builder.string "include" "memberships.currently_entitled_tiers.campaign"
+                                    , Url.Builder.string "fields[tier]" "title"
+                                    ]
+                            , body = Http.emptyBody
+                            , resolver = jsonResolver identityDecoder
+                            , timeout = Nothing
+                            }
+                    )
                 |> Task.attempt (GotIdentity clientId)
             )
 
@@ -155,16 +153,6 @@ jsonResolver decoder =
 update : BackendMsg -> BackendModel -> ( BackendModel, Cmd BackendMsg )
 update msg model =
     case msg of
-        GotToken clientId (Err e) ->
-            let
-                _ =
-                    Debug.log "GotToken error" e
-            in
-            ( model, Lamdera.sendToFrontend clientId (GetTokenResponse (Err ())) )
-
-        GotToken clientId (Ok data) ->
-            ( model, Lamdera.sendToFrontend clientId (GetTokenResponse (Ok data)) )
-
         GotIdentity clientId (Err e) ->
             let
                 _ =
