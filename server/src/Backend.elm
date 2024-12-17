@@ -37,7 +37,7 @@ updateFromFrontend :
     -> ( BackendModel, Cmd BackendMsg )
 updateFromFrontend _ clientId msg model =
     case msg of
-        GetIdentityRequest { code } ->
+        GetTierRequest { code } ->
             ( model
             , Http.task
                 { method = "POST"
@@ -158,14 +158,14 @@ update msg model =
                 _ =
                     Debug.log "GotIdentity error" e
             in
-            ( model, Lamdera.sendToFrontend clientId (GetIdentityResponse (Err ())) )
+            ( model, Lamdera.sendToFrontend clientId (GetTierResponse (Err ())) )
 
         GotIdentity clientId (Ok data) ->
             let
                 _ =
                     Debug.log "GotIdentity ok" data
             in
-            ( model, Lamdera.sendToFrontend clientId (GetIdentityResponse (Ok data)) )
+            ( model, Lamdera.sendToFrontend clientId (GetTierResponse (Ok data)) )
 
 
 subscriptions : BackendModel -> Sub BackendMsg

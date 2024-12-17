@@ -47,7 +47,7 @@ init url key =
               , inner = WithCode code
               }
             , Cmd.batch
-                [ Lamdera.sendToBackend (GetIdentityRequest { code = code })
+                [ Lamdera.sendToBackend (GetTierRequest { code = code })
                 , Browser.Navigation.replaceUrl key "/"
                 ]
             )
@@ -79,14 +79,14 @@ view model =
                     WithCode code ->
                         [ Html.text ("Code: " ++ code) ]
 
-                    CouldNotGetIdentity ->
-                        [ Html.text "Could not get identity."
+                    CouldNotGetTier ->
+                        [ Html.text "Could not get tier."
                         , Html.br [] []
                         , loginLink
                         ]
 
-                    WithIdentity identity ->
-                        [ Html.text ("Identity: " ++ identity)
+                    WithTier tier ->
+                        [ Html.text ("You are: " ++ tier)
                         ]
                )
     }
@@ -101,7 +101,11 @@ loginLink =
                 [ Url.Builder.string "response_type" "code"
                 , Url.Builder.string "client_id" Env.clientId
                 , Url.Builder.string "redirect_uri" "https://uriel.tail1b193.ts.net/"
-                , Url.Builder.string "scope" "identity identity.memberships campaigns.posts"
+
+                -- , Url.Builder.string "scope" "identity identity.memberships campaigns.posts"
+                -- , Url.Builder.string "scope" "identity identity.memberships"
+                -- , Url.Builder.string "scope" "identity.memberships"
+                , Url.Builder.string "scope" "identity"
 
                 -- , Url.Builder.string "state" "<optional string>"
                 ]
@@ -113,11 +117,11 @@ loginLink =
 updateFromBackend : ToFrontend -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 updateFromBackend msg model =
     case msg of
-        GetIdentityResponse (Err ()) ->
-            ( { model | inner = CouldNotGetIdentity }, Cmd.none )
+        GetTierResponse (Err ()) ->
+            ( { model | inner = CouldNotGetTier }, Cmd.none )
 
-        GetIdentityResponse (Ok identity) ->
-            ( { model | inner = WithIdentity identity }, Cmd.none )
+        GetTierResponse (Ok identity) ->
+            ( { model | inner = WithTier identity }, Cmd.none )
 
 
 update : FrontendMsg -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )

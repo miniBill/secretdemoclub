@@ -13,8 +13,8 @@ type alias FrontendModel =
 type InnerModel
     = Initial
     | WithCode String
-    | CouldNotGetIdentity
-    | WithIdentity String
+    | CouldNotGetTier
+    | WithTier String
 
 
 type FrontendMsg
@@ -39,8 +39,8 @@ type alias TokenData =
 
 
 type ToBackend
-    = GetIdentityRequest { code : String }
+    = GetTierRequest { code : String }
 
 
 type ToFrontend
-    = GetIdentityResponse (Result () String)
+    = GetTierResponse (Result () String)
