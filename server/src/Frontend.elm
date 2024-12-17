@@ -102,7 +102,6 @@ loginLink =
                 , Url.Builder.string "client_id" Env.clientId
                 , Url.Builder.string "redirect_uri" "https://uriel.tail1b193.ts.net/"
 
-                -- , Url.Builder.string "scope" "identity identity.memberships campaigns.posts"
                 -- , Url.Builder.string "scope" "identity identity.memberships"
                 -- , Url.Builder.string "scope" "identity.memberships"
                 , Url.Builder.string "scope" "identity"
