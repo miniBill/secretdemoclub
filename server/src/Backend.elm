@@ -5,7 +5,7 @@ import Http
 import Json.Decode exposing (Decoder)
 import Lamdera
 import Task
-import Types exposing (BackendModel, BackendMsg(..), FrontendMsg(..), ToBackend(..), ToFrontend(..), TokenData)
+import Types exposing (BackendModel, BackendMsg(..), ToBackend(..), ToFrontend(..), TokenData)
 import Url.Builder
 
 

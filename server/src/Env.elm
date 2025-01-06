@@ -1,4 +1,4 @@
-module Env exposing (bronzeMembershipId, clientId, clientSecret, goldMembershipId, orlaCampaignId)
+module Env exposing (clientId, clientSecret, orlaCampaignId)
 
 
 clientId : String
@@ -14,13 +14,3 @@ clientSecret =
 orlaCampaignId : String
 orlaCampaignId =
     "119662"
-
-
-bronzeMembershipId : String
-bronzeMembershipId =
-    "4708824"
-
-
-goldMembershipId : String
-goldMembershipId =
-    "100883"

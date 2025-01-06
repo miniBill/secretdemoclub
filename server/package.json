@@ -1,6 +1,7 @@
 {
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "elm-open-api": "^0.7.0"
+    "elm-open-api": "^0.7.0",
+    "elm-review": "^2.12.0"
   }
 }
