@@ -18,8 +18,19 @@ async fn get_feed(
     // this argument tells axum to parse the request body
     // as JSON into a `CreateUser` type
     Json(payload): Json<String>,
-) -> (StatusCode, Json<String>) {
-    // this will be converted into a JSON response
-    // with a status code of `201 Created`
-    (StatusCode::CREATED, Json(payload))
+) -> Json<String> {
+    let body = reqwest::get("https://www.rust-lang.org")
+        .await?
+        .text()
+        .await?;
+
+    /*
+        let client = reqwest::Client::new();
+    let res = client.post("http://httpbin.org/post")
+        .body("the exact body that is sent")
+        .send()
+        .await?;
+    */
+
+    Json(body)
 }
