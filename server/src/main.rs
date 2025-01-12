@@ -19,10 +19,12 @@ async fn get_feed(
     // as JSON into a `CreateUser` type
     Json(payload): Json<String>,
 ) -> Json<String> {
-    let body = reqwest::get("https://www.rust-lang.org")
-        .await?
-        .text()
-        .await?;
+    let body = match rust_request(payload).await {
+        Ok(rust) => rust,
+        Err(_) => {
+            return Json("Reqwest failed".to_string());
+        }
+    };
 
     /*
         let client = reqwest::Client::new();
@@ -33,4 +35,11 @@ async fn get_feed(
     */
 
     Json(body)
+}
+
+async fn rust_request(payload: String) -> Result<String, reqwest::Error> {
+    return reqwest::get("https://www.rust-lang.org")
+        .await?
+        .text()
+        .await;
 }
