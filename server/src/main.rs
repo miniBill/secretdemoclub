@@ -1,9 +1,15 @@
 use axum::{routing::post, Json, Router};
-use tokio::io;
+use lazy_static::lazy_static;
 use tower_http::services::ServeDir;
 
+lazy_static! {
+    static ref client_id: String = std::env::var("clientId").unwrap();
+    static ref client_secret: String = std::env::var("clientSecret").unwrap();
+    static ref redirect_uri: String = std::env::var("redirectUri").unwrap();
+}
+
 #[tokio::main]
-async fn main() -> io::Result<()> {
+async fn main() -> anyhow::Result<()> {
     let app: Router = Router::new()
         .route("/feed", post(get_feed))
         .fallback_service(ServeDir::new("public"));
@@ -13,32 +19,31 @@ async fn main() -> io::Result<()> {
     Ok(())
 }
 
-async fn get_feed(
-    // this argument tells axum to parse the request body
-    // as JSON into a `CreateUser` type
-    Json(payload): Json<String>,
-) -> Json<String> {
-    let body = match rust_request(payload).await {
+async fn get_feed(Json(code): Json<String>) -> Json<String> {
+    let body = match get_access_token(code).await {
         Ok(rust) => rust,
         Err(_) => {
             return Json("Reqwest failed".to_string());
         }
     };
 
-    /*
-        let client = reqwest::Client::new();
-    let res = client.post("http://httpbin.org/post")
-        .body("the exact body that is sent")
-        .send()
-        .await?;
-    */
-
     Json(body)
 }
 
-async fn rust_request(payload: String) -> Result<String, reqwest::Error> {
-    return reqwest::get("https://www.rust-lang.org")
+async fn get_access_token(code: String) -> Result<String, reqwest::Error> {
+    let params = [
+        ("code", code),
+        ("grant_type", "authorization_code".to_string()),
+        ("client_id", client_id.to_string()),
+        ("client_secret", client_secret.to_string()),
+        ("redirect_uri", redirect_uri.to_string()),
+    ];
+    let client = reqwest::Client::new();
+    client
+        .post("https://www.patreon.com/api/oauth2/token")
+        .form(&params)
+        .send()
         .await?
         .text()
-        .await;
+        .await
 }
