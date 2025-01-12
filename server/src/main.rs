@@ -1,6 +1,7 @@
-use axum::{routing::post, Json, Router};
+use axum::{extract::Query, routing::post,routing::get, Json, Router};
 use lazy_static::lazy_static;
 use tower_http::services::ServeDir;
+use serde::Deserialize;
 
 lazy_static! {
     static ref client_id: String = std::env::var("clientId").unwrap();
@@ -11,7 +12,8 @@ lazy_static! {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let app: Router = Router::new()
-        .route("/feed", post(get_feed))
+        .route("/feed", get(get_feed))
+        .route("/feed", post(post_feed))
         .fallback_service(ServeDir::new("public"));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
@@ -19,7 +21,23 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn get_feed(Json(code): Json<String>) -> Json<String> {
+#[derive(Deserialize)]
+struct UrlParam {
+    code : String 
+}
+
+async fn get_feed(query : Query<UrlParam>) -> Json<String> {
+    let body = match get_access_token(query.code.clone()).await {
+        Ok(rust) => rust,
+        Err(_) => {
+            return Json("Reqwest failed".to_string());
+        }
+    };
+
+    Json(body)
+}
+
+async fn post_feed(Json(code): Json<String>) -> Json<String> {
     let body = match get_access_token(code).await {
         Ok(rust) => rust,
         Err(_) => {
