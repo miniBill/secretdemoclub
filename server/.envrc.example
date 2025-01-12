@@ -1,3 +1,4 @@
-clientId=""
-clientSecret=""
-orlaCampaignId="119662"
+export clientId=""
+export clientSecret=""
+export redirectUri="https://uriel.tail1b193.ts.net/"
+export orlaCampaignId="119662"
