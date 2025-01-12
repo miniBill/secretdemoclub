@@ -1,0 +1,28 @@
+{
+    "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.6/.schema/devbox.schema.json",
+    "packages": [
+        "rustup@latest",
+        "libiconv@latest",
+        "openssl@latest",
+        "pkg-config@latest",
+        "openssl.dev@latest"
+    ],
+    "env": {
+        "PROJECT_DIR": "$PWD"
+    },
+    "shell": {
+        "init_hook": [
+            "rustupHomeDir=\"$PROJECT_DIR\"/.rustup",
+            "mkdir -p $rustupHomeDir",
+            "export RUSTUP_HOME=$rustupHomeDir",
+            "export LIBRARY_PATH=$LIBRARY_PATH:\"$PROJECT_DIR/nix/profile/default/lib\"",
+            "rustup default stable",
+            "cargo fetch"
+        ],
+        "scripts": {
+            "test": "cargo test -- --show-output",
+            "start": "cargo watch -x \"run --release\"",
+            "build-docs": "cargo doc"
+        }
+    }
+}
