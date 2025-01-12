@@ -131,7 +131,8 @@ parseItem element =
                                             Ok { acc | image = Just image }
 
                                 _ ->
-                                    Err <| UnexpectedAttribute eName
+                                    -- Err <| UnexpectedAttribute eName
+                                    Ok acc
 
                     Text _ ->
                         withPath subpath <| Err UnexpectedText
