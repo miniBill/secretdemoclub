@@ -8,6 +8,9 @@ use axum::{
 use lazy_static::lazy_static;
 use serde::Deserialize;
 use tower_http::services::ServeDir;
+use types::{AccessToken, Identity, Included};
+
+mod types;
 
 lazy_static! {
     static ref client_id: String = std::env::var("clientId").unwrap();
@@ -34,14 +37,22 @@ struct UrlParam {
 }
 
 async fn get_feed(query: Query<UrlParam>) -> Json<String> {
-    let body = match get_access_token(query.code.clone()).await {
-        Ok(rust) => rust,
+    let access_token = match get_access_token(query.code.clone()).await {
+        Ok(access_token) => access_token,
         Err(_) => {
-            return Json("Reqwest failed".to_string());
+            return Json("Token request failed".to_string());
         }
     };
 
-    Json(body)
+    let tier: Tier = match get_tier(access_token).await {
+        Ok(tier) => tier,
+        Err(e) => {
+            dbg!("{}", e);
+            return Json("Tier request failed".to_string());
+        }
+    };
+
+    Json(format!("{:?}", tier))
 }
 
 async fn post_feed(Json(code): Json<String>) -> Json<String> {
@@ -52,17 +63,15 @@ async fn post_feed(Json(code): Json<String>) -> Json<String> {
         }
     };
 
-    let tier = match get_tier(access_token).await {
+    let tier: Tier = match get_tier(access_token).await {
         Ok(tier) => tier,
-        Err(_) => return Json("Tier request failed".to_string()),
+        Err(e) => {
+            dbg!("{}", e);
+            return Json("Tier request failed".to_string());
+        }
     };
 
     Json(format!("{:?}", tier))
-}
-
-#[derive(Deserialize)]
-struct AccessToken {
-    access_token: String,
 }
 
 async fn get_access_token(code: String) -> Result<String, reqwest::Error> {
@@ -85,45 +94,14 @@ async fn get_access_token(code: String) -> Result<String, reqwest::Error> {
     Ok(access_token)
 }
 
-#[derive(Deserialize)]
-struct Identity {
-    included: Vec<Included>,
-}
-
-#[derive(Deserialize)]
-struct Included {
-    relationships: Relationships,
-    attributes: Attributes,
-}
-
-#[derive(Deserialize)]
-struct Relationships {
-    campaign: Campaign,
-}
-
-#[derive(Deserialize)]
-struct Campaign {
-    data: Data,
-}
-
-#[derive(Deserialize)]
-struct Data {
-    id: String,
-}
-
-#[derive(Deserialize)]
-struct Attributes {
-    title: String,
-}
-
 #[derive(Debug)]
-enum Membership {
+enum Tier {
     Bronze,
     Silver,
     Gold,
 }
 
-async fn get_tier(access_token: String) -> anyhow::Result<Membership> {
+async fn get_tier(access_token: String) -> anyhow::Result<Tier> {
     let mut headers = HeaderMap::new();
     headers.insert(
         "Authorization",
@@ -138,13 +116,15 @@ async fn get_tier(access_token: String) -> anyhow::Result<Membership> {
         .json::<Identity>()
         .await?;
     for include in tier.included {
-        if include.relationships.campaign.data.id == *orla_campaign_id {
-            return match include.attributes.title.trim() {
-                "Bronze membership" => Ok(Membership::Bronze),
-                "Silver membership" => Ok(Membership::Silver),
-                "Gold membership" => Ok(Membership::Gold),
-                trimmed => Err(anyhow!("Unknown tier: {}", trimmed)),
-            };
+        if let Included::Membership(membership) = include {
+            if membership.relationships.campaign.data.id == *orla_campaign_id {
+                return match membership.attributes.title.trim() {
+                    "Bronze membership" => Ok(Tier::Bronze),
+                    "Silver membership" => Ok(Tier::Silver),
+                    "Gold membership" => Ok(Tier::Gold),
+                    trimmed => Err(anyhow!("Unknown tier: {}", trimmed)),
+                };
+            }
         }
     }
 
