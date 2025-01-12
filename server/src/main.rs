@@ -1,17 +1,16 @@
-use axum::{http::StatusCode, routing::post, Json, Router};
+use axum::{routing::post, Json, Router};
+use tokio::io;
 use tower_http::services::ServeDir;
 
 #[tokio::main]
-async fn main() {
-    // build our application with a route
+async fn main() -> io::Result<()> {
     let app: Router = Router::new()
         .route("/feed", post(get_feed))
-        // `GET /` goes to `root`
         .fallback_service(ServeDir::new("public"));
 
-    // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
+    axum::serve(listener, app).await?;
+    Ok(())
 }
 
 async fn get_feed(
