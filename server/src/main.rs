@@ -37,33 +37,19 @@ struct UrlParam {
 }
 
 async fn get_feed(query: Query<UrlParam>) -> Json<String> {
-    let access_token = match get_access_token(query.code.clone()).await {
-        Ok(access_token) => access_token,
-        Err(_) => {
-            return Json("Token request failed".to_string());
-        }
-    };
-
-    let tier: Tier = match get_tier(access_token).await {
-        Ok(tier) => tier,
-        Err(e) => {
-            dbg!("{}", e);
-            return Json("Tier request failed".to_string());
-        }
-    };
-
-    Json(format!("{:?}", tier))
+    post_feed(Json(query.code.clone())).await
 }
 
 async fn post_feed(Json(code): Json<String>) -> Json<String> {
     let access_token = match get_access_token(code).await {
         Ok(access_token) => access_token,
-        Err(_) => {
+        Err(e) => {
+            dbg!("{}", e);
             return Json("Token request failed".to_string());
         }
     };
 
-    let tier: Tier = match get_tier(access_token).await {
+    let tier: Tier = match get_tier(access_token.clone()).await {
         Ok(tier) => tier,
         Err(e) => {
             dbg!("{}", e);
@@ -120,6 +106,7 @@ async fn get_tier(access_token: String) -> anyhow::Result<Tier> {
             if membership.relationships.campaign.data.id == *orla_campaign_id {
                 return match membership.attributes.title.trim() {
                     "Bronze membership" => Ok(Tier::Bronze),
+                    "Bronze membership (old/unpublished tier)" => Ok(Tier::Bronze),
                     "Silver membership" => Ok(Tier::Silver),
                     "Gold membership" => Ok(Tier::Gold),
                     trimmed => Err(anyhow!("Unknown tier: {}", trimmed)),
