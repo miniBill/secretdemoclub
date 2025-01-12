@@ -5,7 +5,7 @@
         "libiconv@latest",
         "openssl@latest",
         "pkg-config@latest",
-        "openssl.dev@latest"
+        "openssl.dev"
     ],
     "env": {
         "PROJECT_DIR": "$PWD"
@@ -21,7 +21,7 @@
         ],
         "scripts": {
             "test": "cargo test -- --show-output",
-            "start": "cargo watch -x \"run --release\"",
+            "start": "cargo watch",
             "build-docs": "cargo doc"
         }
     }
