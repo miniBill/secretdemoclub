@@ -1,4 +1,4 @@
-module Rss.Parser exposing (Error(..), ErrorWithPath, Path, errorToString, parse, rssPrefix)
+module Rss.Parser exposing (Error(..), ErrorWithPath, Path, errorToString, parse)
 
 import Imf.DateTime
 import List.Extra
@@ -740,11 +740,6 @@ type Error
     | ExpectedTextGotNodes
     | ExpectedAttributeNotFound { expected : String, attributes : List Attribute }
     | InvalidDate String
-
-
-rssPrefix : String
-rssPrefix =
-    "https://www.patreon.com/rss/orlagartland?auth="
 
 
 errorToString : Error -> String

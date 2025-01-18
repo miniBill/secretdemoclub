@@ -217,17 +217,16 @@ writePost config post =
 
 cache : Config -> String -> BackendTask FatalError String
 cache config urlString =
-    let
-        workDir : String
-        workDir =
-            config.workDir |> Maybe.withDefault "work"
-    in
     case Url.fromString urlString of
         Nothing ->
             BackendTask.fail (FatalError.fromString ("Invalid URL: " ++ urlString))
 
         Just url ->
             let
+                workDir : String
+                workDir =
+                    config.workDir |> Maybe.withDefault "work"
+
                 clean : String
                 clean =
                     Url.toString

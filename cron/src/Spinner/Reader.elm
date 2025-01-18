@@ -1,4 +1,4 @@
-module Spinner.Reader exposing (..)
+module Spinner.Reader exposing (Steps, init, runSteps, withFatalStep, withStep)
 
 import BackendTask exposing (BackendTask)
 import FatalError exposing (FatalError)
