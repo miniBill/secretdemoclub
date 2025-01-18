@@ -883,15 +883,11 @@ type alias PostInstanceAttributesPostFile =
 
 
 type alias PostInstanceAttributesPostFileImageColors =
-    { averageColorsOfCorners : PostInstanceAttributesPostFileImageColorsAverageColorsOfCorners
+    { averageColorsOfCorners : AverageColorsOfCorners
     , dominantColor : String
     , palette : List String
     , textColor : String
     }
-
-
-type alias PostInstanceAttributesPostFileImageColorsAverageColorsOfCorners =
-    AverageColorsOfCorners
 
 
 type alias PostInstanceAttributesPostMetadata =
@@ -1028,15 +1024,11 @@ type alias PostConstituentAttributesPostFile =
 
 
 type alias PostConstituentAttributesPostFileImageColors =
-    { averageColorsOfCorners : PostConstituentAttributesPostFileImageColorsAverageColorsOfCorners
+    { averageColorsOfCorners : AverageColorsOfCorners
     , dominantColor : String
     , palette : List String
     , textColor : String
     }
-
-
-type alias PostConstituentAttributesPostFileImageColorsAverageColorsOfCorners =
-    AverageColorsOfCorners
 
 
 type alias PostConstituentAttributesPostMetadata =
@@ -1180,15 +1172,11 @@ type alias PostSpecimenAttributesPostFile =
 
 
 type alias PostSpecimenAttributesPostFileImageColors =
-    { averageColorsOfCorners : PostSpecimenAttributesPostFileImageColorsAverageColorsOfCorners
+    { averageColorsOfCorners : AverageColorsOfCorners
     , dominantColor : String
     , palette : List String
     , textColor : String
     }
-
-
-type alias PostSpecimenAttributesPostFileImageColorsAverageColorsOfCorners =
-    AverageColorsOfCorners
 
 
 type alias PostSpecimenAttributesPostMetadata =
@@ -1493,15 +1481,11 @@ type alias PostWidgetAttributesPostFile =
 
 
 type alias PostWidgetAttributesPostFileImageColors =
-    { averageColorsOfCorners : PostWidgetAttributesPostFileImageColorsAverageColorsOfCorners
+    { averageColorsOfCorners : AverageColorsOfCorners
     , dominantColor : String
     , palette : List String
     , textColor : String
     }
-
-
-type alias PostWidgetAttributesPostFileImageColorsAverageColorsOfCorners =
-    AverageColorsOfCorners
 
 
 type alias PostWidgetAttributesPostMetadata =
@@ -1992,15 +1976,11 @@ type alias PostChunkAttributesPostFile =
 
 
 type alias PostChunkAttributesPostFileImageColors =
-    { averageColorsOfCorners : PostChunkAttributesPostFileImageColorsAverageColorsOfCorners
+    { averageColorsOfCorners : AverageColorsOfCorners
     , dominantColor : String
     , palette : List String
     , textColor : String
     }
-
-
-type alias PostChunkAttributesPostFileImageColorsAverageColorsOfCorners =
-    AverageColorsOfCorners
 
 
 type alias PostChunkAttributesPostMetadata =
@@ -2149,15 +2129,11 @@ type alias PostPieceAttributesPostFile =
 
 
 type alias PostPieceAttributesPostFileImageColors =
-    { averageColorsOfCorners : PostPieceAttributesPostFileImageColorsAverageColorsOfCorners
+    { averageColorsOfCorners : AverageColorsOfCorners
     , dominantColor : String
     , palette : List String
     , textColor : String
     }
-
-
-type alias PostPieceAttributesPostFileImageColorsAverageColorsOfCorners =
-    AverageColorsOfCorners
 
 
 type alias PostPieceAttributesPostMetadata =
@@ -2295,15 +2271,11 @@ type alias PostThingyAttributesPostFile =
 
 
 type alias PostThingyAttributesPostFileImageColors =
-    { averageColorsOfCorners : PostThingyAttributesPostFileImageColorsAverageColorsOfCorners
+    { averageColorsOfCorners : AverageColorsOfCorners
     , dominantColor : String
     , palette : List String
     , textColor : String
     }
-
-
-type alias PostThingyAttributesPostFileImageColorsAverageColorsOfCorners =
-    AverageColorsOfCorners
 
 
 type alias PostThingyAttributesPostMetadata =
@@ -2613,15 +2585,11 @@ type alias PostWhatsitAttributesPostFile =
 
 
 type alias PostWhatsitAttributesPostFileImageColors =
-    { averageColorsOfCorners : PostWhatsitAttributesPostFileImageColorsAverageColorsOfCorners
+    { averageColorsOfCorners : AverageColorsOfCorners
     , dominantColor : String
     , palette : List String
     , textColor : String
     }
-
-
-type alias PostWhatsitAttributesPostFileImageColorsAverageColorsOfCorners =
-    AverageColorsOfCorners
 
 
 type alias PostWhatsitAttributesPostMetadata =
@@ -2761,15 +2729,11 @@ type alias PostDoodadAttributesPostFile =
 
 
 type alias PostDoodadAttributesPostFileImageColors =
-    { averageColorsOfCorners : PostDoodadAttributesPostFileImageColorsAverageColorsOfCorners
+    { averageColorsOfCorners : AverageColorsOfCorners
     , dominantColor : String
     , palette : List String
     , textColor : String
     }
-
-
-type alias PostDoodadAttributesPostFileImageColorsAverageColorsOfCorners =
-    AverageColorsOfCorners
 
 
 type alias PostDoodadAttributesPostMetadata =
