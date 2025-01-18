@@ -267,7 +267,7 @@ type alias Thumbnail =
 
 type alias PostObjectRelationships =
     { accessRules : ListOfIdAndType
-    , audio : PostObjectRelationshipsAudio
+    , audio : AudioRelationships
     , images : ListOfIdAndType
     , media : ListOfIdAndType
     }
@@ -284,13 +284,13 @@ type alias IdAndType =
     }
 
 
-type alias PostObjectRelationshipsAudio =
+type alias AudioRelationships =
     { data : IdAndType
-    , links : PostObjectRelationshipsAudioLinks
+    , links : AudioLinks
     }
 
 
-type alias PostObjectRelationshipsAudioLinks =
+type alias AudioLinks =
     { related : String
     }
 
@@ -392,20 +392,9 @@ type alias PostThing =
 type alias PostThingRelationships =
     { accessRules : ListOfIdAndType
     , attachmentsMedia : ListOfIdAndType
-    , audio : PostThingRelationshipsAudio
+    , audio : AudioRelationships
     , images : ListOfIdAndType
     , media : ListOfIdAndType
-    }
-
-
-type alias PostThingRelationshipsAudio =
-    { data : IdAndType
-    , links : PostThingRelationshipsAudioLinks
-    }
-
-
-type alias PostThingRelationshipsAudioLinks =
-    { related : String
     }
 
 
@@ -510,20 +499,9 @@ type alias PostGadget =
 
 type alias PostGadgetRelationships =
     { accessRules : ListOfIdAndType
-    , audio : PostGadgetRelationshipsAudio
+    , audio : AudioRelationships
     , media : ListOfIdAndType
     , userDefinedTags : ListOfIdAndType
-    }
-
-
-type alias PostGadgetRelationshipsAudio =
-    { data : IdAndType
-    , links : PostGadgetRelationshipsAudioLinks
-    }
-
-
-type alias PostGadgetRelationshipsAudioLinks =
-    { related : String
     }
 
 
@@ -582,32 +560,10 @@ type alias PostGizmo =
 
 type alias PostGizmoRelationships =
     { accessRules : ListOfIdAndType
-    , audio : PostGizmoRelationshipsAudio
-    , audioPreview : PostGizmoRelationshipsAudioPreview
+    , audio : AudioRelationships
+    , audioPreview : AudioRelationships
     , images : ListOfIdAndType
     , media : ListOfIdAndType
-    }
-
-
-type alias PostGizmoRelationshipsAudio =
-    { data : IdAndType
-    , links : PostGizmoRelationshipsAudioLinks
-    }
-
-
-type alias PostGizmoRelationshipsAudioLinks =
-    { related : String
-    }
-
-
-type alias PostGizmoRelationshipsAudioPreview =
-    { data : IdAndType
-    , links : PostGizmoRelationshipsAudioPreviewLinks
-    }
-
-
-type alias PostGizmoRelationshipsAudioPreviewLinks =
-    { related : String
     }
 
 
@@ -622,32 +578,10 @@ type alias PostPart =
 type alias PostPartRelationships =
     { accessRules : ListOfIdAndType
     , attachmentsMedia : ListOfIdAndType
-    , audio : PostPartRelationshipsAudio
-    , audioPreview : PostPartRelationshipsAudioPreview
+    , audio : AudioRelationships
+    , audioPreview : AudioRelationships
     , media : ListOfIdAndType
     , userDefinedTags : ListOfIdAndType
-    }
-
-
-type alias PostPartRelationshipsAudio =
-    { data : IdAndType
-    , links : PostPartRelationshipsAudioLinks
-    }
-
-
-type alias PostPartRelationshipsAudioLinks =
-    { related : String
-    }
-
-
-type alias PostPartRelationshipsAudioPreview =
-    { data : IdAndType
-    , links : PostPartRelationshipsAudioPreviewLinks
-    }
-
-
-type alias PostPartRelationshipsAudioPreviewLinks =
-    { related : String
     }
 
 
@@ -765,32 +699,10 @@ type alias PostThingamajig =
 type alias PostThingamajigRelationships =
     { accessRules : ListOfIdAndType
     , attachmentsMedia : ListOfIdAndType
-    , audio : PostThingamajigRelationshipsAudio
-    , audioPreview : PostThingamajigRelationshipsAudioPreview
+    , audio : AudioRelationships
+    , audioPreview : AudioRelationships
     , images : ListOfIdAndType
     , media : ListOfIdAndType
-    }
-
-
-type alias PostThingamajigRelationshipsAudio =
-    { data : IdAndType
-    , links : PostThingamajigRelationshipsAudioLinks
-    }
-
-
-type alias PostThingamajigRelationshipsAudioLinks =
-    { related : String
-    }
-
-
-type alias PostThingamajigRelationshipsAudioPreview =
-    { data : IdAndType
-    , links : PostThingamajigRelationshipsAudioPreviewLinks
-    }
-
-
-type alias PostThingamajigRelationshipsAudioPreviewLinks =
-    { related : String
     }
 
 
@@ -920,7 +832,7 @@ postObjectRelationshipsDecoder : Json.Decode.Decoder PostObjectRelationships
 postObjectRelationshipsDecoder =
     Json.Decode.succeed PostObjectRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "audio" postObjectRelationshipsAudioDecoder
+        |> Json.Decode.Pipeline.required "audio" audioRelationshipsDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
 
@@ -930,19 +842,6 @@ idAndTypeDecoder =
     Json.Decode.succeed IdAndType
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "type" Json.Decode.string
-
-
-postObjectRelationshipsAudioDecoder : Json.Decode.Decoder PostObjectRelationshipsAudio
-postObjectRelationshipsAudioDecoder =
-    Json.Decode.succeed PostObjectRelationshipsAudio
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postObjectRelationshipsAudioLinksDecoder
-
-
-postObjectRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostObjectRelationshipsAudioLinks
-postObjectRelationshipsAudioLinksDecoder =
-    Json.Decode.succeed PostObjectRelationshipsAudioLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postMemberDecoder : Json.Decode.Decoder PostMember
@@ -1108,21 +1007,21 @@ postThingRelationshipsDecoder =
     Json.Decode.succeed PostThingRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "attachments_media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "audio" postThingRelationshipsAudioDecoder
+        |> Json.Decode.Pipeline.required "audio" audioRelationshipsDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
 
 
-postThingRelationshipsAudioDecoder : Json.Decode.Decoder PostThingRelationshipsAudio
-postThingRelationshipsAudioDecoder =
-    Json.Decode.succeed PostThingRelationshipsAudio
+audioRelationshipsDecoder : Json.Decode.Decoder AudioRelationships
+audioRelationshipsDecoder =
+    Json.Decode.succeed AudioRelationships
         |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postThingRelationshipsAudioLinksDecoder
+        |> Json.Decode.Pipeline.required "links" audioLinksDecoder
 
 
-postThingRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostThingRelationshipsAudioLinks
-postThingRelationshipsAudioLinksDecoder =
-    Json.Decode.succeed PostThingRelationshipsAudioLinks
+audioLinksDecoder : Json.Decode.Decoder AudioLinks
+audioLinksDecoder =
+    Json.Decode.succeed AudioLinks
         |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
@@ -1239,22 +1138,9 @@ postGadgetRelationshipsDecoder : Json.Decode.Decoder PostGadgetRelationships
 postGadgetRelationshipsDecoder =
     Json.Decode.succeed PostGadgetRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "audio" postGadgetRelationshipsAudioDecoder
+        |> Json.Decode.Pipeline.required "audio" audioRelationshipsDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user_defined_tags" listOfIdAndTypeDecoder
-
-
-postGadgetRelationshipsAudioDecoder : Json.Decode.Decoder PostGadgetRelationshipsAudio
-postGadgetRelationshipsAudioDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsAudio
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postGadgetRelationshipsAudioLinksDecoder
-
-
-postGadgetRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostGadgetRelationshipsAudioLinks
-postGadgetRelationshipsAudioLinksDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsAudioLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postWidgetDecoder : Json.Decode.Decoder PostWidget
@@ -1325,36 +1211,10 @@ postGizmoRelationshipsDecoder : Json.Decode.Decoder PostGizmoRelationships
 postGizmoRelationshipsDecoder =
     Json.Decode.succeed PostGizmoRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "audio" postGizmoRelationshipsAudioDecoder
-        |> Json.Decode.Pipeline.required "audio_preview" postGizmoRelationshipsAudioPreviewDecoder
+        |> Json.Decode.Pipeline.required "audio" audioRelationshipsDecoder
+        |> Json.Decode.Pipeline.required "audio_preview" audioRelationshipsDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
-
-
-postGizmoRelationshipsAudioDecoder : Json.Decode.Decoder PostGizmoRelationshipsAudio
-postGizmoRelationshipsAudioDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsAudio
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postGizmoRelationshipsAudioLinksDecoder
-
-
-postGizmoRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostGizmoRelationshipsAudioLinks
-postGizmoRelationshipsAudioLinksDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsAudioLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
-postGizmoRelationshipsAudioPreviewDecoder : Json.Decode.Decoder PostGizmoRelationshipsAudioPreview
-postGizmoRelationshipsAudioPreviewDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsAudioPreview
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postGizmoRelationshipsAudioPreviewLinksDecoder
-
-
-postGizmoRelationshipsAudioPreviewLinksDecoder : Json.Decode.Decoder PostGizmoRelationshipsAudioPreviewLinks
-postGizmoRelationshipsAudioPreviewLinksDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsAudioPreviewLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postPartDecoder : Json.Decode.Decoder PostPart
@@ -1371,36 +1231,10 @@ postPartRelationshipsDecoder =
     Json.Decode.succeed PostPartRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "attachments_media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "audio" postPartRelationshipsAudioDecoder
-        |> Json.Decode.Pipeline.required "audio_preview" postPartRelationshipsAudioPreviewDecoder
+        |> Json.Decode.Pipeline.required "audio" audioRelationshipsDecoder
+        |> Json.Decode.Pipeline.required "audio_preview" audioRelationshipsDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user_defined_tags" listOfIdAndTypeDecoder
-
-
-postPartRelationshipsAudioDecoder : Json.Decode.Decoder PostPartRelationshipsAudio
-postPartRelationshipsAudioDecoder =
-    Json.Decode.succeed PostPartRelationshipsAudio
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postPartRelationshipsAudioLinksDecoder
-
-
-postPartRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostPartRelationshipsAudioLinks
-postPartRelationshipsAudioLinksDecoder =
-    Json.Decode.succeed PostPartRelationshipsAudioLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
-postPartRelationshipsAudioPreviewDecoder : Json.Decode.Decoder PostPartRelationshipsAudioPreview
-postPartRelationshipsAudioPreviewDecoder =
-    Json.Decode.succeed PostPartRelationshipsAudioPreview
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postPartRelationshipsAudioPreviewLinksDecoder
-
-
-postPartRelationshipsAudioPreviewLinksDecoder : Json.Decode.Decoder PostPartRelationshipsAudioPreviewLinks
-postPartRelationshipsAudioPreviewLinksDecoder =
-    Json.Decode.succeed PostPartRelationshipsAudioPreviewLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postChunkDecoder : Json.Decode.Decoder PostChunk
@@ -1530,36 +1364,10 @@ postThingamajigRelationshipsDecoder =
     Json.Decode.succeed PostThingamajigRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "attachments_media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "audio" postThingamajigRelationshipsAudioDecoder
-        |> Json.Decode.Pipeline.required "audio_preview" postThingamajigRelationshipsAudioPreviewDecoder
+        |> Json.Decode.Pipeline.required "audio" audioRelationshipsDecoder
+        |> Json.Decode.Pipeline.required "audio_preview" audioRelationshipsDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
-
-
-postThingamajigRelationshipsAudioDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAudio
-postThingamajigRelationshipsAudioDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsAudio
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postThingamajigRelationshipsAudioLinksDecoder
-
-
-postThingamajigRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAudioLinks
-postThingamajigRelationshipsAudioLinksDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsAudioLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
-postThingamajigRelationshipsAudioPreviewDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAudioPreview
-postThingamajigRelationshipsAudioPreviewDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsAudioPreview
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postThingamajigRelationshipsAudioPreviewLinksDecoder
-
-
-postThingamajigRelationshipsAudioPreviewLinksDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAudioPreviewLinks
-postThingamajigRelationshipsAudioPreviewLinksDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsAudioPreviewLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postWhatsitDecoder : Json.Decode.Decoder PostWhatsit
