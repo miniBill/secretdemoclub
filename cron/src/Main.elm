@@ -144,75 +144,78 @@ writePost config post =
             ]
                 |> String.concat
     in
-    Do.glob target <| \existing ->
-    if not config.force && not (List.isEmpty existing) then
-        BackendTask.succeed ()
+    Do.glob target <|
+        \existing ->
+            if not config.force && not (List.isEmpty existing) then
+                BackendTask.succeed ()
 
-    else
-        Do.do (cache config post.image) <| \image ->
-        Do.do (cache config post.mediaUrl) <| \media ->
-        let
-            body : String
-            body =
-                [ "Title: " ++ Rss.titleToString post.title
-                , "Category: " ++ category
-                , "Date: " ++ String.fromInt (Time.posixToMillis post.pubDate)
-                , "Image: " ++ image
-                , "Link: " ++ post.link
-                , "Media: " ++ media
-                ]
-                    |> String.join "\n"
+            else
+                Do.do (cache config post.image) <|
+                    \image ->
+                        Do.do (cache config post.mediaUrl) <|
+                            \media ->
+                                let
+                                    body : String
+                                    body =
+                                        [ "Title: " ++ Rss.titleToString post.title
+                                        , "Category: " ++ category
+                                        , "Date: " ++ String.fromInt (Time.posixToMillis post.pubDate)
+                                        , "Image: " ++ image
+                                        , "Link: " ++ post.link
+                                        , "Media: " ++ media
+                                        ]
+                                            |> String.join "\n"
 
-            category : String
-            category =
-                case post.title of
-                    Demo Nothing _ ->
-                        "Demo"
+                                    category : String
+                                    category =
+                                        case post.title of
+                                            Demo Nothing _ ->
+                                                "Demo"
 
-                    Demo (Just n) _ ->
-                        "Demo " ++ String.fromFloat n
+                                            Demo (Just n) _ ->
+                                                "Demo " ++ String.fromFloat n
 
-                    VoiceMemo _ ->
-                        "Voice memo"
+                                            VoiceMemo _ ->
+                                                "Voice memo"
 
-                    BonusDemo _ ->
-                        "Bonus demo"
+                                            BonusDemo _ ->
+                                                "Bonus demo"
 
-                    SongIdea _ ->
-                        "Song idea"
+                                            SongIdea _ ->
+                                                "Song idea"
 
-                    Podcast Nothing _ ->
-                        "Podcast"
+                                            Podcast Nothing _ ->
+                                                "Podcast"
 
-                    Podcast (Just n) _ ->
-                        "Podcast " ++ String.fromInt n
+                                            Podcast (Just n) _ ->
+                                                "Podcast " ++ String.fromInt n
 
-                    AnIdeaADay (Err m) _ ->
-                        "An idea a day " ++ m
+                                            AnIdeaADay (Err m) _ ->
+                                                "An idea a day " ++ m
 
-                    AnIdeaADay (Ok o) _ ->
-                        "An idea a day " ++ String.fromInt o
+                                            AnIdeaADay (Ok o) _ ->
+                                                "An idea a day " ++ String.fromInt o
 
-                    FirstDraftFebruary Nothing _ ->
-                        "First draft February"
+                                            FirstDraftFebruary Nothing _ ->
+                                                "First draft February"
 
-                    FirstDraftFebruary (Just n) _ ->
-                        "First draft February " ++ String.fromInt n
+                                            FirstDraftFebruary (Just n) _ ->
+                                                "First draft February " ++ String.fromInt n
 
-                    AudioDiary Nothing _ ->
-                        "Audio diary"
+                                            AudioDiary Nothing _ ->
+                                                "Audio diary"
 
-                    AudioDiary (Just n) _ ->
-                        "Audio diary " ++ n
+                                            AudioDiary (Just n) _ ->
+                                                "Audio diary " ++ n
 
-                    Other _ ->
-                        "Other"
-        in
-        Script.writeFile
-            { path = target
-            , body = body
-            }
-            |> BackendTask.allowFatal
+                                            Other _ ->
+                                                "Other"
+                                in
+                                Script.writeFile
+                                    { path = target
+                                    , body = body
+                                    }
+                                    |> BackendTask.allowFatal
 
 
 cache : Config -> String -> BackendTask FatalError String
@@ -255,19 +258,22 @@ cache config urlString =
                 target =
                     workDir ++ "/" ++ filename
             in
-            Do.glob target <| \existing ->
-            if not (List.isEmpty existing) then
-                BackendTask.succeed filename
+            Do.glob target <|
+                \existing ->
+                    if not (List.isEmpty existing) then
+                        BackendTask.succeed filename
 
-            else
-                let
-                    opts : List String
-                    opts =
-                        [ urlString, "-s", "-o", target ]
-                in
-                Do.log (String.join " " ("curl" :: opts)) <| \_ ->
-                Do.exec "curl" opts <| \_ ->
-                BackendTask.succeed filename
+                    else
+                        let
+                            opts : List String
+                            opts =
+                                [ urlString, "-s", "-o", target ]
+                        in
+                        Do.log (String.join " " ("curl" :: opts)) <|
+                            \_ ->
+                                Do.exec "curl" opts <|
+                                    \_ ->
+                                        BackendTask.succeed filename
 
 
 monthToNumber : Time.Month -> Int
