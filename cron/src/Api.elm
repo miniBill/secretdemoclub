@@ -462,7 +462,7 @@ type alias PostMemberAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostMemberAttributesPostFile
+    , postFile : PostImage
     , postMetadata : PostMemberAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -486,7 +486,7 @@ type alias PostMemberAttributesEmbed =
     }
 
 
-type alias PostMemberAttributesPostFile =
+type alias PostImage =
     { height : Int
     , imageColors : ImageColors
     , mediaId : Int
@@ -858,7 +858,7 @@ type alias PostInstanceAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostInstanceAttributesPostFile
+    , postFile : PostImage
     , postMetadata : PostInstanceAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -870,20 +870,6 @@ type alias PostInstanceAttributes =
     , url : String
     , wasPostedByCampaignOwner : Bool
     }
-
-
-type alias PostInstanceAttributesPostFile =
-    { height : Int
-    , imageColors : PostInstanceAttributesPostFileImageColors
-    , mediaId : Int
-    , state : String
-    , url : String
-    , width : Int
-    }
-
-
-type alias PostInstanceAttributesPostFileImageColors =
-    ImageColors
 
 
 type alias PostInstanceAttributesPostMetadata =
@@ -997,7 +983,7 @@ type alias PostConstituentAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostConstituentAttributesPostFile
+    , postFile : PostImage
     , postMetadata : PostConstituentAttributesPostMetadata
     , postType : String
     , publishedAt : String
@@ -1007,20 +993,6 @@ type alias PostConstituentAttributes =
     , url : String
     , wasPostedByCampaignOwner : Bool
     }
-
-
-type alias PostConstituentAttributesPostFile =
-    { height : Int
-    , imageColors : PostConstituentAttributesPostFileImageColors
-    , mediaId : Int
-    , state : String
-    , url : String
-    , width : Int
-    }
-
-
-type alias PostConstituentAttributesPostFileImageColors =
-    ImageColors
 
 
 type alias PostConstituentAttributesPostMetadata =
@@ -1130,7 +1102,7 @@ type alias PostSpecimenAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostSpecimenAttributesPostFile
+    , postFile : PostImage
     , postMetadata : PostSpecimenAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -1151,20 +1123,6 @@ type alias PostSpecimenAttributesEmbed =
     , subject : String
     , url : String
     }
-
-
-type alias PostSpecimenAttributesPostFile =
-    { height : Int
-    , imageColors : PostSpecimenAttributesPostFileImageColors
-    , mediaId : Int
-    , state : String
-    , url : String
-    , width : Int
-    }
-
-
-type alias PostSpecimenAttributesPostFileImageColors =
-    ImageColors
 
 
 type alias PostSpecimenAttributesPostMetadata =
@@ -1434,7 +1392,7 @@ type alias PostWidgetAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostWidgetAttributesPostFile
+    , postFile : PostImage
     , postMetadata : PostWidgetAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -1455,16 +1413,6 @@ type alias PostWidgetAttributesEmbed =
     , providerUrl : String
     , subject : String
     , url : String
-    }
-
-
-type alias PostWidgetAttributesPostFile =
-    { height : Int
-    , imageColors : ImageColors
-    , mediaId : Int
-    , state : String
-    , url : String
-    , width : Int
     }
 
 
@@ -1823,7 +1771,7 @@ type alias PostChunkAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostChunkAttributesPostFile
+    , postFile : PostImage
     , postMetadata : PostChunkAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -1844,16 +1792,6 @@ type alias PostChunkAttributesEmbed =
     , providerUrl : String
     , subject : String
     , url : String
-    }
-
-
-type alias PostChunkAttributesPostFile =
-    { height : Int
-    , imageColors : ImageColors
-    , mediaId : Int
-    , state : String
-    , url : String
-    , width : Int
     }
 
 
@@ -1945,7 +1883,7 @@ type alias PostPieceAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostPieceAttributesPostFile
+    , postFile : PostImage
     , postMetadata : PostPieceAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -1966,16 +1904,6 @@ type alias PostPieceAttributesEmbed =
     , providerUrl : String
     , subject : String
     , url : String
-    }
-
-
-type alias PostPieceAttributesPostFile =
-    { height : Int
-    , imageColors : ImageColors
-    , mediaId : Int
-    , state : String
-    , url : String
-    , width : Int
     }
 
 
@@ -2066,7 +1994,7 @@ type alias PostThingyAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostThingyAttributesPostFile
+    , postFile : PostImage
     , postMetadata : PostThingyAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -2077,16 +2005,6 @@ type alias PostThingyAttributes =
     , upgradeUrl : String
     , url : String
     , wasPostedByCampaignOwner : Bool
-    }
-
-
-type alias PostThingyAttributesPostFile =
-    { height : Int
-    , imageColors : ImageColors
-    , mediaId : Int
-    , state : String
-    , url : String
-    , width : Int
     }
 
 
@@ -2309,7 +2227,7 @@ type alias PostWhatsitAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostWhatsitAttributesPostFile
+    , postFile : PostImage
     , postMetadata : PostWhatsitAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -2320,16 +2238,6 @@ type alias PostWhatsitAttributes =
     , upgradeUrl : String
     , url : String
     , wasPostedByCampaignOwner : Bool
-    }
-
-
-type alias PostWhatsitAttributesPostFile =
-    { height : Int
-    , imageColors : ImageColors
-    , mediaId : Int
-    , state : String
-    , url : String
-    , width : Int
     }
 
 
@@ -2422,7 +2330,7 @@ type alias PostDoodadAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostDoodadAttributesPostFile
+    , postFile : PostImage
     , postMetadata : PostDoodadAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -2433,16 +2341,6 @@ type alias PostDoodadAttributes =
     , upgradeUrl : String
     , url : String
     , wasPostedByCampaignOwner : Bool
-    }
-
-
-type alias PostDoodadAttributesPostFile =
-    { height : Int
-    , imageColors : ImageColors
-    , mediaId : Int
-    , state : String
-    , url : String
-    , width : Int
     }
 
 
@@ -2724,7 +2622,7 @@ postMemberAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postMemberAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postImageDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postMemberAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -2748,9 +2646,9 @@ postMemberAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
 
 
-postMemberAttributesPostFileDecoder : Json.Decode.Decoder PostMemberAttributesPostFile
-postMemberAttributesPostFileDecoder =
-    Json.Decode.succeed PostMemberAttributesPostFile
+postImageDecoder : Json.Decode.Decoder PostImage
+postImageDecoder =
+    Json.Decode.succeed PostImage
         |> Json.Decode.Pipeline.required "height" Json.Decode.int
         |> Json.Decode.Pipeline.required "image_colors" imageColorsDecoder
         |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
@@ -3110,7 +3008,7 @@ postInstanceAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postInstanceAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postImageDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postInstanceAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -3121,17 +3019,6 @@ postInstanceAttributesDecoder =
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postInstanceAttributesPostFileDecoder : Json.Decode.Decoder PostInstanceAttributesPostFile
-postInstanceAttributesPostFileDecoder =
-    Json.Decode.succeed PostInstanceAttributesPostFile
-        |> Json.Decode.Pipeline.required "height" Json.Decode.int
-        |> Json.Decode.Pipeline.required "image_colors" imageColorsDecoder
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
 postInstanceAttributesPostMetadataDecoder : Json.Decode.Decoder PostInstanceAttributesPostMetadata
@@ -3239,7 +3126,7 @@ postConstituentAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postConstituentAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postImageDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postConstituentAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
@@ -3248,17 +3135,6 @@ postConstituentAttributesDecoder =
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postConstituentAttributesPostFileDecoder : Json.Decode.Decoder PostConstituentAttributesPostFile
-postConstituentAttributesPostFileDecoder =
-    Json.Decode.succeed PostConstituentAttributesPostFile
-        |> Json.Decode.Pipeline.required "height" Json.Decode.int
-        |> Json.Decode.Pipeline.required "image_colors" imageColorsDecoder
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
 postConstituentAttributesPostMetadataDecoder : Json.Decode.Decoder PostConstituentAttributesPostMetadata
@@ -3361,7 +3237,7 @@ postSpecimenAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postSpecimenAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postImageDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postSpecimenAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -3382,17 +3258,6 @@ postSpecimenAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "provider_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
-
-
-postSpecimenAttributesPostFileDecoder : Json.Decode.Decoder PostSpecimenAttributesPostFile
-postSpecimenAttributesPostFileDecoder =
-    Json.Decode.succeed PostSpecimenAttributesPostFile
-        |> Json.Decode.Pipeline.required "height" Json.Decode.int
-        |> Json.Decode.Pipeline.required "image_colors" imageColorsDecoder
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
 postSpecimenAttributesPostMetadataDecoder : Json.Decode.Decoder PostSpecimenAttributesPostMetadata
@@ -3640,7 +3505,7 @@ postWidgetAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postWidgetAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postImageDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postWidgetAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -3662,17 +3527,6 @@ postWidgetAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "provider_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
-
-
-postWidgetAttributesPostFileDecoder : Json.Decode.Decoder PostWidgetAttributesPostFile
-postWidgetAttributesPostFileDecoder =
-    Json.Decode.succeed PostWidgetAttributesPostFile
-        |> Json.Decode.Pipeline.required "height" Json.Decode.int
-        |> Json.Decode.Pipeline.required "image_colors" imageColorsDecoder
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
 postWidgetAttributesPostMetadataDecoder : Json.Decode.Decoder PostWidgetAttributesPostMetadata
@@ -4026,7 +3880,7 @@ postChunkAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postChunkAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postImageDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postChunkAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -4048,17 +3902,6 @@ postChunkAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "provider_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
-
-
-postChunkAttributesPostFileDecoder : Json.Decode.Decoder PostChunkAttributesPostFile
-postChunkAttributesPostFileDecoder =
-    Json.Decode.succeed PostChunkAttributesPostFile
-        |> Json.Decode.Pipeline.required "height" Json.Decode.int
-        |> Json.Decode.Pipeline.required "image_colors" imageColorsDecoder
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
 postChunkAttributesPostMetadataDecoder : Json.Decode.Decoder PostChunkAttributesPostMetadata
@@ -4148,7 +3991,7 @@ postPieceAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postPieceAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postImageDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postPieceAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -4170,17 +4013,6 @@ postPieceAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "provider_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
-
-
-postPieceAttributesPostFileDecoder : Json.Decode.Decoder PostPieceAttributesPostFile
-postPieceAttributesPostFileDecoder =
-    Json.Decode.succeed PostPieceAttributesPostFile
-        |> Json.Decode.Pipeline.required "height" Json.Decode.int
-        |> Json.Decode.Pipeline.required "image_colors" imageColorsDecoder
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
 postPieceAttributesPostMetadataDecoder : Json.Decode.Decoder PostPieceAttributesPostMetadata
@@ -4269,7 +4101,7 @@ postThingyAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postThingyAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postImageDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postThingyAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -4280,17 +4112,6 @@ postThingyAttributesDecoder =
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postThingyAttributesPostFileDecoder : Json.Decode.Decoder PostThingyAttributesPostFile
-postThingyAttributesPostFileDecoder =
-    Json.Decode.succeed PostThingyAttributesPostFile
-        |> Json.Decode.Pipeline.required "height" Json.Decode.int
-        |> Json.Decode.Pipeline.required "image_colors" imageColorsDecoder
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
 postThingyAttributesPostMetadataDecoder : Json.Decode.Decoder PostThingyAttributesPostMetadata
@@ -4509,7 +4330,7 @@ postWhatsitAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postWhatsitAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postImageDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postWhatsitAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -4520,17 +4341,6 @@ postWhatsitAttributesDecoder =
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postWhatsitAttributesPostFileDecoder : Json.Decode.Decoder PostWhatsitAttributesPostFile
-postWhatsitAttributesPostFileDecoder =
-    Json.Decode.succeed PostWhatsitAttributesPostFile
-        |> Json.Decode.Pipeline.required "height" Json.Decode.int
-        |> Json.Decode.Pipeline.required "image_colors" imageColorsDecoder
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
 postWhatsitAttributesPostMetadataDecoder : Json.Decode.Decoder PostWhatsitAttributesPostMetadata
@@ -4621,7 +4431,7 @@ postDoodadAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postDoodadAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postImageDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postDoodadAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -4632,17 +4442,6 @@ postDoodadAttributesDecoder =
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postDoodadAttributesPostFileDecoder : Json.Decode.Decoder PostDoodadAttributesPostFile
-postDoodadAttributesPostFileDecoder =
-    Json.Decode.succeed PostDoodadAttributesPostFile
-        |> Json.Decode.Pipeline.required "height" Json.Decode.int
-        |> Json.Decode.Pipeline.required "image_colors" imageColorsDecoder
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
 postDoodadAttributesPostMetadataDecoder : Json.Decode.Decoder PostDoodadAttributesPostMetadata
