@@ -81,6 +81,7 @@ getPaginated { cookie } toUrl decoder =
 postsUrl : String -> String
 postsUrl cursor =
     let
+        fields : String -> List String -> Url.Builder.QueryParameter
         fields type_ list =
             Url.Builder.string
                 ("fields[" ++ type_ ++ "]")
@@ -152,8 +153,6 @@ postsUrl cursor =
             ]
         , fields "contentunlock-option" [ "content_unlock_type" ]
         , Url.Builder.string "filter[campaign_id]" "119662"
-
-        -- , Url.Builder.string "filter[contains_exclusive_posts]" "true"
         , Url.Builder.string "sort" "-published_at"
         , Url.Builder.string "page[cursor]" cursor
         , Url.Builder.string "json-api-use-default-includes" "false"
@@ -267,20 +266,16 @@ type alias Thumbnail =
 
 
 type alias PostObjectRelationships =
-    { accessRules : PostObjectRelationshipsAccessRules
+    { accessRules : ListOfIdAndType
     , audio : PostObjectRelationshipsAudio
-    , images : PostObjectRelationshipsImages
-    , media : PostObjectRelationshipsMedia
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
 
 
-type alias PostObjectRelationshipsAccessRules =
-    { data : List PostObjectRelationshipsAccessRulesDataObject
+type alias ListOfIdAndType =
+    { data : List IdAndType
     }
-
-
-type alias PostObjectRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias IdAndType =
@@ -290,36 +285,14 @@ type alias IdAndType =
 
 
 type alias PostObjectRelationshipsAudio =
-    { data : PostObjectRelationshipsAudioData
+    { data : IdAndType
     , links : PostObjectRelationshipsAudioLinks
     }
-
-
-type alias PostObjectRelationshipsAudioData =
-    IdAndType
 
 
 type alias PostObjectRelationshipsAudioLinks =
     { related : String
     }
-
-
-type alias PostObjectRelationshipsImages =
-    { data : List PostObjectRelationshipsImagesDataObject
-    }
-
-
-type alias PostObjectRelationshipsImagesDataObject =
-    IdAndType
-
-
-type alias PostObjectRelationshipsMedia =
-    { data : List PostObjectRelationshipsMediaDataObject
-    }
-
-
-type alias PostObjectRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostMember =
@@ -376,37 +349,10 @@ type alias AverageColorsOfCorners =
 
 
 type alias PostMemberRelationships =
-    { accessRules : PostMemberRelationshipsAccessRules
-    , images : PostMemberRelationshipsImages
-    , media : PostMemberRelationshipsMedia
+    { accessRules : ListOfIdAndType
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
-
-
-type alias PostMemberRelationshipsAccessRules =
-    { data : List PostMemberRelationshipsAccessRulesDataObject
-    }
-
-
-type alias PostMemberRelationshipsAccessRulesDataObject =
-    IdAndType
-
-
-type alias PostMemberRelationshipsImages =
-    { data : List PostMemberRelationshipsImagesDataObject
-    }
-
-
-type alias PostMemberRelationshipsImagesDataObject =
-    IdAndType
-
-
-type alias PostMemberRelationshipsMedia =
-    { data : List PostMemberRelationshipsMediaDataObject
-    }
-
-
-type alias PostMemberRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostEntity =
@@ -431,17 +377,8 @@ type alias PostEntityAttributes =
 
 
 type alias PostEntityRelationships =
-    { accessRules : PostEntityRelationshipsAccessRules
+    { accessRules : ListOfIdAndType
     }
-
-
-type alias PostEntityRelationshipsAccessRules =
-    { data : List PostEntityRelationshipsAccessRulesDataObject
-    }
-
-
-type alias PostEntityRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias PostThing =
@@ -453,63 +390,23 @@ type alias PostThing =
 
 
 type alias PostThingRelationships =
-    { accessRules : PostThingRelationshipsAccessRules
-    , attachmentsMedia : PostThingRelationshipsAttachmentsMedia
+    { accessRules : ListOfIdAndType
+    , attachmentsMedia : ListOfIdAndType
     , audio : PostThingRelationshipsAudio
-    , images : PostThingRelationshipsImages
-    , media : PostThingRelationshipsMedia
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
-
-
-type alias PostThingRelationshipsAccessRules =
-    { data : List PostThingRelationshipsAccessRulesDataObject
-    }
-
-
-type alias PostThingRelationshipsAccessRulesDataObject =
-    IdAndType
-
-
-type alias PostThingRelationshipsAttachmentsMedia =
-    { data : List PostThingRelationshipsAttachmentsMediaDataObject
-    }
-
-
-type alias PostThingRelationshipsAttachmentsMediaDataObject =
-    IdAndType
 
 
 type alias PostThingRelationshipsAudio =
-    { data : PostThingRelationshipsAudioData
+    { data : IdAndType
     , links : PostThingRelationshipsAudioLinks
     }
-
-
-type alias PostThingRelationshipsAudioData =
-    IdAndType
 
 
 type alias PostThingRelationshipsAudioLinks =
     { related : String
     }
-
-
-type alias PostThingRelationshipsImages =
-    { data : List PostThingRelationshipsImagesDataObject
-    }
-
-
-type alias PostThingRelationshipsImagesDataObject =
-    IdAndType
-
-
-type alias PostThingRelationshipsMedia =
-    { data : List PostThingRelationshipsMediaDataObject
-    }
-
-
-type alias PostThingRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostInstance =
@@ -521,37 +418,10 @@ type alias PostInstance =
 
 
 type alias PostInstanceRelationships =
-    { accessRules : PostInstanceRelationshipsAccessRules
-    , images : PostInstanceRelationshipsImages
-    , media : PostInstanceRelationshipsMedia
+    { accessRules : ListOfIdAndType
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
-
-
-type alias PostInstanceRelationshipsAccessRules =
-    { data : List PostInstanceRelationshipsAccessRulesDataObject
-    }
-
-
-type alias PostInstanceRelationshipsAccessRulesDataObject =
-    IdAndType
-
-
-type alias PostInstanceRelationshipsImages =
-    { data : List PostInstanceRelationshipsImagesDataObject
-    }
-
-
-type alias PostInstanceRelationshipsImagesDataObject =
-    IdAndType
-
-
-type alias PostInstanceRelationshipsMedia =
-    { data : List PostInstanceRelationshipsMediaDataObject
-    }
-
-
-type alias PostInstanceRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostConstituent =
@@ -580,37 +450,10 @@ type alias PostConstituentAttributes =
 
 
 type alias PostConstituentRelationships =
-    { accessRules : PostConstituentRelationshipsAccessRules
-    , images : PostConstituentRelationshipsImages
-    , media : PostConstituentRelationshipsMedia
+    { accessRules : ListOfIdAndType
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
-
-
-type alias PostConstituentRelationshipsAccessRules =
-    { data : List PostConstituentRelationshipsAccessRulesDataObject
-    }
-
-
-type alias PostConstituentRelationshipsAccessRulesDataObject =
-    IdAndType
-
-
-type alias PostConstituentRelationshipsImages =
-    { data : List PostConstituentRelationshipsImagesDataObject
-    }
-
-
-type alias PostConstituentRelationshipsImagesDataObject =
-    IdAndType
-
-
-type alias PostConstituentRelationshipsMedia =
-    { data : List PostConstituentRelationshipsMediaDataObject
-    }
-
-
-type alias PostConstituentRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostSpecimen =
@@ -650,47 +493,11 @@ type alias PostSpecimenAttributesEmbed =
 
 
 type alias PostSpecimenRelationships =
-    { accessRules : PostSpecimenRelationshipsAccessRules
-    , images : PostSpecimenRelationshipsImages
-    , media : PostSpecimenRelationshipsMedia
-    , userDefinedTags : PostSpecimenRelationshipsUserDefinedTags
+    { accessRules : ListOfIdAndType
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
+    , userDefinedTags : ListOfIdAndType
     }
-
-
-type alias PostSpecimenRelationshipsAccessRules =
-    { data : List PostSpecimenRelationshipsAccessRulesDataObject
-    }
-
-
-type alias PostSpecimenRelationshipsAccessRulesDataObject =
-    IdAndType
-
-
-type alias PostSpecimenRelationshipsImages =
-    { data : List PostSpecimenRelationshipsImagesDataObject
-    }
-
-
-type alias PostSpecimenRelationshipsImagesDataObject =
-    IdAndType
-
-
-type alias PostSpecimenRelationshipsMedia =
-    { data : List PostSpecimenRelationshipsMediaDataObject
-    }
-
-
-type alias PostSpecimenRelationshipsMediaDataObject =
-    IdAndType
-
-
-type alias PostSpecimenRelationshipsUserDefinedTags =
-    { data : List PostSpecimenRelationshipsUserDefinedTagsDataObject
-    }
-
-
-type alias PostSpecimenRelationshipsUserDefinedTagsDataObject =
-    IdAndType
 
 
 type alias PostGadget =
@@ -702,53 +509,22 @@ type alias PostGadget =
 
 
 type alias PostGadgetRelationships =
-    { accessRules : PostGadgetRelationshipsAccessRules
+    { accessRules : ListOfIdAndType
     , audio : PostGadgetRelationshipsAudio
-    , media : PostGadgetRelationshipsMedia
-    , userDefinedTags : PostGadgetRelationshipsUserDefinedTags
+    , media : ListOfIdAndType
+    , userDefinedTags : ListOfIdAndType
     }
-
-
-type alias PostGadgetRelationshipsAccessRules =
-    { data : List PostGadgetRelationshipsAccessRulesDataObject
-    }
-
-
-type alias PostGadgetRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias PostGadgetRelationshipsAudio =
-    { data : PostGadgetRelationshipsAudioData
+    { data : IdAndType
     , links : PostGadgetRelationshipsAudioLinks
     }
-
-
-type alias PostGadgetRelationshipsAudioData =
-    IdAndType
 
 
 type alias PostGadgetRelationshipsAudioLinks =
     { related : String
     }
-
-
-type alias PostGadgetRelationshipsMedia =
-    { data : List PostGadgetRelationshipsMediaDataObject
-    }
-
-
-type alias PostGadgetRelationshipsMediaDataObject =
-    IdAndType
-
-
-type alias PostGadgetRelationshipsUserDefinedTags =
-    { data : List PostGadgetRelationshipsUserDefinedTagsDataObject
-    }
-
-
-type alias PostGadgetRelationshipsUserDefinedTagsDataObject =
-    IdAndType
 
 
 type alias PostWidget =
@@ -789,32 +565,11 @@ type alias PostWidgetAttributesEmbed =
 
 
 type alias PostWidgetRelationships =
-    { accessRules : PostWidgetRelationshipsAccessRules
-    , images : PostWidgetRelationshipsImages
-    , media : PostWidgetRelationshipsMedia
-    , userDefinedTags : PostWidgetRelationshipsUserDefinedTags
+    { accessRules : ListOfIdAndType
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
+    , userDefinedTags : ListOfIdAndType
     }
-
-
-type alias PostWidgetRelationshipsAccessRules =
-    ListOfIdAndType
-
-
-type alias ListOfIdAndType =
-    { data : List IdAndType
-    }
-
-
-type alias PostWidgetRelationshipsImages =
-    ListOfIdAndType
-
-
-type alias PostWidgetRelationshipsMedia =
-    ListOfIdAndType
-
-
-type alias PostWidgetRelationshipsUserDefinedTags =
-    ListOfIdAndType
 
 
 type alias PostGizmo =
@@ -826,16 +581,12 @@ type alias PostGizmo =
 
 
 type alias PostGizmoRelationships =
-    { accessRules : PostGizmoRelationshipsAccessRules
+    { accessRules : ListOfIdAndType
     , audio : PostGizmoRelationshipsAudio
     , audioPreview : PostGizmoRelationshipsAudioPreview
-    , images : PostGizmoRelationshipsImages
-    , media : PostGizmoRelationshipsMedia
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
-
-
-type alias PostGizmoRelationshipsAccessRules =
-    ListOfIdAndType
 
 
 type alias PostGizmoRelationshipsAudio =
@@ -860,14 +611,6 @@ type alias PostGizmoRelationshipsAudioPreviewLinks =
     }
 
 
-type alias PostGizmoRelationshipsImages =
-    ListOfIdAndType
-
-
-type alias PostGizmoRelationshipsMedia =
-    ListOfIdAndType
-
-
 type alias PostPart =
     { attributes : Attributes
     , id : String
@@ -877,21 +620,13 @@ type alias PostPart =
 
 
 type alias PostPartRelationships =
-    { accessRules : PostPartRelationshipsAccessRules
-    , attachmentsMedia : PostPartRelationshipsAttachmentsMedia
+    { accessRules : ListOfIdAndType
+    , attachmentsMedia : ListOfIdAndType
     , audio : PostPartRelationshipsAudio
     , audioPreview : PostPartRelationshipsAudioPreview
-    , media : PostPartRelationshipsMedia
-    , userDefinedTags : PostPartRelationshipsUserDefinedTags
+    , media : ListOfIdAndType
+    , userDefinedTags : ListOfIdAndType
     }
-
-
-type alias PostPartRelationshipsAccessRules =
-    ListOfIdAndType
-
-
-type alias PostPartRelationshipsAttachmentsMedia =
-    ListOfIdAndType
 
 
 type alias PostPartRelationshipsAudio =
@@ -914,14 +649,6 @@ type alias PostPartRelationshipsAudioPreview =
 type alias PostPartRelationshipsAudioPreviewLinks =
     { related : String
     }
-
-
-type alias PostPartRelationshipsMedia =
-    ListOfIdAndType
-
-
-type alias PostPartRelationshipsUserDefinedTags =
-    ListOfIdAndType
 
 
 type alias PostChunk =
@@ -962,22 +689,10 @@ type alias PostChunkAttributesEmbed =
 
 
 type alias PostChunkRelationships =
-    { accessRules : PostChunkRelationshipsAccessRules
-    , images : PostChunkRelationshipsImages
-    , media : PostChunkRelationshipsMedia
+    { accessRules : ListOfIdAndType
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
-
-
-type alias PostChunkRelationshipsAccessRules =
-    ListOfIdAndType
-
-
-type alias PostChunkRelationshipsImages =
-    ListOfIdAndType
-
-
-type alias PostChunkRelationshipsMedia =
-    ListOfIdAndType
 
 
 type alias PostPiece =
@@ -1018,22 +733,10 @@ type alias PostPieceAttributesEmbed =
 
 
 type alias PostPieceRelationships =
-    { accessRules : PostPieceRelationshipsAccessRules
-    , images : PostPieceRelationshipsImages
-    , media : PostPieceRelationshipsMedia
+    { accessRules : ListOfIdAndType
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
-
-
-type alias PostPieceRelationshipsAccessRules =
-    ListOfIdAndType
-
-
-type alias PostPieceRelationshipsImages =
-    ListOfIdAndType
-
-
-type alias PostPieceRelationshipsMedia =
-    ListOfIdAndType
 
 
 type alias PostThingy =
@@ -1045,22 +748,10 @@ type alias PostThingy =
 
 
 type alias PostThingyRelationships =
-    { accessRules : PostThingyRelationshipsAccessRules
-    , images : PostThingyRelationshipsImages
-    , media : PostThingyRelationshipsMedia
+    { accessRules : ListOfIdAndType
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
-
-
-type alias PostThingyRelationshipsAccessRules =
-    ListOfIdAndType
-
-
-type alias PostThingyRelationshipsImages =
-    ListOfIdAndType
-
-
-type alias PostThingyRelationshipsMedia =
-    ListOfIdAndType
 
 
 type alias PostThingamajig =
@@ -1072,21 +763,13 @@ type alias PostThingamajig =
 
 
 type alias PostThingamajigRelationships =
-    { accessRules : PostThingamajigRelationshipsAccessRules
-    , attachmentsMedia : PostThingamajigRelationshipsAttachmentsMedia
+    { accessRules : ListOfIdAndType
+    , attachmentsMedia : ListOfIdAndType
     , audio : PostThingamajigRelationshipsAudio
     , audioPreview : PostThingamajigRelationshipsAudioPreview
-    , images : PostThingamajigRelationshipsImages
-    , media : PostThingamajigRelationshipsMedia
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
-
-
-type alias PostThingamajigRelationshipsAccessRules =
-    ListOfIdAndType
-
-
-type alias PostThingamajigRelationshipsAttachmentsMedia =
-    ListOfIdAndType
 
 
 type alias PostThingamajigRelationshipsAudio =
@@ -1111,14 +794,6 @@ type alias PostThingamajigRelationshipsAudioPreviewLinks =
     }
 
 
-type alias PostThingamajigRelationshipsImages =
-    ListOfIdAndType
-
-
-type alias PostThingamajigRelationshipsMedia =
-    ListOfIdAndType
-
-
 type alias PostWhatsit =
     { attributes : Attributes
     , id : String
@@ -1128,22 +803,10 @@ type alias PostWhatsit =
 
 
 type alias PostWhatsitRelationships =
-    { accessRules : PostWhatsitRelationshipsAccessRules
-    , images : PostWhatsitRelationshipsImages
-    , media : PostWhatsitRelationshipsMedia
+    { accessRules : ListOfIdAndType
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
-
-
-type alias PostWhatsitRelationshipsAccessRules =
-    ListOfIdAndType
-
-
-type alias PostWhatsitRelationshipsImages =
-    ListOfIdAndType
-
-
-type alias PostWhatsitRelationshipsMedia =
-    ListOfIdAndType
 
 
 type alias PostDoodad =
@@ -1155,22 +818,10 @@ type alias PostDoodad =
 
 
 type alias PostDoodadRelationships =
-    { accessRules : PostDoodadRelationshipsAccessRules
-    , images : PostDoodadRelationshipsImages
-    , media : PostDoodadRelationshipsMedia
+    { accessRules : ListOfIdAndType
+    , images : ListOfIdAndType
+    , media : ListOfIdAndType
     }
-
-
-type alias PostDoodadRelationshipsAccessRules =
-    ListOfIdAndType
-
-
-type alias PostDoodadRelationshipsImages =
-    ListOfIdAndType
-
-
-type alias PostDoodadRelationshipsMedia =
-    ListOfIdAndType
 
 
 postDecoder : Json.Decode.Decoder Post
@@ -1268,16 +919,10 @@ postMetadataDecoder =
 postObjectRelationshipsDecoder : Json.Decode.Decoder PostObjectRelationships
 postObjectRelationshipsDecoder =
     Json.Decode.succeed PostObjectRelationships
-        |> Json.Decode.Pipeline.required "access_rules" postObjectRelationshipsAccessRulesDecoder
+        |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "audio" postObjectRelationshipsAudioDecoder
-        |> Json.Decode.Pipeline.required "images" postObjectRelationshipsImagesDecoder
-        |> Json.Decode.Pipeline.required "media" postObjectRelationshipsMediaDecoder
-
-
-postObjectRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostObjectRelationshipsAccessRules
-postObjectRelationshipsAccessRulesDecoder =
-    Json.Decode.succeed PostObjectRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
+        |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
 
 
 idAndTypeDecoder : Json.Decode.Decoder IdAndType
@@ -1298,18 +943,6 @@ postObjectRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostObjectRelatio
 postObjectRelationshipsAudioLinksDecoder =
     Json.Decode.succeed PostObjectRelationshipsAudioLinks
         |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
-postObjectRelationshipsImagesDecoder : Json.Decode.Decoder PostObjectRelationshipsImages
-postObjectRelationshipsImagesDecoder =
-    Json.Decode.succeed PostObjectRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postObjectRelationshipsMediaDecoder : Json.Decode.Decoder PostObjectRelationshipsMedia
-postObjectRelationshipsMediaDecoder =
-    Json.Decode.succeed PostObjectRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postMemberDecoder : Json.Decode.Decoder PostMember
@@ -1401,27 +1034,9 @@ thumbnailDecoder =
 postMemberRelationshipsDecoder : Json.Decode.Decoder PostMemberRelationships
 postMemberRelationshipsDecoder =
     Json.Decode.succeed PostMemberRelationships
-        |> Json.Decode.Pipeline.required "access_rules" postMemberRelationshipsAccessRulesDecoder
-        |> Json.Decode.Pipeline.required "images" postMemberRelationshipsImagesDecoder
-        |> Json.Decode.Pipeline.required "media" postMemberRelationshipsMediaDecoder
-
-
-postMemberRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostMemberRelationshipsAccessRules
-postMemberRelationshipsAccessRulesDecoder =
-    Json.Decode.succeed PostMemberRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postMemberRelationshipsImagesDecoder : Json.Decode.Decoder PostMemberRelationshipsImages
-postMemberRelationshipsImagesDecoder =
-    Json.Decode.succeed PostMemberRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postMemberRelationshipsMediaDecoder : Json.Decode.Decoder PostMemberRelationshipsMedia
-postMemberRelationshipsMediaDecoder =
-    Json.Decode.succeed PostMemberRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
+        |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
 
 
 postEntityDecoder : Json.Decode.Decoder PostEntity
@@ -1450,13 +1065,7 @@ postEntityAttributesDecoder =
 postEntityRelationshipsDecoder : Json.Decode.Decoder PostEntityRelationships
 postEntityRelationshipsDecoder =
     Json.Decode.succeed PostEntityRelationships
-        |> Json.Decode.Pipeline.required "access_rules" postEntityRelationshipsAccessRulesDecoder
-
-
-postEntityRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostEntityRelationshipsAccessRules
-postEntityRelationshipsAccessRulesDecoder =
-    Json.Decode.succeed PostEntityRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
+        |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
 
 
 postThingDecoder : Json.Decode.Decoder PostThing
@@ -1497,23 +1106,11 @@ progressDecoder =
 postThingRelationshipsDecoder : Json.Decode.Decoder PostThingRelationships
 postThingRelationshipsDecoder =
     Json.Decode.succeed PostThingRelationships
-        |> Json.Decode.Pipeline.required "access_rules" postThingRelationshipsAccessRulesDecoder
-        |> Json.Decode.Pipeline.required "attachments_media" postThingRelationshipsAttachmentsMediaDecoder
+        |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "attachments_media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "audio" postThingRelationshipsAudioDecoder
-        |> Json.Decode.Pipeline.required "images" postThingRelationshipsImagesDecoder
-        |> Json.Decode.Pipeline.required "media" postThingRelationshipsMediaDecoder
-
-
-postThingRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostThingRelationshipsAccessRules
-postThingRelationshipsAccessRulesDecoder =
-    Json.Decode.succeed PostThingRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postThingRelationshipsAttachmentsMediaDecoder : Json.Decode.Decoder PostThingRelationshipsAttachmentsMedia
-postThingRelationshipsAttachmentsMediaDecoder =
-    Json.Decode.succeed PostThingRelationshipsAttachmentsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
+        |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
 
 
 postThingRelationshipsAudioDecoder : Json.Decode.Decoder PostThingRelationshipsAudio
@@ -1529,18 +1126,6 @@ postThingRelationshipsAudioLinksDecoder =
         |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
-postThingRelationshipsImagesDecoder : Json.Decode.Decoder PostThingRelationshipsImages
-postThingRelationshipsImagesDecoder =
-    Json.Decode.succeed PostThingRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postThingRelationshipsMediaDecoder : Json.Decode.Decoder PostThingRelationshipsMedia
-postThingRelationshipsMediaDecoder =
-    Json.Decode.succeed PostThingRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
 postInstanceDecoder : Json.Decode.Decoder PostInstance
 postInstanceDecoder =
     Json.Decode.succeed PostInstance
@@ -1553,27 +1138,9 @@ postInstanceDecoder =
 postInstanceRelationshipsDecoder : Json.Decode.Decoder PostInstanceRelationships
 postInstanceRelationshipsDecoder =
     Json.Decode.succeed PostInstanceRelationships
-        |> Json.Decode.Pipeline.required "access_rules" postInstanceRelationshipsAccessRulesDecoder
-        |> Json.Decode.Pipeline.required "images" postInstanceRelationshipsImagesDecoder
-        |> Json.Decode.Pipeline.required "media" postInstanceRelationshipsMediaDecoder
-
-
-postInstanceRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostInstanceRelationshipsAccessRules
-postInstanceRelationshipsAccessRulesDecoder =
-    Json.Decode.succeed PostInstanceRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postInstanceRelationshipsImagesDecoder : Json.Decode.Decoder PostInstanceRelationshipsImages
-postInstanceRelationshipsImagesDecoder =
-    Json.Decode.succeed PostInstanceRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postInstanceRelationshipsMediaDecoder : Json.Decode.Decoder PostInstanceRelationshipsMedia
-postInstanceRelationshipsMediaDecoder =
-    Json.Decode.succeed PostInstanceRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
+        |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
 
 
 postConstituentDecoder : Json.Decode.Decoder PostConstituent
@@ -1606,27 +1173,9 @@ postConstituentAttributesDecoder =
 postConstituentRelationshipsDecoder : Json.Decode.Decoder PostConstituentRelationships
 postConstituentRelationshipsDecoder =
     Json.Decode.succeed PostConstituentRelationships
-        |> Json.Decode.Pipeline.required "access_rules" postConstituentRelationshipsAccessRulesDecoder
-        |> Json.Decode.Pipeline.required "images" postConstituentRelationshipsImagesDecoder
-        |> Json.Decode.Pipeline.required "media" postConstituentRelationshipsMediaDecoder
-
-
-postConstituentRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostConstituentRelationshipsAccessRules
-postConstituentRelationshipsAccessRulesDecoder =
-    Json.Decode.succeed PostConstituentRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postConstituentRelationshipsImagesDecoder : Json.Decode.Decoder PostConstituentRelationshipsImages
-postConstituentRelationshipsImagesDecoder =
-    Json.Decode.succeed PostConstituentRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postConstituentRelationshipsMediaDecoder : Json.Decode.Decoder PostConstituentRelationshipsMedia
-postConstituentRelationshipsMediaDecoder =
-    Json.Decode.succeed PostConstituentRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
+        |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
 
 
 postSpecimenDecoder : Json.Decode.Decoder PostSpecimen
@@ -1671,34 +1220,10 @@ postSpecimenAttributesEmbedDecoder =
 postSpecimenRelationshipsDecoder : Json.Decode.Decoder PostSpecimenRelationships
 postSpecimenRelationshipsDecoder =
     Json.Decode.succeed PostSpecimenRelationships
-        |> Json.Decode.Pipeline.required "access_rules" postSpecimenRelationshipsAccessRulesDecoder
-        |> Json.Decode.Pipeline.required "images" postSpecimenRelationshipsImagesDecoder
-        |> Json.Decode.Pipeline.required "media" postSpecimenRelationshipsMediaDecoder
-        |> Json.Decode.Pipeline.required "user_defined_tags" postSpecimenRelationshipsUserDefinedTagsDecoder
-
-
-postSpecimenRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostSpecimenRelationshipsAccessRules
-postSpecimenRelationshipsAccessRulesDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postSpecimenRelationshipsImagesDecoder : Json.Decode.Decoder PostSpecimenRelationshipsImages
-postSpecimenRelationshipsImagesDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postSpecimenRelationshipsMediaDecoder : Json.Decode.Decoder PostSpecimenRelationshipsMedia
-postSpecimenRelationshipsMediaDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postSpecimenRelationshipsUserDefinedTagsDecoder : Json.Decode.Decoder PostSpecimenRelationshipsUserDefinedTags
-postSpecimenRelationshipsUserDefinedTagsDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsUserDefinedTags
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
+        |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "user_defined_tags" listOfIdAndTypeDecoder
 
 
 postGadgetDecoder : Json.Decode.Decoder PostGadget
@@ -1713,16 +1238,10 @@ postGadgetDecoder =
 postGadgetRelationshipsDecoder : Json.Decode.Decoder PostGadgetRelationships
 postGadgetRelationshipsDecoder =
     Json.Decode.succeed PostGadgetRelationships
-        |> Json.Decode.Pipeline.required "access_rules" postGadgetRelationshipsAccessRulesDecoder
+        |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "audio" postGadgetRelationshipsAudioDecoder
-        |> Json.Decode.Pipeline.required "media" postGadgetRelationshipsMediaDecoder
-        |> Json.Decode.Pipeline.required "user_defined_tags" postGadgetRelationshipsUserDefinedTagsDecoder
-
-
-postGadgetRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostGadgetRelationshipsAccessRules
-postGadgetRelationshipsAccessRulesDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
+        |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
+        |> Json.Decode.Pipeline.required "user_defined_tags" listOfIdAndTypeDecoder
 
 
 postGadgetRelationshipsAudioDecoder : Json.Decode.Decoder PostGadgetRelationshipsAudio
@@ -1736,18 +1255,6 @@ postGadgetRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostGadgetRelatio
 postGadgetRelationshipsAudioLinksDecoder =
     Json.Decode.succeed PostGadgetRelationshipsAudioLinks
         |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
-postGadgetRelationshipsMediaDecoder : Json.Decode.Decoder PostGadgetRelationshipsMedia
-postGadgetRelationshipsMediaDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postGadgetRelationshipsUserDefinedTagsDecoder : Json.Decode.Decoder PostGadgetRelationshipsUserDefinedTags
-postGadgetRelationshipsUserDefinedTagsDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsUserDefinedTags
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postWidgetDecoder : Json.Decode.Decoder PostWidget
