@@ -303,6 +303,10 @@ type alias Image =
 
 
 type alias PostObjectAttributesPostFile =
+    PostFile
+
+
+type alias PostFile =
     { defaultThumbnail : HasUrl
     , duration : Int
     , fullContentDuration : Int
@@ -493,14 +497,14 @@ type alias PostMemberAttributesPostFile =
 
 
 type alias PostMemberAttributesPostFileImageColors =
-    { averageColorsOfCorners : PostMemberAttributesPostFileImageColorsAverageColorsOfCorners
+    { averageColorsOfCorners : AverageColorsOfCorners
     , dominantColor : String
     , palette : List String
     , textColor : String
     }
 
 
-type alias PostMemberAttributesPostFileImageColorsAverageColorsOfCorners =
+type alias AverageColorsOfCorners =
     { bottomLeft : String
     , bottomRight : String
     , topLeft : String
@@ -714,14 +718,7 @@ type alias PostThingAttributes =
 
 
 type alias PostThingAttributesPostFile =
-    { defaultThumbnail : HasUrl
-    , duration : Int
-    , fullContentDuration : Int
-    , mediaId : Int
-    , progress : Progress
-    , state : String
-    , url : String
-    }
+    PostFile
 
 
 type alias PostThingAttributesPostMetadata =
@@ -894,11 +891,7 @@ type alias PostInstanceAttributesPostFileImageColors =
 
 
 type alias PostInstanceAttributesPostFileImageColorsAverageColorsOfCorners =
-    { bottomLeft : String
-    , bottomRight : String
-    , topLeft : String
-    , topRight : String
-    }
+    AverageColorsOfCorners
 
 
 type alias PostInstanceAttributesPostMetadata =
@@ -1043,11 +1036,7 @@ type alias PostConstituentAttributesPostFileImageColors =
 
 
 type alias PostConstituentAttributesPostFileImageColorsAverageColorsOfCorners =
-    { bottomLeft : String
-    , bottomRight : String
-    , topLeft : String
-    , topRight : String
-    }
+    AverageColorsOfCorners
 
 
 type alias PostConstituentAttributesPostMetadata =
@@ -1199,11 +1188,7 @@ type alias PostSpecimenAttributesPostFileImageColors =
 
 
 type alias PostSpecimenAttributesPostFileImageColorsAverageColorsOfCorners =
-    { bottomLeft : String
-    , bottomRight : String
-    , topLeft : String
-    , topRight : String
-    }
+    AverageColorsOfCorners
 
 
 type alias PostSpecimenAttributesPostMetadata =
@@ -1341,14 +1326,7 @@ type alias PostGadgetAttributes =
 
 
 type alias PostGadgetAttributesPostFile =
-    { defaultThumbnail : HasUrl
-    , duration : Int
-    , fullContentDuration : Int
-    , mediaId : Int
-    , progress : Progress
-    , state : String
-    , url : String
-    }
+    PostFile
 
 
 type alias PostGadgetAttributesPostMetadata =
@@ -1523,11 +1501,7 @@ type alias PostWidgetAttributesPostFileImageColors =
 
 
 type alias PostWidgetAttributesPostFileImageColorsAverageColorsOfCorners =
-    { bottomLeft : String
-    , bottomRight : String
-    , topLeft : String
-    , topRight : String
-    }
+    AverageColorsOfCorners
 
 
 type alias PostWidgetAttributesPostMetadata =
@@ -1665,14 +1639,7 @@ type alias PostGizmoAttributes =
 
 
 type alias PostGizmoAttributesPostFile =
-    { defaultThumbnail : HasUrl
-    , duration : Int
-    , fullContentDuration : Int
-    , mediaId : Int
-    , progress : Progress
-    , state : String
-    , url : String
-    }
+    PostFile
 
 
 type alias PostGizmoAttributesPostMetadata =
@@ -1833,14 +1800,7 @@ type alias PostPartAttributes =
 
 
 type alias PostPartAttributesPostFile =
-    { defaultThumbnail : HasUrl
-    , duration : Int
-    , fullContentDuration : Int
-    , mediaId : Int
-    , progress : Progress
-    , state : String
-    , url : String
-    }
+    PostFile
 
 
 type alias PostPartAttributesPostMetadata =
@@ -2040,11 +2000,7 @@ type alias PostChunkAttributesPostFileImageColors =
 
 
 type alias PostChunkAttributesPostFileImageColorsAverageColorsOfCorners =
-    { bottomLeft : String
-    , bottomRight : String
-    , topLeft : String
-    , topRight : String
-    }
+    AverageColorsOfCorners
 
 
 type alias PostChunkAttributesPostMetadata =
@@ -2201,11 +2157,7 @@ type alias PostPieceAttributesPostFileImageColors =
 
 
 type alias PostPieceAttributesPostFileImageColorsAverageColorsOfCorners =
-    { bottomLeft : String
-    , bottomRight : String
-    , topLeft : String
-    , topRight : String
-    }
+    AverageColorsOfCorners
 
 
 type alias PostPieceAttributesPostMetadata =
@@ -2351,11 +2303,7 @@ type alias PostThingyAttributesPostFileImageColors =
 
 
 type alias PostThingyAttributesPostFileImageColorsAverageColorsOfCorners =
-    { bottomLeft : String
-    , bottomRight : String
-    , topLeft : String
-    , topRight : String
-    }
+    AverageColorsOfCorners
 
 
 type alias PostThingyAttributesPostMetadata =
@@ -2484,14 +2432,7 @@ type alias PostThingamajigAttributes =
 
 
 type alias PostThingamajigAttributesPostFile =
-    { defaultThumbnail : HasUrl
-    , duration : Int
-    , fullContentDuration : Int
-    , mediaId : Int
-    , progress : Progress
-    , state : String
-    , url : String
-    }
+    PostFile
 
 
 type alias PostThingamajigAttributesPostMetadata =
@@ -2680,11 +2621,7 @@ type alias PostWhatsitAttributesPostFileImageColors =
 
 
 type alias PostWhatsitAttributesPostFileImageColorsAverageColorsOfCorners =
-    { bottomLeft : String
-    , bottomRight : String
-    , topLeft : String
-    , topRight : String
-    }
+    AverageColorsOfCorners
 
 
 type alias PostWhatsitAttributesPostMetadata =
@@ -2832,11 +2769,7 @@ type alias PostDoodadAttributesPostFileImageColors =
 
 
 type alias PostDoodadAttributesPostFileImageColorsAverageColorsOfCorners =
-    { bottomLeft : String
-    , bottomRight : String
-    , topLeft : String
-    , topRight : String
-    }
+    AverageColorsOfCorners
 
 
 type alias PostDoodadAttributesPostMetadata =
@@ -2976,7 +2909,7 @@ postObjectAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postObjectAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postObjectAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -3001,9 +2934,9 @@ imageDecoder =
         |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
-postObjectAttributesPostFileDecoder : Json.Decode.Decoder PostObjectAttributesPostFile
-postObjectAttributesPostFileDecoder =
-    Json.Decode.succeed PostObjectAttributesPostFile
+postFileDecoder : Json.Decode.Decoder PostFile
+postFileDecoder =
+    Json.Decode.succeed PostFile
         |> Json.Decode.Pipeline.required "default_thumbnail" hasUrlDecoder
         |> Json.Decode.Pipeline.required "duration" Json.Decode.int
         |> Json.Decode.Pipeline.required "full_content_duration" Json.Decode.int
@@ -3178,15 +3111,15 @@ postMemberAttributesPostFileDecoder =
 postMemberAttributesPostFileImageColorsDecoder : Json.Decode.Decoder PostMemberAttributesPostFileImageColors
 postMemberAttributesPostFileImageColorsDecoder =
     Json.Decode.succeed PostMemberAttributesPostFileImageColors
-        |> Json.Decode.Pipeline.required "average_colors_of_corners" postMemberAttributesPostFileImageColorsAverageColorsOfCornersDecoder
+        |> Json.Decode.Pipeline.required "average_colors_of_corners" averageColorsOfCornersDecoder
         |> Json.Decode.Pipeline.required "dominant_color" Json.Decode.string
         |> Json.Decode.Pipeline.required "palette" (Json.Decode.list Json.Decode.string)
         |> Json.Decode.Pipeline.required "text_color" Json.Decode.string
 
 
-postMemberAttributesPostFileImageColorsAverageColorsOfCornersDecoder : Json.Decode.Decoder PostMemberAttributesPostFileImageColorsAverageColorsOfCorners
-postMemberAttributesPostFileImageColorsAverageColorsOfCornersDecoder =
-    Json.Decode.succeed PostMemberAttributesPostFileImageColorsAverageColorsOfCorners
+averageColorsOfCornersDecoder : Json.Decode.Decoder AverageColorsOfCorners
+averageColorsOfCornersDecoder =
+    Json.Decode.succeed AverageColorsOfCorners
         |> Json.Decode.Pipeline.required "bottom_left" Json.Decode.string
         |> Json.Decode.Pipeline.required "bottom_right" Json.Decode.string
         |> Json.Decode.Pipeline.required "top_left" Json.Decode.string
@@ -3374,7 +3307,7 @@ postThingAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postThingAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postThingAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -3385,18 +3318,6 @@ postThingAttributesDecoder =
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postThingAttributesPostFileDecoder : Json.Decode.Decoder PostThingAttributesPostFile
-postThingAttributesPostFileDecoder =
-    Json.Decode.succeed PostThingAttributesPostFile
-        |> Json.Decode.Pipeline.required "default_thumbnail" hasUrlDecoder
-        |> Json.Decode.Pipeline.required "duration" Json.Decode.int
-        |> Json.Decode.Pipeline.required "full_content_duration" Json.Decode.int
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "progress" progressDecoder
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
 
 
 hasUrlDecoder : Json.Decode.Decoder HasUrl
@@ -3565,19 +3486,10 @@ postInstanceAttributesPostFileDecoder =
 postInstanceAttributesPostFileImageColorsDecoder : Json.Decode.Decoder PostInstanceAttributesPostFileImageColors
 postInstanceAttributesPostFileImageColorsDecoder =
     Json.Decode.succeed PostInstanceAttributesPostFileImageColors
-        |> Json.Decode.Pipeline.required "average_colors_of_corners" postInstanceAttributesPostFileImageColorsAverageColorsOfCornersDecoder
+        |> Json.Decode.Pipeline.required "average_colors_of_corners" averageColorsOfCornersDecoder
         |> Json.Decode.Pipeline.required "dominant_color" Json.Decode.string
         |> Json.Decode.Pipeline.required "palette" (Json.Decode.list Json.Decode.string)
         |> Json.Decode.Pipeline.required "text_color" Json.Decode.string
-
-
-postInstanceAttributesPostFileImageColorsAverageColorsOfCornersDecoder : Json.Decode.Decoder PostInstanceAttributesPostFileImageColorsAverageColorsOfCorners
-postInstanceAttributesPostFileImageColorsAverageColorsOfCornersDecoder =
-    Json.Decode.succeed PostInstanceAttributesPostFileImageColorsAverageColorsOfCorners
-        |> Json.Decode.Pipeline.required "bottom_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "bottom_right" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_right" Json.Decode.string
 
 
 postInstanceAttributesPostMetadataDecoder : Json.Decode.Decoder PostInstanceAttributesPostMetadata
@@ -3710,19 +3622,10 @@ postConstituentAttributesPostFileDecoder =
 postConstituentAttributesPostFileImageColorsDecoder : Json.Decode.Decoder PostConstituentAttributesPostFileImageColors
 postConstituentAttributesPostFileImageColorsDecoder =
     Json.Decode.succeed PostConstituentAttributesPostFileImageColors
-        |> Json.Decode.Pipeline.required "average_colors_of_corners" postConstituentAttributesPostFileImageColorsAverageColorsOfCornersDecoder
+        |> Json.Decode.Pipeline.required "average_colors_of_corners" averageColorsOfCornersDecoder
         |> Json.Decode.Pipeline.required "dominant_color" Json.Decode.string
         |> Json.Decode.Pipeline.required "palette" (Json.Decode.list Json.Decode.string)
         |> Json.Decode.Pipeline.required "text_color" Json.Decode.string
-
-
-postConstituentAttributesPostFileImageColorsAverageColorsOfCornersDecoder : Json.Decode.Decoder PostConstituentAttributesPostFileImageColorsAverageColorsOfCorners
-postConstituentAttributesPostFileImageColorsAverageColorsOfCornersDecoder =
-    Json.Decode.succeed PostConstituentAttributesPostFileImageColorsAverageColorsOfCorners
-        |> Json.Decode.Pipeline.required "bottom_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "bottom_right" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_right" Json.Decode.string
 
 
 postConstituentAttributesPostMetadataDecoder : Json.Decode.Decoder PostConstituentAttributesPostMetadata
@@ -3862,19 +3765,10 @@ postSpecimenAttributesPostFileDecoder =
 postSpecimenAttributesPostFileImageColorsDecoder : Json.Decode.Decoder PostSpecimenAttributesPostFileImageColors
 postSpecimenAttributesPostFileImageColorsDecoder =
     Json.Decode.succeed PostSpecimenAttributesPostFileImageColors
-        |> Json.Decode.Pipeline.required "average_colors_of_corners" postSpecimenAttributesPostFileImageColorsAverageColorsOfCornersDecoder
+        |> Json.Decode.Pipeline.required "average_colors_of_corners" averageColorsOfCornersDecoder
         |> Json.Decode.Pipeline.required "dominant_color" Json.Decode.string
         |> Json.Decode.Pipeline.required "palette" (Json.Decode.list Json.Decode.string)
         |> Json.Decode.Pipeline.required "text_color" Json.Decode.string
-
-
-postSpecimenAttributesPostFileImageColorsAverageColorsOfCornersDecoder : Json.Decode.Decoder PostSpecimenAttributesPostFileImageColorsAverageColorsOfCorners
-postSpecimenAttributesPostFileImageColorsAverageColorsOfCornersDecoder =
-    Json.Decode.succeed PostSpecimenAttributesPostFileImageColorsAverageColorsOfCorners
-        |> Json.Decode.Pipeline.required "bottom_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "bottom_right" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_right" Json.Decode.string
 
 
 postSpecimenAttributesPostMetadataDecoder : Json.Decode.Decoder PostSpecimenAttributesPostMetadata
@@ -3988,7 +3882,7 @@ postGadgetAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postGadgetAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postGadgetAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -3999,18 +3893,6 @@ postGadgetAttributesDecoder =
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postGadgetAttributesPostFileDecoder : Json.Decode.Decoder PostGadgetAttributesPostFile
-postGadgetAttributesPostFileDecoder =
-    Json.Decode.succeed PostGadgetAttributesPostFile
-        |> Json.Decode.Pipeline.required "default_thumbnail" hasUrlDecoder
-        |> Json.Decode.Pipeline.required "duration" Json.Decode.int
-        |> Json.Decode.Pipeline.required "full_content_duration" Json.Decode.int
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "progress" progressDecoder
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
 
 
 postGadgetAttributesPostMetadataDecoder : Json.Decode.Decoder PostGadgetAttributesPostMetadata
@@ -4172,19 +4054,10 @@ postWidgetAttributesPostFileDecoder =
 postWidgetAttributesPostFileImageColorsDecoder : Json.Decode.Decoder PostWidgetAttributesPostFileImageColors
 postWidgetAttributesPostFileImageColorsDecoder =
     Json.Decode.succeed PostWidgetAttributesPostFileImageColors
-        |> Json.Decode.Pipeline.required "average_colors_of_corners" postWidgetAttributesPostFileImageColorsAverageColorsOfCornersDecoder
+        |> Json.Decode.Pipeline.required "average_colors_of_corners" averageColorsOfCornersDecoder
         |> Json.Decode.Pipeline.required "dominant_color" Json.Decode.string
         |> Json.Decode.Pipeline.required "palette" (Json.Decode.list Json.Decode.string)
         |> Json.Decode.Pipeline.required "text_color" Json.Decode.string
-
-
-postWidgetAttributesPostFileImageColorsAverageColorsOfCornersDecoder : Json.Decode.Decoder PostWidgetAttributesPostFileImageColorsAverageColorsOfCorners
-postWidgetAttributesPostFileImageColorsAverageColorsOfCornersDecoder =
-    Json.Decode.succeed PostWidgetAttributesPostFileImageColorsAverageColorsOfCorners
-        |> Json.Decode.Pipeline.required "bottom_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "bottom_right" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_right" Json.Decode.string
 
 
 postWidgetAttributesPostMetadataDecoder : Json.Decode.Decoder PostWidgetAttributesPostMetadata
@@ -4298,7 +4171,7 @@ postGizmoAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postGizmoAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postGizmoAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -4309,18 +4182,6 @@ postGizmoAttributesDecoder =
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postGizmoAttributesPostFileDecoder : Json.Decode.Decoder PostGizmoAttributesPostFile
-postGizmoAttributesPostFileDecoder =
-    Json.Decode.succeed PostGizmoAttributesPostFile
-        |> Json.Decode.Pipeline.required "default_thumbnail" hasUrlDecoder
-        |> Json.Decode.Pipeline.required "duration" Json.Decode.int
-        |> Json.Decode.Pipeline.required "full_content_duration" Json.Decode.int
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "progress" progressDecoder
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
 
 
 postGizmoAttributesPostMetadataDecoder : Json.Decode.Decoder PostGizmoAttributesPostMetadata
@@ -4456,7 +4317,7 @@ postPartAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postPartAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postPartAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -4467,18 +4328,6 @@ postPartAttributesDecoder =
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postPartAttributesPostFileDecoder : Json.Decode.Decoder PostPartAttributesPostFile
-postPartAttributesPostFileDecoder =
-    Json.Decode.succeed PostPartAttributesPostFile
-        |> Json.Decode.Pipeline.required "default_thumbnail" hasUrlDecoder
-        |> Json.Decode.Pipeline.required "duration" Json.Decode.int
-        |> Json.Decode.Pipeline.required "full_content_duration" Json.Decode.int
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "progress" progressDecoder
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
 
 
 postPartAttributesPostMetadataDecoder : Json.Decode.Decoder PostPartAttributesPostMetadata
@@ -4660,19 +4509,10 @@ postChunkAttributesPostFileDecoder =
 postChunkAttributesPostFileImageColorsDecoder : Json.Decode.Decoder PostChunkAttributesPostFileImageColors
 postChunkAttributesPostFileImageColorsDecoder =
     Json.Decode.succeed PostChunkAttributesPostFileImageColors
-        |> Json.Decode.Pipeline.required "average_colors_of_corners" postChunkAttributesPostFileImageColorsAverageColorsOfCornersDecoder
+        |> Json.Decode.Pipeline.required "average_colors_of_corners" averageColorsOfCornersDecoder
         |> Json.Decode.Pipeline.required "dominant_color" Json.Decode.string
         |> Json.Decode.Pipeline.required "palette" (Json.Decode.list Json.Decode.string)
         |> Json.Decode.Pipeline.required "text_color" Json.Decode.string
-
-
-postChunkAttributesPostFileImageColorsAverageColorsOfCornersDecoder : Json.Decode.Decoder PostChunkAttributesPostFileImageColorsAverageColorsOfCorners
-postChunkAttributesPostFileImageColorsAverageColorsOfCornersDecoder =
-    Json.Decode.succeed PostChunkAttributesPostFileImageColorsAverageColorsOfCorners
-        |> Json.Decode.Pipeline.required "bottom_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "bottom_right" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_right" Json.Decode.string
 
 
 postChunkAttributesPostMetadataDecoder : Json.Decode.Decoder PostChunkAttributesPostMetadata
@@ -4818,19 +4658,10 @@ postPieceAttributesPostFileDecoder =
 postPieceAttributesPostFileImageColorsDecoder : Json.Decode.Decoder PostPieceAttributesPostFileImageColors
 postPieceAttributesPostFileImageColorsDecoder =
     Json.Decode.succeed PostPieceAttributesPostFileImageColors
-        |> Json.Decode.Pipeline.required "average_colors_of_corners" postPieceAttributesPostFileImageColorsAverageColorsOfCornersDecoder
+        |> Json.Decode.Pipeline.required "average_colors_of_corners" averageColorsOfCornersDecoder
         |> Json.Decode.Pipeline.required "dominant_color" Json.Decode.string
         |> Json.Decode.Pipeline.required "palette" (Json.Decode.list Json.Decode.string)
         |> Json.Decode.Pipeline.required "text_color" Json.Decode.string
-
-
-postPieceAttributesPostFileImageColorsAverageColorsOfCornersDecoder : Json.Decode.Decoder PostPieceAttributesPostFileImageColorsAverageColorsOfCorners
-postPieceAttributesPostFileImageColorsAverageColorsOfCornersDecoder =
-    Json.Decode.succeed PostPieceAttributesPostFileImageColorsAverageColorsOfCorners
-        |> Json.Decode.Pipeline.required "bottom_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "bottom_right" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_right" Json.Decode.string
 
 
 postPieceAttributesPostMetadataDecoder : Json.Decode.Decoder PostPieceAttributesPostMetadata
@@ -4964,19 +4795,10 @@ postThingyAttributesPostFileDecoder =
 postThingyAttributesPostFileImageColorsDecoder : Json.Decode.Decoder PostThingyAttributesPostFileImageColors
 postThingyAttributesPostFileImageColorsDecoder =
     Json.Decode.succeed PostThingyAttributesPostFileImageColors
-        |> Json.Decode.Pipeline.required "average_colors_of_corners" postThingyAttributesPostFileImageColorsAverageColorsOfCornersDecoder
+        |> Json.Decode.Pipeline.required "average_colors_of_corners" averageColorsOfCornersDecoder
         |> Json.Decode.Pipeline.required "dominant_color" Json.Decode.string
         |> Json.Decode.Pipeline.required "palette" (Json.Decode.list Json.Decode.string)
         |> Json.Decode.Pipeline.required "text_color" Json.Decode.string
-
-
-postThingyAttributesPostFileImageColorsAverageColorsOfCornersDecoder : Json.Decode.Decoder PostThingyAttributesPostFileImageColorsAverageColorsOfCorners
-postThingyAttributesPostFileImageColorsAverageColorsOfCornersDecoder =
-    Json.Decode.succeed PostThingyAttributesPostFileImageColorsAverageColorsOfCorners
-        |> Json.Decode.Pipeline.required "bottom_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "bottom_right" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_right" Json.Decode.string
 
 
 postThingyAttributesPostMetadataDecoder : Json.Decode.Decoder PostThingyAttributesPostMetadata
@@ -5084,7 +4906,7 @@ postThingamajigAttributesDecoder =
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postThingamajigAttributesPostFileDecoder
+        |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postThingamajigAttributesPostMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
@@ -5095,18 +4917,6 @@ postThingamajigAttributesDecoder =
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postThingamajigAttributesPostFileDecoder : Json.Decode.Decoder PostThingamajigAttributesPostFile
-postThingamajigAttributesPostFileDecoder =
-    Json.Decode.succeed PostThingamajigAttributesPostFile
-        |> Json.Decode.Pipeline.required "default_thumbnail" hasUrlDecoder
-        |> Json.Decode.Pipeline.required "duration" Json.Decode.int
-        |> Json.Decode.Pipeline.required "full_content_duration" Json.Decode.int
-        |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "progress" progressDecoder
-        |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
 
 
 postThingamajigAttributesPostMetadataDecoder : Json.Decode.Decoder PostThingamajigAttributesPostMetadata
@@ -5276,19 +5086,10 @@ postWhatsitAttributesPostFileDecoder =
 postWhatsitAttributesPostFileImageColorsDecoder : Json.Decode.Decoder PostWhatsitAttributesPostFileImageColors
 postWhatsitAttributesPostFileImageColorsDecoder =
     Json.Decode.succeed PostWhatsitAttributesPostFileImageColors
-        |> Json.Decode.Pipeline.required "average_colors_of_corners" postWhatsitAttributesPostFileImageColorsAverageColorsOfCornersDecoder
+        |> Json.Decode.Pipeline.required "average_colors_of_corners" averageColorsOfCornersDecoder
         |> Json.Decode.Pipeline.required "dominant_color" Json.Decode.string
         |> Json.Decode.Pipeline.required "palette" (Json.Decode.list Json.Decode.string)
         |> Json.Decode.Pipeline.required "text_color" Json.Decode.string
-
-
-postWhatsitAttributesPostFileImageColorsAverageColorsOfCornersDecoder : Json.Decode.Decoder PostWhatsitAttributesPostFileImageColorsAverageColorsOfCorners
-postWhatsitAttributesPostFileImageColorsAverageColorsOfCornersDecoder =
-    Json.Decode.succeed PostWhatsitAttributesPostFileImageColorsAverageColorsOfCorners
-        |> Json.Decode.Pipeline.required "bottom_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "bottom_right" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_right" Json.Decode.string
 
 
 postWhatsitAttributesPostMetadataDecoder : Json.Decode.Decoder PostWhatsitAttributesPostMetadata
@@ -5424,19 +5225,10 @@ postDoodadAttributesPostFileDecoder =
 postDoodadAttributesPostFileImageColorsDecoder : Json.Decode.Decoder PostDoodadAttributesPostFileImageColors
 postDoodadAttributesPostFileImageColorsDecoder =
     Json.Decode.succeed PostDoodadAttributesPostFileImageColors
-        |> Json.Decode.Pipeline.required "average_colors_of_corners" postDoodadAttributesPostFileImageColorsAverageColorsOfCornersDecoder
+        |> Json.Decode.Pipeline.required "average_colors_of_corners" averageColorsOfCornersDecoder
         |> Json.Decode.Pipeline.required "dominant_color" Json.Decode.string
         |> Json.Decode.Pipeline.required "palette" (Json.Decode.list Json.Decode.string)
         |> Json.Decode.Pipeline.required "text_color" Json.Decode.string
-
-
-postDoodadAttributesPostFileImageColorsAverageColorsOfCornersDecoder : Json.Decode.Decoder PostDoodadAttributesPostFileImageColorsAverageColorsOfCorners
-postDoodadAttributesPostFileImageColorsAverageColorsOfCornersDecoder =
-    Json.Decode.succeed PostDoodadAttributesPostFileImageColorsAverageColorsOfCorners
-        |> Json.Decode.Pipeline.required "bottom_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "bottom_right" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_left" Json.Decode.string
-        |> Json.Decode.Pipeline.required "top_right" Json.Decode.string
 
 
 postDoodadAttributesPostMetadataDecoder : Json.Decode.Decoder PostDoodadAttributesPostMetadata
