@@ -4,6 +4,6 @@
         "elm-pages": "^3.0.20"
     },
     "scripts": {
-        "start": "elm-pages run src/Main.elm"
+        "start": "elm-pages run src/Main.elm --output-dir output"
     }
 }
