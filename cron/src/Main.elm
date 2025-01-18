@@ -1,5 +1,6 @@
 module Main exposing (run)
 
+import Api
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
 import BackendTask.Env as Env
@@ -10,10 +11,10 @@ import Cli.Program as Program
 import FatalError exposing (FatalError)
 import List.Extra
 import Pages.Script as Script exposing (Script)
-import Pages.Script.Spinner as Spinner
 import Rss exposing (Title(..))
 import Rss.Parser
 import SHA256
+import Spinner.Reader
 import Time
 import Url
 
@@ -60,11 +61,22 @@ programConfig =
             )
 
 
+type alias Environment =
+    { cookie : String
+    , rssUrl : String
+    }
+
+
 task : Config -> BackendTask FatalError ()
 task config =
-    Spinner.steps
-        |> Spinner.withStep "Creating output folder"
-            (\_ ->
+    Spinner.Reader.init "Getting required secrets from the environment"
+        (BackendTask.map2 Environment
+            (Env.expect "cookie")
+            (Env.expect "rssUrl")
+            |> BackendTask.allowFatal
+        )
+        |> Spinner.Reader.withStep "Creating output folder"
+            (\_ _ ->
                 let
                     workDir : String
                     workDir =
@@ -72,18 +84,16 @@ task config =
                 in
                 Script.exec "mkdir" [ "-p", workDir ]
             )
-        |> Spinner.withStep "Getting RSS URL from environment"
-            (\_ ->
-                Env.expect "rssUrl"
-                    |> BackendTask.allowFatal
+        |> Spinner.Reader.withFatalStep "Getting posts from the Patreon API"
+            (\env _ ->
+                Api.getPosts env
             )
-        |> Spinner.withStep "Downloading RSS feed"
-            (\rssUrl ->
+        |> Spinner.Reader.withFatalStep "Downloading RSS feed"
+            (\{ rssUrl } _ ->
                 Http.get rssUrl Http.expectString
-                    |> BackendTask.allowFatal
             )
-        |> Spinner.withStep "Writing output"
-            (\xml ->
+        |> Spinner.Reader.withStep "Writing output"
+            (\_ xml ->
                 case Rss.Parser.parse xml of
                     Err e ->
                         let
@@ -104,7 +114,7 @@ task config =
                             |> BackendTask.sequence
                             |> BackendTask.map (\_ -> ())
             )
-        |> Spinner.runSteps
+        |> Spinner.Reader.runSteps
 
 
 writePost : Config -> Rss.Post -> BackendTask FatalError ()
