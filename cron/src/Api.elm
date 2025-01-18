@@ -1460,16 +1460,12 @@ type alias PostWidgetAttributesEmbed =
 
 type alias PostWidgetAttributesPostFile =
     { height : Int
-    , imageColors : PostWidgetAttributesPostFileImageColors
+    , imageColors : ImageColors
     , mediaId : Int
     , state : String
     , url : String
     , width : Int
     }
-
-
-type alias PostWidgetAttributesPostFileImageColors =
-    ImageColors
 
 
 type alias PostWidgetAttributesPostMetadata =
@@ -1500,22 +1496,14 @@ type alias PostWidgetRelationships =
 
 
 type alias PostWidgetRelationshipsAccessRules =
-    { data : List PostWidgetRelationshipsAccessRulesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostWidgetRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias PostWidgetRelationshipsCampaign =
-    { data : PostWidgetRelationshipsCampaignData
+    { data : IdAndType
     , links : PostWidgetRelationshipsCampaignLinks
     }
-
-
-type alias PostWidgetRelationshipsCampaignData =
-    IdAndType
 
 
 type alias PostWidgetRelationshipsCampaignLinks =
@@ -1524,31 +1512,19 @@ type alias PostWidgetRelationshipsCampaignLinks =
 
 
 type alias PostWidgetRelationshipsImages =
-    { data : List PostWidgetRelationshipsImagesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostWidgetRelationshipsImagesDataObject =
-    IdAndType
 
 
 type alias PostWidgetRelationshipsMedia =
-    { data : List PostWidgetRelationshipsMediaDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostWidgetRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostWidgetRelationshipsUser =
-    { data : PostWidgetRelationshipsUserData
+    { data : IdAndType
     , links : PostWidgetRelationshipsUserLinks
     }
-
-
-type alias PostWidgetRelationshipsUserData =
-    IdAndType
 
 
 type alias PostWidgetRelationshipsUserLinks =
@@ -1557,12 +1533,8 @@ type alias PostWidgetRelationshipsUserLinks =
 
 
 type alias PostWidgetRelationshipsUserDefinedTags =
-    { data : List PostWidgetRelationshipsUserDefinedTagsDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostWidgetRelationshipsUserDefinedTagsDataObject =
-    IdAndType
 
 
 type alias PostGizmo =
@@ -1592,7 +1564,7 @@ type alias PostGizmoAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostGizmoAttributesPostFile
+    , postFile : PostFile
     , postMetadata : PostGizmoAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -1604,10 +1576,6 @@ type alias PostGizmoAttributes =
     , url : String
     , wasPostedByCampaignOwner : Bool
     }
-
-
-type alias PostGizmoAttributesPostFile =
-    PostFile
 
 
 type alias PostGizmoAttributesPostMetadata =
@@ -1640,22 +1608,14 @@ type alias PostGizmoRelationships =
 
 
 type alias PostGizmoRelationshipsAccessRules =
-    { data : List PostGizmoRelationshipsAccessRulesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostGizmoRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias PostGizmoRelationshipsAudio =
-    { data : PostGizmoRelationshipsAudioData
+    { data : IdAndType
     , links : PostGizmoRelationshipsAudioLinks
     }
-
-
-type alias PostGizmoRelationshipsAudioData =
-    IdAndType
 
 
 type alias PostGizmoRelationshipsAudioLinks =
@@ -1664,13 +1624,9 @@ type alias PostGizmoRelationshipsAudioLinks =
 
 
 type alias PostGizmoRelationshipsAudioPreview =
-    { data : PostGizmoRelationshipsAudioPreviewData
+    { data : IdAndType
     , links : PostGizmoRelationshipsAudioPreviewLinks
     }
-
-
-type alias PostGizmoRelationshipsAudioPreviewData =
-    IdAndType
 
 
 type alias PostGizmoRelationshipsAudioPreviewLinks =
@@ -1679,13 +1635,9 @@ type alias PostGizmoRelationshipsAudioPreviewLinks =
 
 
 type alias PostGizmoRelationshipsCampaign =
-    { data : PostGizmoRelationshipsCampaignData
+    { data : IdAndType
     , links : PostGizmoRelationshipsCampaignLinks
     }
-
-
-type alias PostGizmoRelationshipsCampaignData =
-    IdAndType
 
 
 type alias PostGizmoRelationshipsCampaignLinks =
@@ -1694,31 +1646,19 @@ type alias PostGizmoRelationshipsCampaignLinks =
 
 
 type alias PostGizmoRelationshipsImages =
-    { data : List PostGizmoRelationshipsImagesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostGizmoRelationshipsImagesDataObject =
-    IdAndType
 
 
 type alias PostGizmoRelationshipsMedia =
-    { data : List PostGizmoRelationshipsMediaDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostGizmoRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostGizmoRelationshipsUser =
-    { data : PostGizmoRelationshipsUserData
+    { data : IdAndType
     , links : PostGizmoRelationshipsUserLinks
     }
-
-
-type alias PostGizmoRelationshipsUserData =
-    IdAndType
 
 
 type alias PostGizmoRelationshipsUserLinks =
@@ -1753,7 +1693,7 @@ type alias PostPartAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostPartAttributesPostFile
+    , postFile : PostFile
     , postMetadata : PostPartAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -1765,10 +1705,6 @@ type alias PostPartAttributes =
     , url : String
     , wasPostedByCampaignOwner : Bool
     }
-
-
-type alias PostPartAttributesPostFile =
-    PostFile
 
 
 type alias PostPartAttributesPostMetadata =
@@ -1801,31 +1737,19 @@ type alias PostPartRelationships =
 
 
 type alias PostPartRelationshipsAccessRules =
-    { data : List PostPartRelationshipsAccessRulesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostPartRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias PostPartRelationshipsAttachmentsMedia =
-    { data : List PostPartRelationshipsAttachmentsMediaDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostPartRelationshipsAttachmentsMediaDataObject =
-    IdAndType
 
 
 type alias PostPartRelationshipsAudio =
-    { data : PostPartRelationshipsAudioData
+    { data : IdAndType
     , links : PostPartRelationshipsAudioLinks
     }
-
-
-type alias PostPartRelationshipsAudioData =
-    IdAndType
 
 
 type alias PostPartRelationshipsAudioLinks =
@@ -1834,13 +1758,9 @@ type alias PostPartRelationshipsAudioLinks =
 
 
 type alias PostPartRelationshipsAudioPreview =
-    { data : PostPartRelationshipsAudioPreviewData
+    { data : IdAndType
     , links : PostPartRelationshipsAudioPreviewLinks
     }
-
-
-type alias PostPartRelationshipsAudioPreviewData =
-    IdAndType
 
 
 type alias PostPartRelationshipsAudioPreviewLinks =
@@ -1849,13 +1769,9 @@ type alias PostPartRelationshipsAudioPreviewLinks =
 
 
 type alias PostPartRelationshipsCampaign =
-    { data : PostPartRelationshipsCampaignData
+    { data : IdAndType
     , links : PostPartRelationshipsCampaignLinks
     }
-
-
-type alias PostPartRelationshipsCampaignData =
-    IdAndType
 
 
 type alias PostPartRelationshipsCampaignLinks =
@@ -1864,22 +1780,14 @@ type alias PostPartRelationshipsCampaignLinks =
 
 
 type alias PostPartRelationshipsMedia =
-    { data : List PostPartRelationshipsMediaDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostPartRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostPartRelationshipsUser =
-    { data : PostPartRelationshipsUserData
+    { data : IdAndType
     , links : PostPartRelationshipsUserLinks
     }
-
-
-type alias PostPartRelationshipsUserData =
-    IdAndType
 
 
 type alias PostPartRelationshipsUserLinks =
@@ -1888,12 +1796,8 @@ type alias PostPartRelationshipsUserLinks =
 
 
 type alias PostPartRelationshipsUserDefinedTags =
-    { data : List PostPartRelationshipsUserDefinedTagsDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostPartRelationshipsUserDefinedTagsDataObject =
-    IdAndType
 
 
 type alias PostChunk =
@@ -1951,16 +1855,12 @@ type alias PostChunkAttributesEmbed =
 
 type alias PostChunkAttributesPostFile =
     { height : Int
-    , imageColors : PostChunkAttributesPostFileImageColors
+    , imageColors : ImageColors
     , mediaId : Int
     , state : String
     , url : String
     , width : Int
     }
-
-
-type alias PostChunkAttributesPostFileImageColors =
-    ImageColors
 
 
 type alias PostChunkAttributesPostMetadata =
@@ -1990,22 +1890,14 @@ type alias PostChunkRelationships =
 
 
 type alias PostChunkRelationshipsAccessRules =
-    { data : List PostChunkRelationshipsAccessRulesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostChunkRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias PostChunkRelationshipsCampaign =
-    { data : PostChunkRelationshipsCampaignData
+    { data : IdAndType
     , links : PostChunkRelationshipsCampaignLinks
     }
-
-
-type alias PostChunkRelationshipsCampaignData =
-    IdAndType
 
 
 type alias PostChunkRelationshipsCampaignLinks =
@@ -2014,31 +1906,19 @@ type alias PostChunkRelationshipsCampaignLinks =
 
 
 type alias PostChunkRelationshipsImages =
-    { data : List PostChunkRelationshipsImagesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostChunkRelationshipsImagesDataObject =
-    IdAndType
 
 
 type alias PostChunkRelationshipsMedia =
-    { data : List PostChunkRelationshipsMediaDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostChunkRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostChunkRelationshipsUser =
-    { data : PostChunkRelationshipsUserData
+    { data : IdAndType
     , links : PostChunkRelationshipsUserLinks
     }
-
-
-type alias PostChunkRelationshipsUserData =
-    IdAndType
 
 
 type alias PostChunkRelationshipsUserLinks =
@@ -2100,16 +1980,12 @@ type alias PostPieceAttributesEmbed =
 
 type alias PostPieceAttributesPostFile =
     { height : Int
-    , imageColors : PostPieceAttributesPostFileImageColors
+    , imageColors : ImageColors
     , mediaId : Int
     , state : String
     , url : String
     , width : Int
     }
-
-
-type alias PostPieceAttributesPostFileImageColors =
-    ImageColors
 
 
 type alias PostPieceAttributesPostMetadata =
@@ -2139,22 +2015,14 @@ type alias PostPieceRelationships =
 
 
 type alias PostPieceRelationshipsAccessRules =
-    { data : List PostPieceRelationshipsAccessRulesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostPieceRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias PostPieceRelationshipsCampaign =
-    { data : PostPieceRelationshipsCampaignData
+    { data : IdAndType
     , links : PostPieceRelationshipsCampaignLinks
     }
-
-
-type alias PostPieceRelationshipsCampaignData =
-    IdAndType
 
 
 type alias PostPieceRelationshipsCampaignLinks =
@@ -2163,31 +2031,19 @@ type alias PostPieceRelationshipsCampaignLinks =
 
 
 type alias PostPieceRelationshipsImages =
-    { data : List PostPieceRelationshipsImagesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostPieceRelationshipsImagesDataObject =
-    IdAndType
 
 
 type alias PostPieceRelationshipsMedia =
-    { data : List PostPieceRelationshipsMediaDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostPieceRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostPieceRelationshipsUser =
-    { data : PostPieceRelationshipsUserData
+    { data : IdAndType
     , links : PostPieceRelationshipsUserLinks
     }
-
-
-type alias PostPieceRelationshipsUserData =
-    IdAndType
 
 
 type alias PostPieceRelationshipsUserLinks =
@@ -2238,16 +2094,12 @@ type alias PostThingyAttributes =
 
 type alias PostThingyAttributesPostFile =
     { height : Int
-    , imageColors : PostThingyAttributesPostFileImageColors
+    , imageColors : ImageColors
     , mediaId : Int
     , state : String
     , url : String
     , width : Int
     }
-
-
-type alias PostThingyAttributesPostFileImageColors =
-    ImageColors
 
 
 type alias PostThingyAttributesPostMetadata =
@@ -2278,22 +2130,14 @@ type alias PostThingyRelationships =
 
 
 type alias PostThingyRelationshipsAccessRules =
-    { data : List PostThingyRelationshipsAccessRulesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostThingyRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias PostThingyRelationshipsCampaign =
-    { data : PostThingyRelationshipsCampaignData
+    { data : IdAndType
     , links : PostThingyRelationshipsCampaignLinks
     }
-
-
-type alias PostThingyRelationshipsCampaignData =
-    IdAndType
 
 
 type alias PostThingyRelationshipsCampaignLinks =
@@ -2302,31 +2146,19 @@ type alias PostThingyRelationshipsCampaignLinks =
 
 
 type alias PostThingyRelationshipsImages =
-    { data : List PostThingyRelationshipsImagesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostThingyRelationshipsImagesDataObject =
-    IdAndType
 
 
 type alias PostThingyRelationshipsMedia =
-    { data : List PostThingyRelationshipsMediaDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostThingyRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostThingyRelationshipsUser =
-    { data : PostThingyRelationshipsUserData
+    { data : IdAndType
     , links : PostThingyRelationshipsUserLinks
     }
-
-
-type alias PostThingyRelationshipsUserData =
-    IdAndType
 
 
 type alias PostThingyRelationshipsUserLinks =
@@ -2361,7 +2193,7 @@ type alias PostThingamajigAttributes =
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostThingamajigAttributesPostFile
+    , postFile : PostFile
     , postMetadata : PostThingamajigAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -2373,10 +2205,6 @@ type alias PostThingamajigAttributes =
     , url : String
     , wasPostedByCampaignOwner : Bool
     }
-
-
-type alias PostThingamajigAttributesPostFile =
-    PostFile
 
 
 type alias PostThingamajigAttributesPostMetadata =
@@ -2410,31 +2238,19 @@ type alias PostThingamajigRelationships =
 
 
 type alias PostThingamajigRelationshipsAccessRules =
-    { data : List PostThingamajigRelationshipsAccessRulesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostThingamajigRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias PostThingamajigRelationshipsAttachmentsMedia =
-    { data : List PostThingamajigRelationshipsAttachmentsMediaDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostThingamajigRelationshipsAttachmentsMediaDataObject =
-    IdAndType
 
 
 type alias PostThingamajigRelationshipsAudio =
-    { data : PostThingamajigRelationshipsAudioData
+    { data : IdAndType
     , links : PostThingamajigRelationshipsAudioLinks
     }
-
-
-type alias PostThingamajigRelationshipsAudioData =
-    IdAndType
 
 
 type alias PostThingamajigRelationshipsAudioLinks =
@@ -2443,13 +2259,9 @@ type alias PostThingamajigRelationshipsAudioLinks =
 
 
 type alias PostThingamajigRelationshipsAudioPreview =
-    { data : PostThingamajigRelationshipsAudioPreviewData
+    { data : IdAndType
     , links : PostThingamajigRelationshipsAudioPreviewLinks
     }
-
-
-type alias PostThingamajigRelationshipsAudioPreviewData =
-    IdAndType
 
 
 type alias PostThingamajigRelationshipsAudioPreviewLinks =
@@ -2458,13 +2270,9 @@ type alias PostThingamajigRelationshipsAudioPreviewLinks =
 
 
 type alias PostThingamajigRelationshipsCampaign =
-    { data : PostThingamajigRelationshipsCampaignData
+    { data : IdAndType
     , links : PostThingamajigRelationshipsCampaignLinks
     }
-
-
-type alias PostThingamajigRelationshipsCampaignData =
-    IdAndType
 
 
 type alias PostThingamajigRelationshipsCampaignLinks =
@@ -2473,31 +2281,19 @@ type alias PostThingamajigRelationshipsCampaignLinks =
 
 
 type alias PostThingamajigRelationshipsImages =
-    { data : List PostThingamajigRelationshipsImagesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostThingamajigRelationshipsImagesDataObject =
-    IdAndType
 
 
 type alias PostThingamajigRelationshipsMedia =
-    { data : List PostThingamajigRelationshipsMediaDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostThingamajigRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostThingamajigRelationshipsUser =
-    { data : PostThingamajigRelationshipsUserData
+    { data : IdAndType
     , links : PostThingamajigRelationshipsUserLinks
     }
-
-
-type alias PostThingamajigRelationshipsUserData =
-    IdAndType
 
 
 type alias PostThingamajigRelationshipsUserLinks =
@@ -2548,16 +2344,12 @@ type alias PostWhatsitAttributes =
 
 type alias PostWhatsitAttributesPostFile =
     { height : Int
-    , imageColors : PostWhatsitAttributesPostFileImageColors
+    , imageColors : ImageColors
     , mediaId : Int
     , state : String
     , url : String
     , width : Int
     }
-
-
-type alias PostWhatsitAttributesPostFileImageColors =
-    ImageColors
 
 
 type alias PostWhatsitAttributesPostMetadata =
@@ -2588,22 +2380,14 @@ type alias PostWhatsitRelationships =
 
 
 type alias PostWhatsitRelationshipsAccessRules =
-    { data : List PostWhatsitRelationshipsAccessRulesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostWhatsitRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias PostWhatsitRelationshipsCampaign =
-    { data : PostWhatsitRelationshipsCampaignData
+    { data : IdAndType
     , links : PostWhatsitRelationshipsCampaignLinks
     }
-
-
-type alias PostWhatsitRelationshipsCampaignData =
-    IdAndType
 
 
 type alias PostWhatsitRelationshipsCampaignLinks =
@@ -2612,31 +2396,19 @@ type alias PostWhatsitRelationshipsCampaignLinks =
 
 
 type alias PostWhatsitRelationshipsImages =
-    { data : List PostWhatsitRelationshipsImagesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostWhatsitRelationshipsImagesDataObject =
-    IdAndType
 
 
 type alias PostWhatsitRelationshipsMedia =
-    { data : List PostWhatsitRelationshipsMediaDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostWhatsitRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostWhatsitRelationshipsUser =
-    { data : PostWhatsitRelationshipsUserData
+    { data : IdAndType
     , links : PostWhatsitRelationshipsUserLinks
     }
-
-
-type alias PostWhatsitRelationshipsUserData =
-    IdAndType
 
 
 type alias PostWhatsitRelationshipsUserLinks =
@@ -2688,16 +2460,12 @@ type alias PostDoodadAttributes =
 
 type alias PostDoodadAttributesPostFile =
     { height : Int
-    , imageColors : PostDoodadAttributesPostFileImageColors
+    , imageColors : ImageColors
     , mediaId : Int
     , state : String
     , url : String
     , width : Int
     }
-
-
-type alias PostDoodadAttributesPostFileImageColors =
-    ImageColors
 
 
 type alias PostDoodadAttributesPostMetadata =
@@ -2728,22 +2496,14 @@ type alias PostDoodadRelationships =
 
 
 type alias PostDoodadRelationshipsAccessRules =
-    { data : List PostDoodadRelationshipsAccessRulesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostDoodadRelationshipsAccessRulesDataObject =
-    IdAndType
 
 
 type alias PostDoodadRelationshipsCampaign =
-    { data : PostDoodadRelationshipsCampaignData
+    { data : IdAndType
     , links : PostDoodadRelationshipsCampaignLinks
     }
-
-
-type alias PostDoodadRelationshipsCampaignData =
-    IdAndType
 
 
 type alias PostDoodadRelationshipsCampaignLinks =
@@ -2752,31 +2512,19 @@ type alias PostDoodadRelationshipsCampaignLinks =
 
 
 type alias PostDoodadRelationshipsImages =
-    { data : List PostDoodadRelationshipsImagesDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostDoodadRelationshipsImagesDataObject =
-    IdAndType
 
 
 type alias PostDoodadRelationshipsMedia =
-    { data : List PostDoodadRelationshipsMediaDataObject
+    { data : List IdAndType
     }
-
-
-type alias PostDoodadRelationshipsMediaDataObject =
-    IdAndType
 
 
 type alias PostDoodadRelationshipsUser =
-    { data : PostDoodadRelationshipsUserData
+    { data : IdAndType
     , links : PostDoodadRelationshipsUserLinks
     }
-
-
-type alias PostDoodadRelationshipsUserData =
-    IdAndType
 
 
 type alias PostDoodadRelationshipsUserLinks =
