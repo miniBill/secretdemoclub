@@ -164,45 +164,41 @@ type Post
     = Post0 PostObject
     | Post1 PostMember
     | Post2 PostEntity
-    | Post3 PostThing
-    | Post4 PostInstance
-    | Post5 PostConstituent
-    | Post6 PostSpecimen
-    | Post7 PostGadget
-    | Post8 PostWidget
-    | Post9 PostGizmo
-    | Post10 PostPart
-    | Post11 PostChunk
-    | Post12 PostPiece
-    | Post13 PostThingy
-    | Post14 PostThingamajig
-    | Post15 PostWhatsit
-    | Post16 PostDoodad
+    | Post3 PostConstituent
+    | Post4 PostSpecimen
+    | Post5 PostWidget
+    | Post6 PostChunk
+    | Post7 PostPiece
 
 
 type alias PostObject =
-    { attributes : Attributes
+    { commonAttributes : CommonAttributes
+    , attributes : Attributes
     , id : String
     , relationships : Relationships
     , type_ : String
     }
 
 
-type alias Attributes =
+type alias CommonAttributes =
     { content : String
     , createdAt : String
-    , image : Image
     , metaImageUrl : Url
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostFile
-    , postMetadata : PostMetadata
     , postType : String
-    , previewAssetType : String
     , publishedAt : String
-    , thumbnail : Thumbnail
     , title : String
     , url : Url
+    }
+
+
+type alias Attributes =
+    { image : Image
+    , postFile : PostFile
+    , postMetadata : PostMetadata
+    , previewAssetType : String
+    , thumbnail : Thumbnail
     }
 
 
@@ -287,7 +283,8 @@ type alias AudioLinks =
 
 
 type alias PostMember =
-    { attributes : PostMemberAttributes
+    { commonAttributes : CommonAttributes
+    , attributes : PostMemberAttributes
     , id : String
     , relationships : Relationships
     , type_ : String
@@ -295,21 +292,12 @@ type alias PostMember =
 
 
 type alias PostMemberAttributes =
-    { content : String
-    , createdAt : String
-    , embed : PostMemberAttributesEmbed
+    { embed : PostMemberAttributesEmbed
     , image : Image
-    , metaImageUrl : Url
-    , patreonUrl : String
-    , pledgeUrl : String
     , postFile : PostFile
     , postMetadata : PostMetadata
-    , postType : String
     , previewAssetType : String
-    , publishedAt : String
     , thumbnail : Thumbnail
-    , title : String
-    , url : Url
     }
 
 
@@ -340,7 +328,8 @@ type alias AverageColorsOfCorners =
 
 
 type alias PostEntity =
-    { attributes : PostEntityAttributes
+    { commonAttributes : CommonAttributes
+    , attributes : PostEntityAttributes
     , id : String
     , relationships : Relationships
     , type_ : String
@@ -348,36 +337,12 @@ type alias PostEntity =
 
 
 type alias PostEntityAttributes =
-    { content : String
-    , createdAt : String
-    , metaImageUrl : Url
-    , patreonUrl : String
-    , pledgeUrl : String
-    , postType : String
-    , publishedAt : String
-    , title : String
-    , url : Url
-    }
-
-
-type alias PostThing =
-    { attributes : Attributes
-    , id : String
-    , relationships : Relationships
-    , type_ : String
-    }
-
-
-type alias PostInstance =
-    { attributes : Attributes
-    , id : String
-    , relationships : Relationships
-    , type_ : String
-    }
+    {}
 
 
 type alias PostConstituent =
-    { attributes : PostConstituentAttributes
+    { commonAttributes : CommonAttributes
+    , attributes : PostConstituentAttributes
     , id : String
     , relationships : Relationships
     , type_ : String
@@ -385,24 +350,16 @@ type alias PostConstituent =
 
 
 type alias PostConstituentAttributes =
-    { content : String
-    , createdAt : String
-    , image : Image
-    , metaImageUrl : Url
-    , patreonUrl : String
-    , pledgeUrl : String
+    { image : Image
     , postFile : PostFile
     , postMetadata : PostMetadata
-    , postType : String
-    , publishedAt : String
     , thumbnail : Thumbnail
-    , title : String
-    , url : Url
     }
 
 
 type alias PostSpecimen =
-    { attributes : PostSpecimenAttributes
+    { commonAttributes : CommonAttributes
+    , attributes : PostSpecimenAttributes
     , id : String
     , relationships : Relationships
     , type_ : String
@@ -410,21 +367,12 @@ type alias PostSpecimen =
 
 
 type alias PostSpecimenAttributes =
-    { content : String
-    , createdAt : String
-    , embed : PostSpecimenAttributesEmbed
+    { embed : PostSpecimenAttributesEmbed
     , image : Image
-    , metaImageUrl : Url
-    , patreonUrl : String
-    , pledgeUrl : String
     , postFile : PostFile
     , postMetadata : PostMetadata
-    , postType : String
     , previewAssetType : String
-    , publishedAt : String
     , thumbnail : Thumbnail
-    , title : String
-    , url : Url
     }
 
 
@@ -437,16 +385,9 @@ type alias PostSpecimenAttributesEmbed =
     }
 
 
-type alias PostGadget =
-    { attributes : Attributes
-    , id : String
-    , relationships : Relationships
-    , type_ : String
-    }
-
-
 type alias PostWidget =
-    { attributes : PostWidgetAttributes
+    { commonAttributes : CommonAttributes
+    , attributes : PostWidgetAttributes
     , id : String
     , relationships : Relationships
     , type_ : String
@@ -454,21 +395,12 @@ type alias PostWidget =
 
 
 type alias PostWidgetAttributes =
-    { content : String
-    , createdAt : String
-    , embed : PostWidgetAttributesEmbed
+    { embed : PostWidgetAttributesEmbed
     , image : Image
-    , metaImageUrl : Url
-    , patreonUrl : String
-    , pledgeUrl : String
     , postFile : PostFile
     , postMetadata : PostMetadata
-    , postType : String
     , previewAssetType : String
-    , publishedAt : String
     , thumbnail : Thumbnail
-    , title : String
-    , url : Url
     }
 
 
@@ -482,24 +414,9 @@ type alias PostWidgetAttributesEmbed =
     }
 
 
-type alias PostGizmo =
-    { attributes : Attributes
-    , id : String
-    , relationships : Relationships
-    , type_ : String
-    }
-
-
-type alias PostPart =
-    { attributes : Attributes
-    , id : String
-    , relationships : Relationships
-    , type_ : String
-    }
-
-
 type alias PostChunk =
-    { attributes : PostChunkAttributes
+    { commonAttributes : CommonAttributes
+    , attributes : PostChunkAttributes
     , id : String
     , relationships : Relationships
     , type_ : String
@@ -507,21 +424,12 @@ type alias PostChunk =
 
 
 type alias PostChunkAttributes =
-    { content : String
-    , createdAt : String
-    , embed : PostChunkAttributesEmbed
+    { embed : PostChunkAttributesEmbed
     , image : Image
-    , metaImageUrl : Url
-    , patreonUrl : String
-    , pledgeUrl : String
     , postFile : PostFile
     , postMetadata : PostMetadata
-    , postType : String
     , previewAssetType : String
-    , publishedAt : String
     , thumbnail : Thumbnail
-    , title : String
-    , url : Url
     }
 
 
@@ -536,7 +444,8 @@ type alias PostChunkAttributesEmbed =
 
 
 type alias PostPiece =
-    { attributes : PostPieceAttributes
+    { commonAttributes : CommonAttributes
+    , attributes : PostPieceAttributes
     , id : String
     , relationships : Relationships
     , type_ : String
@@ -544,21 +453,12 @@ type alias PostPiece =
 
 
 type alias PostPieceAttributes =
-    { content : String
-    , createdAt : String
-    , embed : PostPieceAttributesEmbed
+    { embed : PostPieceAttributesEmbed
     , image : Image
-    , metaImageUrl : Url
-    , patreonUrl : String
-    , pledgeUrl : String
     , postFile : PostFile
     , postMetadata : PostMetadata
-    , postType : String
     , previewAssetType : String
-    , publishedAt : String
     , thumbnail : Thumbnail
-    , title : String
-    , url : Url
     }
 
 
@@ -572,87 +472,52 @@ type alias PostPieceAttributesEmbed =
     }
 
 
-type alias PostThingy =
-    { attributes : Attributes
-    , id : String
-    , relationships : Relationships
-    , type_ : String
-    }
-
-
-type alias PostThingamajig =
-    { attributes : Attributes
-    , id : String
-    , relationships : Relationships
-    , type_ : String
-    }
-
-
-type alias PostWhatsit =
-    { attributes : Attributes
-    , id : String
-    , relationships : Relationships
-    , type_ : String
-    }
-
-
-type alias PostDoodad =
-    { attributes : Attributes
-    , id : String
-    , relationships : Relationships
-    , type_ : String
-    }
-
-
 postDecoder : Json.Decode.Decoder Post
 postDecoder =
     Json.Decode.oneOf
         [ Json.Decode.map Post0 postObjectDecoder
         , Json.Decode.map Post1 postMemberDecoder
         , Json.Decode.map Post2 postEntityDecoder
-        , Json.Decode.map Post3 postThingDecoder
-        , Json.Decode.map Post4 postInstanceDecoder
-        , Json.Decode.map Post5 postConstituentDecoder
-        , Json.Decode.map Post6 postSpecimenDecoder
-        , Json.Decode.map Post7 postGadgetDecoder
-        , Json.Decode.map Post8 postWidgetDecoder
-        , Json.Decode.map Post9 postGizmoDecoder
-        , Json.Decode.map Post10 postPartDecoder
-        , Json.Decode.map Post11 postChunkDecoder
-        , Json.Decode.map Post12 postPieceDecoder
-        , Json.Decode.map Post13 postThingyDecoder
-        , Json.Decode.map Post14 postThingamajigDecoder
-        , Json.Decode.map Post15 postWhatsitDecoder
-        , Json.Decode.map Post16 postDoodadDecoder
+        , Json.Decode.map Post3 postConstituentDecoder
+        , Json.Decode.map Post4 postSpecimenDecoder
+        , Json.Decode.map Post5 postWidgetDecoder
+        , Json.Decode.map Post6 postChunkDecoder
+        , Json.Decode.map Post7 postPieceDecoder
         ]
 
 
 postObjectDecoder : Json.Decode.Decoder PostObject
 postObjectDecoder =
     Json.Decode.succeed PostObject
+        |> Json.Decode.Pipeline.required "attributes" commonAttributesDecoder
         |> Json.Decode.Pipeline.required "attributes" attributesDecoder
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
         |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
-attributesDecoder : Json.Decode.Decoder Attributes
-attributesDecoder =
-    Json.Decode.succeed Attributes
+commonAttributesDecoder : Json.Decode.Decoder CommonAttributes
+commonAttributesDecoder =
+    Json.Decode.succeed CommonAttributes
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
-        |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
+
+
+attributesDecoder : Json.Decode.Decoder Attributes
+attributesDecoder =
+    Json.Decode.succeed Attributes
+        |> Json.Decode.Pipeline.required "image" imageDecoder
+        |> Json.Decode.Pipeline.required "post_file" postFileDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
+        |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
 
 
 imageDecoder : Json.Decode.Decoder Image
@@ -670,7 +535,7 @@ imageDecoder =
 postVideoDecoder : Json.Decode.Decoder PostVideo
 postVideoDecoder =
     Json.Decode.succeed PostVideo
-        |> Json.Decode.Pipeline.required "default_thumbnail" hasUrlDecoder
+        |> Json.Decode.Pipeline.required "default_thumbnail" (Json.Decode.field "url" urlDecoder)
         |> Json.Decode.Pipeline.required "duration" Json.Decode.int
         |> Json.Decode.Pipeline.required "full_content_duration" Json.Decode.int
         |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
@@ -729,6 +594,7 @@ idAndTypeDecoder =
 postMemberDecoder : Json.Decode.Decoder PostMember
 postMemberDecoder =
     Json.Decode.succeed PostMember
+        |> Json.Decode.Pipeline.required "attributes" commonAttributesDecoder
         |> Json.Decode.Pipeline.required "attributes" postMemberAttributesDecoder
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
@@ -738,21 +604,12 @@ postMemberDecoder =
 postMemberAttributesDecoder : Json.Decode.Decoder PostMemberAttributes
 postMemberAttributesDecoder =
     Json.Decode.succeed PostMemberAttributes
-        |> Json.Decode.Pipeline.required "content" Json.Decode.string
-        |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "embed" postMemberAttributesEmbedDecoder
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
-        |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
-        |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
-        |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postMemberAttributesEmbedDecoder : Json.Decode.Decoder PostMemberAttributesEmbed
@@ -815,6 +672,7 @@ thumbnailDecoder =
 postEntityDecoder : Json.Decode.Decoder PostEntity
 postEntityDecoder =
     Json.Decode.succeed PostEntity
+        |> Json.Decode.Pipeline.required "attributes" commonAttributesDecoder
         |> Json.Decode.Pipeline.required "attributes" postEntityAttributesDecoder
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
@@ -824,29 +682,6 @@ postEntityDecoder =
 postEntityAttributesDecoder : Json.Decode.Decoder PostEntityAttributes
 postEntityAttributesDecoder =
     Json.Decode.succeed PostEntityAttributes
-        |> Json.Decode.Pipeline.required "content" Json.Decode.string
-        |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
-        |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postThingDecoder : Json.Decode.Decoder PostThing
-postThingDecoder =
-    Json.Decode.succeed PostThing
-        |> Json.Decode.Pipeline.required "attributes" attributesDecoder
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
-
-
-hasUrlDecoder : Json.Decode.Decoder Url
-hasUrlDecoder =
-    Json.Decode.field "url" urlDecoder
 
 
 urlDecoder : Json.Decode.Decoder Url
@@ -876,18 +711,10 @@ audioLinksDecoder =
         |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
-postInstanceDecoder : Json.Decode.Decoder PostInstance
-postInstanceDecoder =
-    Json.Decode.succeed PostInstance
-        |> Json.Decode.Pipeline.required "attributes" attributesDecoder
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
-
-
 postConstituentDecoder : Json.Decode.Decoder PostConstituent
 postConstituentDecoder =
     Json.Decode.succeed PostConstituent
+        |> Json.Decode.Pipeline.required "attributes" commonAttributesDecoder
         |> Json.Decode.Pipeline.required "attributes" postConstituentAttributesDecoder
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
@@ -897,24 +724,16 @@ postConstituentDecoder =
 postConstituentAttributesDecoder : Json.Decode.Decoder PostConstituentAttributes
 postConstituentAttributesDecoder =
     Json.Decode.succeed PostConstituentAttributes
-        |> Json.Decode.Pipeline.required "content" Json.Decode.string
-        |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
-        |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
-        |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
-        |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postSpecimenDecoder : Json.Decode.Decoder PostSpecimen
 postSpecimenDecoder =
     Json.Decode.succeed PostSpecimen
+        |> Json.Decode.Pipeline.required "attributes" commonAttributesDecoder
         |> Json.Decode.Pipeline.required "attributes" postSpecimenAttributesDecoder
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
@@ -924,21 +743,12 @@ postSpecimenDecoder =
 postSpecimenAttributesDecoder : Json.Decode.Decoder PostSpecimenAttributes
 postSpecimenAttributesDecoder =
     Json.Decode.succeed PostSpecimenAttributes
-        |> Json.Decode.Pipeline.required "content" Json.Decode.string
-        |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "embed" postSpecimenAttributesEmbedDecoder
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
-        |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
-        |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
-        |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postSpecimenAttributesEmbedDecoder : Json.Decode.Decoder PostSpecimenAttributesEmbed
@@ -951,18 +761,10 @@ postSpecimenAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
-postGadgetDecoder : Json.Decode.Decoder PostGadget
-postGadgetDecoder =
-    Json.Decode.succeed PostGadget
-        |> Json.Decode.Pipeline.required "attributes" attributesDecoder
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
-
-
 postWidgetDecoder : Json.Decode.Decoder PostWidget
 postWidgetDecoder =
     Json.Decode.succeed PostWidget
+        |> Json.Decode.Pipeline.required "attributes" commonAttributesDecoder
         |> Json.Decode.Pipeline.required "attributes" postWidgetAttributesDecoder
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
@@ -972,21 +774,12 @@ postWidgetDecoder =
 postWidgetAttributesDecoder : Json.Decode.Decoder PostWidgetAttributes
 postWidgetAttributesDecoder =
     Json.Decode.succeed PostWidgetAttributes
-        |> Json.Decode.Pipeline.required "content" Json.Decode.string
-        |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "embed" postWidgetAttributesEmbedDecoder
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
-        |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
-        |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
-        |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postWidgetAttributesEmbedDecoder : Json.Decode.Decoder PostWidgetAttributesEmbed
@@ -1006,27 +799,10 @@ listOfIdAndTypeDecoder =
         |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
-postGizmoDecoder : Json.Decode.Decoder PostGizmo
-postGizmoDecoder =
-    Json.Decode.succeed PostGizmo
-        |> Json.Decode.Pipeline.required "attributes" attributesDecoder
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
-
-
-postPartDecoder : Json.Decode.Decoder PostPart
-postPartDecoder =
-    Json.Decode.succeed PostPart
-        |> Json.Decode.Pipeline.required "attributes" attributesDecoder
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
-
-
 postChunkDecoder : Json.Decode.Decoder PostChunk
 postChunkDecoder =
     Json.Decode.succeed PostChunk
+        |> Json.Decode.Pipeline.required "attributes" commonAttributesDecoder
         |> Json.Decode.Pipeline.required "attributes" postChunkAttributesDecoder
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
@@ -1036,21 +812,12 @@ postChunkDecoder =
 postChunkAttributesDecoder : Json.Decode.Decoder PostChunkAttributes
 postChunkAttributesDecoder =
     Json.Decode.succeed PostChunkAttributes
-        |> Json.Decode.Pipeline.required "content" Json.Decode.string
-        |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "embed" postChunkAttributesEmbedDecoder
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
-        |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
-        |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
-        |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postChunkAttributesEmbedDecoder : Json.Decode.Decoder PostChunkAttributesEmbed
@@ -1067,6 +834,7 @@ postChunkAttributesEmbedDecoder =
 postPieceDecoder : Json.Decode.Decoder PostPiece
 postPieceDecoder =
     Json.Decode.succeed PostPiece
+        |> Json.Decode.Pipeline.required "attributes" commonAttributesDecoder
         |> Json.Decode.Pipeline.required "attributes" postPieceAttributesDecoder
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
@@ -1076,21 +844,12 @@ postPieceDecoder =
 postPieceAttributesDecoder : Json.Decode.Decoder PostPieceAttributes
 postPieceAttributesDecoder =
     Json.Decode.succeed PostPieceAttributes
-        |> Json.Decode.Pipeline.required "content" Json.Decode.string
-        |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "embed" postPieceAttributesEmbedDecoder
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
         |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
-        |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
-        |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
-        |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postPieceAttributesEmbedDecoder : Json.Decode.Decoder PostPieceAttributesEmbed
@@ -1102,39 +861,3 @@ postPieceAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postThingyDecoder : Json.Decode.Decoder PostThingy
-postThingyDecoder =
-    Json.Decode.succeed PostThingy
-        |> Json.Decode.Pipeline.required "attributes" attributesDecoder
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
-
-
-postThingamajigDecoder : Json.Decode.Decoder PostThingamajig
-postThingamajigDecoder =
-    Json.Decode.succeed PostThingamajig
-        |> Json.Decode.Pipeline.required "attributes" attributesDecoder
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
-
-
-postWhatsitDecoder : Json.Decode.Decoder PostWhatsit
-postWhatsitDecoder =
-    Json.Decode.succeed PostWhatsit
-        |> Json.Decode.Pipeline.required "attributes" attributesDecoder
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
-
-
-postDoodadDecoder : Json.Decode.Decoder PostDoodad
-postDoodadDecoder =
-    Json.Decode.succeed PostDoodad
-        |> Json.Decode.Pipeline.required "attributes" attributesDecoder
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "relationships" relationshipsDecoder
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
