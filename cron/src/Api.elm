@@ -169,7 +169,7 @@ type alias Post =
 
 
 type alias Attributes =
-    { content : String
+    { content : Maybe String
     , createdAt : String
     , embed : Maybe Embed
     , image : Maybe Image
@@ -199,10 +199,10 @@ type alias Embed =
 
 type alias Image =
     { height : Int
-    , largeUrl : Url
-    , thumbSquareLargeUrl : Url
-    , thumbSquareUrl : Url
-    , thumbUrl : Url
+    , largeUrl : Maybe Url
+    , thumbSquareLargeUrl : Maybe Url
+    , thumbSquareUrl : Maybe Url
+    , thumbUrl : Maybe Url
     , url : Url
     , width : Int
     }
@@ -216,7 +216,7 @@ type PostFile
 type alias PostVideo =
     { defaultThumbnail : Url
     , duration : Float
-    , fullContentDuration : Float
+    , fullContentDuration : Maybe Float
     , mediaId : Int
     , state : String
     , url : Url
@@ -319,7 +319,7 @@ postDecoder =
 attributesDecoder : Json.Decode.Decoder Attributes
 attributesDecoder =
     Json.Decode.succeed Attributes
-        |> Json.Decode.Pipeline.required "content" Json.Decode.string
+        |> Json.Decode.Pipeline.optional "content" (Json.Decode.map Just Json.Decode.string) Nothing
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.optional "embed" (Json.Decode.map Just embedDecoder) Nothing
         |> Json.Decode.Pipeline.optional "image" (Json.Decode.map Just imageDecoder) Nothing
@@ -340,10 +340,10 @@ imageDecoder : Json.Decode.Decoder Image
 imageDecoder =
     Json.Decode.succeed Image
         |> Json.Decode.Pipeline.required "height" Json.Decode.int
-        |> Json.Decode.Pipeline.required "large_url" urlDecoder
-        |> Json.Decode.Pipeline.required "thumb_square_large_url" urlDecoder
-        |> Json.Decode.Pipeline.required "thumb_square_url" urlDecoder
-        |> Json.Decode.Pipeline.required "thumb_url" urlDecoder
+        |> Json.Decode.Pipeline.optional "large_url" (Json.Decode.map Just urlDecoder) Nothing
+        |> Json.Decode.Pipeline.optional "thumb_square_large_url" (Json.Decode.map Just urlDecoder) Nothing
+        |> Json.Decode.Pipeline.optional "thumb_square_url" (Json.Decode.map Just urlDecoder) Nothing
+        |> Json.Decode.Pipeline.optional "thumb_url" (Json.Decode.map Just urlDecoder) Nothing
         |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
@@ -353,7 +353,7 @@ postVideoDecoder =
     Json.Decode.succeed PostVideo
         |> Json.Decode.Pipeline.required "default_thumbnail" (Json.Decode.field "url" urlDecoder)
         |> Json.Decode.Pipeline.required "duration" Json.Decode.float
-        |> Json.Decode.Pipeline.required "full_content_duration" Json.Decode.float
+        |> Json.Decode.Pipeline.optional "full_content_duration" (Json.Decode.map Just Json.Decode.float) Nothing
         |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
         |> Json.Decode.Pipeline.required "state" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
