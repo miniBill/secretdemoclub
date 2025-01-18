@@ -94,26 +94,17 @@ postsUrl cursor =
              , "images"
              , "media"
              , "native_video_insights"
-             , "poll.choices"
-             , "poll.current_user_responses.user"
-             , "poll.current_user_responses.choice"
-             , "poll.current_user_responses.poll"
              , "user"
              , "user_defined_tags"
-             , "ti_checks"
              , "video.null"
              , "content_unlock_options.product_variant.null"
              ]
                 |> String.join ","
             )
         , Url.Builder.string "fields[campaign]"
-            ([ "currency"
-             , "show_audio_post_download_links"
+            ([ "show_audio_post_download_links"
              , "avatar_photo_url"
              , "avatar_photo_image_urls"
-             , "earnings_visibility"
-             , "is_nsfw"
-             , "is_monthly"
              , "name"
              , "url"
              ]
@@ -121,21 +112,13 @@ postsUrl cursor =
             )
         , Url.Builder.string "fields[post]"
             ([ "change_visibility_at"
-             , "comment_count"
              , "commenter_count"
              , "content"
              , "created_at"
-             , "current_user_can_comment"
-             , "current_user_can_delete"
-             , "current_user_can_report"
-             , "current_user_can_view"
              , "current_user_comment_disallowed_reason"
-             , "current_user_has_liked"
              , "embed"
              , "image"
              , "insights_last_updated_at"
-             , "is_paid"
-             , "like_count"
              , "meta_image_url"
              , "min_cents_pledged_to_view"
              , "monetization_ineligibility_reason"
@@ -148,12 +131,8 @@ postsUrl cursor =
              , "preview_asset_type"
              , "thumbnail"
              , "thumbnail_url"
-             , "teaser_text"
              , "title"
-             , "upgrade_url"
              , "url"
-             , "was_posted_by_campaign_owner"
-             , "has_ti_violation"
              , "moderation_status"
              , "post_level_suspension_removal_date"
              , "pls_one_liners_by_category"
@@ -161,7 +140,6 @@ postsUrl cursor =
              , "video_preview"
              , "view_count"
              , "content_unlock_options"
-             , "is_new_to_current_user"
              , "watch_state"
              ]
                 |> String.join ","
@@ -260,35 +238,22 @@ type alias PostObject =
 
 
 type alias PostObjectAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostObjectAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostObjectAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
     }
 
 
@@ -335,9 +300,13 @@ type alias Progress =
     }
 
 
-type alias PostObjectAttributesPostMetadata =
-    { imageOrder : List String
-    }
+type PostMetadata
+    = MetadataNone
+    | MetadataWithImageOrder (List String)
+    | MetadataPodcast
+        { episodeNumber : Int
+        , season : Int
+        }
 
 
 type alias PostObjectAttributesThumbnail =
@@ -445,36 +414,23 @@ type alias PostMember =
 
 
 type alias PostMemberAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
     , embed : PostMemberAttributesEmbed
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostMemberAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostMemberAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
     }
 
 
@@ -502,10 +458,6 @@ type alias AverageColorsOfCorners =
     , topLeft : String
     , topRight : String
     }
-
-
-type alias PostMemberAttributesPostMetadata =
-    {}
 
 
 type alias PostMemberAttributesThumbnail =
@@ -591,19 +543,9 @@ type alias PostEntity =
 
 
 type alias PostEntityAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
@@ -611,9 +553,7 @@ type alias PostEntityAttributes =
     , postType : String
     , publishedAt : String
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
     }
 
 
@@ -672,40 +612,23 @@ type alias PostThing =
 
 
 type alias PostThingAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostThingAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostThingAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
     }
-
-
-type alias PostThingAttributesPostMetadata =
-    { imageOrder : List String }
 
 
 type alias PostThingAttributesThumbnail =
@@ -817,40 +740,23 @@ type alias PostInstance =
 
 
 type alias PostInstanceAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostInstanceAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostInstanceAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
     }
-
-
-type alias PostInstanceAttributesPostMetadata =
-    { imageOrder : List String }
 
 
 type alias PostInstanceAttributesThumbnail =
@@ -936,38 +842,21 @@ type alias PostConstituent =
 
 
 type alias PostConstituentAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostConstituentAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , publishedAt : String
     , thumbnail : PostConstituentAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
-    }
-
-
-type alias PostConstituentAttributesPostMetadata =
-    { imageOrder : List String
     }
 
 
@@ -1054,36 +943,23 @@ type alias PostSpecimen =
 
 
 type alias PostSpecimenAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
     , embed : PostSpecimenAttributesEmbed
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostSpecimenAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostSpecimenAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
     }
 
 
@@ -1094,10 +970,6 @@ type alias PostSpecimenAttributesEmbed =
     , subject : String
     , url : Url
     }
-
-
-type alias PostSpecimenAttributesPostMetadata =
-    {}
 
 
 type alias PostSpecimenAttributesThumbnail =
@@ -1193,41 +1065,22 @@ type alias PostGadget =
 
 
 type alias PostGadgetAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostGadgetAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostGadgetAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
-    }
-
-
-type alias PostGadgetAttributesPostMetadata =
-    { episodeNumber : Int
-    , season : Int
     }
 
 
@@ -1330,36 +1183,23 @@ type alias PostWidget =
 
 
 type alias PostWidgetAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
     , embed : PostWidgetAttributesEmbed
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostWidgetAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostWidgetAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
     }
 
 
@@ -1371,10 +1211,6 @@ type alias PostWidgetAttributesEmbed =
     , subject : String
     , url : Url
     }
-
-
-type alias PostWidgetAttributesPostMetadata =
-    {}
 
 
 type alias PostWidgetAttributesThumbnail =
@@ -1447,40 +1283,22 @@ type alias PostGizmo =
 
 
 type alias PostGizmoAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostGizmoAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostGizmoAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
-    }
-
-
-type alias PostGizmoAttributesPostMetadata =
-    { imageOrder : List String
     }
 
 
@@ -1568,40 +1386,23 @@ type alias PostPart =
 
 
 type alias PostPartAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostPartAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostPartAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
     }
-
-
-type alias PostPartAttributesPostMetadata =
-    {}
 
 
 type alias PostPartAttributesThumbnail =
@@ -1693,37 +1494,24 @@ type alias PostChunk =
 
 
 type alias PostChunkAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
     , embed : PostChunkAttributesEmbed
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , minCentsPledgedToView : Int
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostChunkAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostChunkAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
     }
 
 
@@ -1735,10 +1523,6 @@ type alias PostChunkAttributesEmbed =
     , subject : String
     , url : Url
     }
-
-
-type alias PostChunkAttributesPostMetadata =
-    {}
 
 
 type alias PostChunkAttributesThumbnail =
@@ -1801,36 +1585,23 @@ type alias PostPiece =
 
 
 type alias PostPieceAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
     , embed : PostPieceAttributesEmbed
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostPieceAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostPieceAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
     }
 
 
@@ -1842,10 +1613,6 @@ type alias PostPieceAttributesEmbed =
     , subject : String
     , url : Url
     }
-
-
-type alias PostPieceAttributesPostMetadata =
-    {}
 
 
 type alias PostPieceAttributesThumbnail =
@@ -1908,40 +1675,22 @@ type alias PostThingy =
 
 
 type alias PostThingyAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostThingyAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostThingyAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
-    }
-
-
-type alias PostThingyAttributesPostMetadata =
-    { imageOrder : List String
     }
 
 
@@ -2005,40 +1754,22 @@ type alias PostThingamajig =
 
 
 type alias PostThingamajigAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostThingamajigAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostThingamajigAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
-    }
-
-
-type alias PostThingamajigAttributesPostMetadata =
-    { imageOrder : List String
     }
 
 
@@ -2131,40 +1862,22 @@ type alias PostWhatsit =
 
 
 type alias PostWhatsitAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostWhatsitAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostWhatsitAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
-    }
-
-
-type alias PostWhatsitAttributesPostMetadata =
-    { imageOrder : List String
     }
 
 
@@ -2228,41 +1941,23 @@ type alias PostDoodad =
 
 
 type alias PostDoodadAttributes =
-    { commentCount : Int
-    , commenterCount : Int
+    { commenterCount : Int
     , content : String
     , createdAt : String
-    , currentUserCanComment : Bool
-    , currentUserCanDelete : Bool
-    , currentUserCanReport : Bool
-    , currentUserCanView : Bool
-    , currentUserHasLiked : Bool
-    , hasTiViolation : Bool
     , image : Image
-    , isNewToCurrentUser : Bool
-    , isPaid : Bool
-    , likeCount : Int
     , metaImageUrl : Url
     , minCentsPledgedToView : Int
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
-    , postMetadata : PostDoodadAttributesPostMetadata
+    , postMetadata : PostMetadata
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , teaserText : String
     , thumbnail : PostDoodadAttributesThumbnail
     , title : String
-    , upgradeUrl : String
     , url : Url
-    , wasPostedByCampaignOwner : Bool
-    }
-
-
-type alias PostDoodadAttributesPostMetadata =
-    { imageOrder : List String
     }
 
 
@@ -2352,35 +2047,22 @@ postObjectDecoder =
 postObjectAttributesDecoder : Json.Decode.Decoder PostObjectAttributes
 postObjectAttributesDecoder =
     Json.Decode.succeed PostObjectAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postObjectAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postObjectAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
 imageDecoder : Json.Decode.Decoder Image
@@ -2407,10 +2089,21 @@ postVideoDecoder =
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
-postObjectAttributesPostMetadataDecoder : Json.Decode.Decoder PostObjectAttributesPostMetadata
-postObjectAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostObjectAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
+postMetadataDecoder : Json.Decode.Decoder PostMetadata
+postMetadataDecoder =
+    Json.Decode.oneOf
+        [ Json.Decode.succeed MetadataWithImageOrder
+            |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
+        , Json.Decode.succeed
+            (\episodeNumber season ->
+                { episodeNumber = episodeNumber
+                , season = season
+                }
+                    |> MetadataPodcast
+            )
+            |> Json.Decode.Pipeline.required "episode_number" Json.Decode.int
+            |> Json.Decode.Pipeline.required "season" Json.Decode.int
+        ]
 
 
 postObjectAttributesThumbnailDecoder : Json.Decode.Decoder PostObjectAttributesThumbnail
@@ -2509,36 +2202,23 @@ postMemberDecoder =
 postMemberAttributesDecoder : Json.Decode.Decoder PostMemberAttributes
 postMemberAttributesDecoder =
     Json.Decode.succeed PostMemberAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
         |> Json.Decode.Pipeline.required "embed" postMemberAttributesEmbedDecoder
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postMemberAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postMemberAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
 postMemberAttributesEmbedDecoder : Json.Decode.Decoder PostMemberAttributesEmbed
@@ -2587,11 +2267,6 @@ averageColorsOfCornersDecoder =
         |> Json.Decode.Pipeline.required "bottom_right" Json.Decode.string
         |> Json.Decode.Pipeline.required "top_left" Json.Decode.string
         |> Json.Decode.Pipeline.required "top_right" Json.Decode.string
-
-
-postMemberAttributesPostMetadataDecoder : Json.Decode.Decoder PostMemberAttributesPostMetadata
-postMemberAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostMemberAttributesPostMetadata
 
 
 postMemberAttributesThumbnailDecoder : Json.Decode.Decoder PostMemberAttributesThumbnail
@@ -2669,19 +2344,9 @@ postEntityDecoder =
 postEntityAttributesDecoder : Json.Decode.Decoder PostEntityAttributes
 postEntityAttributesDecoder =
     Json.Decode.succeed PostEntityAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
@@ -2689,9 +2354,7 @@ postEntityAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
 postEntityRelationshipsDecoder : Json.Decode.Decoder PostEntityRelationships
@@ -2746,35 +2409,22 @@ postThingDecoder =
 postThingAttributesDecoder : Json.Decode.Decoder PostThingAttributes
 postThingAttributesDecoder =
     Json.Decode.succeed PostThingAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postThingAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postThingAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
 hasUrlDecoder : Json.Decode.Decoder Url
@@ -2801,12 +2451,6 @@ progressDecoder =
     Json.Decode.succeed Progress
         |> Json.Decode.Pipeline.required "is_watched" Json.Decode.bool
         |> Json.Decode.Pipeline.required "watch_state" Json.Decode.string
-
-
-postThingAttributesPostMetadataDecoder : Json.Decode.Decoder PostThingAttributesPostMetadata
-postThingAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostThingAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
 
 
 postThingAttributesThumbnailDecoder : Json.Decode.Decoder PostThingAttributesThumbnail
@@ -2905,41 +2549,22 @@ postInstanceDecoder =
 postInstanceAttributesDecoder : Json.Decode.Decoder PostInstanceAttributes
 postInstanceAttributesDecoder =
     Json.Decode.succeed PostInstanceAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postInstanceAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postInstanceAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postInstanceAttributesPostMetadataDecoder : Json.Decode.Decoder PostInstanceAttributesPostMetadata
-postInstanceAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostInstanceAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
 
 
 postInstanceAttributesThumbnailDecoder : Json.Decode.Decoder PostInstanceAttributesThumbnail
@@ -3017,39 +2642,21 @@ postConstituentDecoder =
 postConstituentAttributesDecoder : Json.Decode.Decoder PostConstituentAttributes
 postConstituentAttributesDecoder =
     Json.Decode.succeed PostConstituentAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postConstituentAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postConstituentAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postConstituentAttributesPostMetadataDecoder : Json.Decode.Decoder PostConstituentAttributesPostMetadata
-postConstituentAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostConstituentAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
 
 
 postConstituentAttributesThumbnailDecoder : Json.Decode.Decoder PostConstituentAttributesThumbnail
@@ -3127,36 +2734,23 @@ postSpecimenDecoder =
 postSpecimenAttributesDecoder : Json.Decode.Decoder PostSpecimenAttributes
 postSpecimenAttributesDecoder =
     Json.Decode.succeed PostSpecimenAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
         |> Json.Decode.Pipeline.required "embed" postSpecimenAttributesEmbedDecoder
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postSpecimenAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postSpecimenAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
 postSpecimenAttributesEmbedDecoder : Json.Decode.Decoder PostSpecimenAttributesEmbed
@@ -3167,11 +2761,6 @@ postSpecimenAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postSpecimenAttributesPostMetadataDecoder : Json.Decode.Decoder PostSpecimenAttributesPostMetadata
-postSpecimenAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostSpecimenAttributesPostMetadata
 
 
 postSpecimenAttributesThumbnailDecoder : Json.Decode.Decoder PostSpecimenAttributesThumbnail
@@ -3256,42 +2845,22 @@ postGadgetDecoder =
 postGadgetAttributesDecoder : Json.Decode.Decoder PostGadgetAttributes
 postGadgetAttributesDecoder =
     Json.Decode.succeed PostGadgetAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postGadgetAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postGadgetAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postGadgetAttributesPostMetadataDecoder : Json.Decode.Decoder PostGadgetAttributesPostMetadata
-postGadgetAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostGadgetAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "episode_number" Json.Decode.int
-        |> Json.Decode.Pipeline.required "season" Json.Decode.int
 
 
 postGadgetAttributesThumbnailDecoder : Json.Decode.Decoder PostGadgetAttributesThumbnail
@@ -3383,36 +2952,23 @@ postWidgetDecoder =
 postWidgetAttributesDecoder : Json.Decode.Decoder PostWidgetAttributes
 postWidgetAttributesDecoder =
     Json.Decode.succeed PostWidgetAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
         |> Json.Decode.Pipeline.required "embed" postWidgetAttributesEmbedDecoder
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postWidgetAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postWidgetAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
 postWidgetAttributesEmbedDecoder : Json.Decode.Decoder PostWidgetAttributesEmbed
@@ -3424,11 +2980,6 @@ postWidgetAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postWidgetAttributesPostMetadataDecoder : Json.Decode.Decoder PostWidgetAttributesPostMetadata
-postWidgetAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostWidgetAttributesPostMetadata
 
 
 postWidgetAttributesThumbnailDecoder : Json.Decode.Decoder PostWidgetAttributesThumbnail
@@ -3495,41 +3046,22 @@ postGizmoDecoder =
 postGizmoAttributesDecoder : Json.Decode.Decoder PostGizmoAttributes
 postGizmoAttributesDecoder =
     Json.Decode.succeed PostGizmoAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postGizmoAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postGizmoAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postGizmoAttributesPostMetadataDecoder : Json.Decode.Decoder PostGizmoAttributesPostMetadata
-postGizmoAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostGizmoAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
 
 
 postGizmoAttributesThumbnailDecoder : Json.Decode.Decoder PostGizmoAttributesThumbnail
@@ -3617,40 +3149,22 @@ postPartDecoder =
 postPartAttributesDecoder : Json.Decode.Decoder PostPartAttributes
 postPartAttributesDecoder =
     Json.Decode.succeed PostPartAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postPartAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postPartAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postPartAttributesPostMetadataDecoder : Json.Decode.Decoder PostPartAttributesPostMetadata
-postPartAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostPartAttributesPostMetadata
 
 
 postPartAttributesThumbnailDecoder : Json.Decode.Decoder PostPartAttributesThumbnail
@@ -3739,37 +3253,24 @@ postChunkDecoder =
 postChunkAttributesDecoder : Json.Decode.Decoder PostChunkAttributes
 postChunkAttributesDecoder =
     Json.Decode.succeed PostChunkAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
         |> Json.Decode.Pipeline.required "embed" postChunkAttributesEmbedDecoder
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "min_cents_pledged_to_view" Json.Decode.int
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postChunkAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postChunkAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
 postChunkAttributesEmbedDecoder : Json.Decode.Decoder PostChunkAttributesEmbed
@@ -3781,11 +3282,6 @@ postChunkAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postChunkAttributesPostMetadataDecoder : Json.Decode.Decoder PostChunkAttributesPostMetadata
-postChunkAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostChunkAttributesPostMetadata
 
 
 postChunkAttributesThumbnailDecoder : Json.Decode.Decoder PostChunkAttributesThumbnail
@@ -3845,36 +3341,23 @@ postPieceDecoder =
 postPieceAttributesDecoder : Json.Decode.Decoder PostPieceAttributes
 postPieceAttributesDecoder =
     Json.Decode.succeed PostPieceAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
         |> Json.Decode.Pipeline.required "embed" postPieceAttributesEmbedDecoder
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postPieceAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postPieceAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
 postPieceAttributesEmbedDecoder : Json.Decode.Decoder PostPieceAttributesEmbed
@@ -3886,11 +3369,6 @@ postPieceAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postPieceAttributesPostMetadataDecoder : Json.Decode.Decoder PostPieceAttributesPostMetadata
-postPieceAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostPieceAttributesPostMetadata
 
 
 postPieceAttributesThumbnailDecoder : Json.Decode.Decoder PostPieceAttributesThumbnail
@@ -3950,41 +3428,22 @@ postThingyDecoder =
 postThingyAttributesDecoder : Json.Decode.Decoder PostThingyAttributes
 postThingyAttributesDecoder =
     Json.Decode.succeed PostThingyAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postThingyAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postThingyAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postThingyAttributesPostMetadataDecoder : Json.Decode.Decoder PostThingyAttributesPostMetadata
-postThingyAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostThingyAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
 
 
 postThingyAttributesThumbnailDecoder : Json.Decode.Decoder PostThingyAttributesThumbnail
@@ -4044,41 +3503,22 @@ postThingamajigDecoder =
 postThingamajigAttributesDecoder : Json.Decode.Decoder PostThingamajigAttributes
 postThingamajigAttributesDecoder =
     Json.Decode.succeed PostThingamajigAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postThingamajigAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postThingamajigAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postThingamajigAttributesPostMetadataDecoder : Json.Decode.Decoder PostThingamajigAttributesPostMetadata
-postThingamajigAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostThingamajigAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
 
 
 postThingamajigAttributesThumbnailDecoder : Json.Decode.Decoder PostThingamajigAttributesThumbnail
@@ -4167,41 +3607,22 @@ postWhatsitDecoder =
 postWhatsitAttributesDecoder : Json.Decode.Decoder PostWhatsitAttributes
 postWhatsitAttributesDecoder =
     Json.Decode.succeed PostWhatsitAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postWhatsitAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postWhatsitAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postWhatsitAttributesPostMetadataDecoder : Json.Decode.Decoder PostWhatsitAttributesPostMetadata
-postWhatsitAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostWhatsitAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
 
 
 postWhatsitAttributesThumbnailDecoder : Json.Decode.Decoder PostWhatsitAttributesThumbnail
@@ -4261,42 +3682,23 @@ postDoodadDecoder =
 postDoodadAttributesDecoder : Json.Decode.Decoder PostDoodadAttributes
 postDoodadAttributesDecoder =
     Json.Decode.succeed PostDoodadAttributes
-        |> Json.Decode.Pipeline.required "comment_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "current_user_can_comment" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_delete" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_report" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_can_view" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "current_user_has_liked" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "has_ti_violation" Json.Decode.bool
         |> Json.Decode.Pipeline.required "image" imageDecoder
-        |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "min_cents_pledged_to_view" Json.Decode.int
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
-        |> Json.Decode.Pipeline.required "post_metadata" postDoodadAttributesPostMetadataDecoder
+        |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "teaser_text" Json.Decode.string
         |> Json.Decode.Pipeline.required "thumbnail" postDoodadAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
-
-
-postDoodadAttributesPostMetadataDecoder : Json.Decode.Decoder PostDoodadAttributesPostMetadata
-postDoodadAttributesPostMetadataDecoder =
-    Json.Decode.succeed PostDoodadAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
 
 
 postDoodadAttributesThumbnailDecoder : Json.Decode.Decoder PostDoodadAttributesThumbnail
