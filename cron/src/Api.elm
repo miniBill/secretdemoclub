@@ -5,6 +5,7 @@ import BackendTask.Http as Http
 import FatalError exposing (FatalError)
 import Json.Decode
 import Json.Decode.Pipeline
+import Url exposing (Url)
 import Url.Builder
 
 
@@ -273,11 +274,11 @@ type alias PostObjectAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostObjectAttributesPostFile
+    , postFile : PostFile
     , postMetadata : PostObjectAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -286,39 +287,40 @@ type alias PostObjectAttributes =
     , thumbnail : PostObjectAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
 
 type alias Image =
     { height : Int
-    , largeUrl : String
-    , thumbSquareLargeUrl : String
-    , thumbSquareUrl : String
-    , thumbUrl : String
-    , url : String
+    , largeUrl : Url
+    , thumbSquareLargeUrl : Url
+    , thumbSquareUrl : Url
+    , thumbUrl : Url
+    , url : Url
     , width : Int
     }
 
 
-type alias PostObjectAttributesPostFile =
-    PostFile
-
-
 type alias PostFile =
-    { defaultThumbnail : HasUrl
+    { defaultThumbnail : Url
     , duration : Int
     , fullContentDuration : Int
     , mediaId : Int
     , progress : Progress
     , state : String
-    , url : String
+    , url : Url
     }
 
 
-type alias HasUrl =
-    { url : String
+type alias PostImage =
+    { height : Int
+    , imageColors : ImageColors
+    , mediaId : Int
+    , state : String
+    , url : Url
+    , width : Int
     }
 
 
@@ -342,7 +344,7 @@ type alias PostObjectAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -458,7 +460,7 @@ type alias PostMemberAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -471,7 +473,7 @@ type alias PostMemberAttributes =
     , thumbnail : PostMemberAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -480,19 +482,9 @@ type alias PostMemberAttributesEmbed =
     { description : String
     , html : String
     , provider : String
-    , providerUrl : String
+    , providerUrl : Url
     , subject : String
-    , url : String
-    }
-
-
-type alias PostImage =
-    { height : Int
-    , imageColors : ImageColors
-    , mediaId : Int
-    , state : String
-    , url : String
-    , width : Int
+    , url : Url
     }
 
 
@@ -525,7 +517,7 @@ type alias PostMemberAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -617,7 +609,7 @@ type alias PostEntityAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -625,7 +617,7 @@ type alias PostEntityAttributes =
     , publishedAt : String
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -699,11 +691,11 @@ type alias PostThingAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostThingAttributesPostFile
+    , postFile : PostFile
     , postMetadata : PostThingAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -712,13 +704,9 @@ type alias PostThingAttributes =
     , thumbnail : PostThingAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
-
-
-type alias PostThingAttributesPostFile =
-    PostFile
 
 
 type alias PostThingAttributesPostMetadata =
@@ -735,7 +723,7 @@ type alias PostThingAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -854,7 +842,7 @@ type alias PostInstanceAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -867,7 +855,7 @@ type alias PostInstanceAttributes =
     , thumbnail : PostInstanceAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -886,7 +874,7 @@ type alias PostInstanceAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -979,7 +967,7 @@ type alias PostConstituentAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -990,7 +978,7 @@ type alias PostConstituentAttributes =
     , thumbnail : PostConstituentAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -1004,7 +992,7 @@ type alias PostConstituentAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1098,7 +1086,7 @@ type alias PostSpecimenAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -1111,7 +1099,7 @@ type alias PostSpecimenAttributes =
     , thumbnail : PostSpecimenAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -1119,9 +1107,9 @@ type alias PostSpecimenAttributes =
 type alias PostSpecimenAttributesEmbed =
     { description : String
     , provider : String
-    , providerUrl : String
+    , providerUrl : Url
     , subject : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1138,7 +1126,7 @@ type alias PostSpecimenAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1241,11 +1229,11 @@ type alias PostGadgetAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
-    , postFile : PostGadgetAttributesPostFile
+    , postFile : PostFile
     , postMetadata : PostGadgetAttributesPostMetadata
     , postType : String
     , previewAssetType : String
@@ -1254,13 +1242,9 @@ type alias PostGadgetAttributes =
     , thumbnail : PostGadgetAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
-
-
-type alias PostGadgetAttributesPostFile =
-    PostFile
 
 
 type alias PostGadgetAttributesPostMetadata =
@@ -1278,7 +1262,7 @@ type alias PostGadgetAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1388,7 +1372,7 @@ type alias PostWidgetAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -1401,7 +1385,7 @@ type alias PostWidgetAttributes =
     , thumbnail : PostWidgetAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -1410,9 +1394,9 @@ type alias PostWidgetAttributesEmbed =
     { description : String
     , html : String
     , provider : String
-    , providerUrl : String
+    , providerUrl : Url
     , subject : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1429,7 +1413,7 @@ type alias PostWidgetAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1509,7 +1493,7 @@ type alias PostGizmoAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -1522,7 +1506,7 @@ type alias PostGizmoAttributes =
     , thumbnail : PostGizmoAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -1541,7 +1525,7 @@ type alias PostGizmoAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1635,7 +1619,7 @@ type alias PostPartAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -1648,7 +1632,7 @@ type alias PostPartAttributes =
     , thumbnail : PostPartAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -1666,7 +1650,7 @@ type alias PostPartAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1766,7 +1750,7 @@ type alias PostChunkAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , minCentsPledgedToView : Int
     , moderationStatus : String
     , patreonUrl : String
@@ -1780,7 +1764,7 @@ type alias PostChunkAttributes =
     , thumbnail : PostChunkAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -1789,9 +1773,9 @@ type alias PostChunkAttributesEmbed =
     { description : String
     , html : String
     , provider : String
-    , providerUrl : String
+    , providerUrl : Url
     , subject : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1808,7 +1792,7 @@ type alias PostChunkAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1879,7 +1863,7 @@ type alias PostPieceAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -1892,7 +1876,7 @@ type alias PostPieceAttributes =
     , thumbnail : PostPieceAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -1901,9 +1885,9 @@ type alias PostPieceAttributesEmbed =
     { description : String
     , html : String
     , provider : String
-    , providerUrl : String
+    , providerUrl : Url
     , subject : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1920,7 +1904,7 @@ type alias PostPieceAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -1990,7 +1974,7 @@ type alias PostThingyAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -2003,7 +1987,7 @@ type alias PostThingyAttributes =
     , thumbnail : PostThingyAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -2022,7 +2006,7 @@ type alias PostThingyAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -2092,7 +2076,7 @@ type alias PostThingamajigAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -2105,7 +2089,7 @@ type alias PostThingamajigAttributes =
     , thumbnail : PostThingamajigAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -2124,7 +2108,7 @@ type alias PostThingamajigAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -2223,7 +2207,7 @@ type alias PostWhatsitAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
@@ -2236,7 +2220,7 @@ type alias PostWhatsitAttributes =
     , thumbnail : PostWhatsitAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -2255,7 +2239,7 @@ type alias PostWhatsitAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -2325,7 +2309,7 @@ type alias PostDoodadAttributes =
     , isNewToCurrentUser : Bool
     , isPaid : Bool
     , likeCount : Int
-    , metaImageUrl : String
+    , metaImageUrl : Url
     , minCentsPledgedToView : Int
     , moderationStatus : String
     , patreonUrl : String
@@ -2339,7 +2323,7 @@ type alias PostDoodadAttributes =
     , thumbnail : PostDoodadAttributesThumbnail
     , title : String
     , upgradeUrl : String
-    , url : String
+    , url : Url
     , wasPostedByCampaignOwner : Bool
     }
 
@@ -2358,7 +2342,7 @@ type alias PostDoodadAttributesThumbnail =
     { large : String
     , large2 : String
     , square : String
-    , url : String
+    , url : Url
     }
 
 
@@ -2454,7 +2438,7 @@ postObjectAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -2467,7 +2451,7 @@ postObjectAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postObjectAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -2475,11 +2459,11 @@ imageDecoder : Json.Decode.Decoder Image
 imageDecoder =
     Json.Decode.succeed Image
         |> Json.Decode.Pipeline.required "height" Json.Decode.int
-        |> Json.Decode.Pipeline.required "large_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumb_square_large_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumb_square_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumb_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "large_url" urlDecoder
+        |> Json.Decode.Pipeline.required "thumb_square_large_url" urlDecoder
+        |> Json.Decode.Pipeline.required "thumb_square_url" urlDecoder
+        |> Json.Decode.Pipeline.required "thumb_url" urlDecoder
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
@@ -2492,7 +2476,7 @@ postFileDecoder =
         |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
         |> Json.Decode.Pipeline.required "progress" progressDecoder
         |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postObjectAttributesPostMetadataDecoder : Json.Decode.Decoder PostObjectAttributesPostMetadata
@@ -2513,7 +2497,7 @@ postObjectAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postObjectRelationshipsDecoder : Json.Decode.Decoder PostObjectRelationships
@@ -2618,7 +2602,7 @@ postMemberAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -2631,7 +2615,7 @@ postMemberAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postMemberAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -2641,9 +2625,9 @@ postMemberAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "description" Json.Decode.string
         |> Json.Decode.Pipeline.required "html" Json.Decode.string
         |> Json.Decode.Pipeline.required "provider" Json.Decode.string
-        |> Json.Decode.Pipeline.required "provider_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postImageDecoder : Json.Decode.Decoder PostImage
@@ -2653,7 +2637,7 @@ postImageDecoder =
         |> Json.Decode.Pipeline.required "image_colors" imageColorsDecoder
         |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
         |> Json.Decode.Pipeline.required "state" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
@@ -2692,7 +2676,7 @@ postMemberAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postMemberRelationshipsDecoder : Json.Decode.Decoder PostMemberRelationships
@@ -2774,7 +2758,7 @@ postEntityAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -2782,7 +2766,7 @@ postEntityAttributesDecoder =
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -2852,7 +2836,7 @@ postThingAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -2865,14 +2849,27 @@ postThingAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postThingAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
-hasUrlDecoder : Json.Decode.Decoder HasUrl
+hasUrlDecoder : Json.Decode.Decoder Url
 hasUrlDecoder =
-    Json.Decode.succeed HasUrl
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+    Json.Decode.field "url" urlDecoder
+
+
+urlDecoder : Json.Decode.Decoder Url
+urlDecoder =
+    Json.Decode.string
+        |> Json.Decode.andThen
+            (\raw ->
+                case Url.fromString raw of
+                    Just url ->
+                        Json.Decode.succeed url
+
+                    Nothing ->
+                        Json.Decode.fail "Not a valid URL"
+            )
 
 
 progressDecoder : Json.Decode.Decoder Progress
@@ -2900,7 +2897,7 @@ postThingAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postThingRelationshipsDecoder : Json.Decode.Decoder PostThingRelationships
@@ -3004,7 +3001,7 @@ postInstanceAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -3017,7 +3014,7 @@ postInstanceAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postInstanceAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -3039,7 +3036,7 @@ postInstanceAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postInstanceRelationshipsDecoder : Json.Decode.Decoder PostInstanceRelationships
@@ -3122,7 +3119,7 @@ postConstituentAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -3133,7 +3130,7 @@ postConstituentAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postConstituentAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -3149,7 +3146,7 @@ postConstituentAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postConstituentRelationshipsDecoder : Json.Decode.Decoder PostConstituentRelationships
@@ -3233,7 +3230,7 @@ postSpecimenAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -3246,7 +3243,7 @@ postSpecimenAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postSpecimenAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -3255,9 +3252,9 @@ postSpecimenAttributesEmbedDecoder =
     Json.Decode.succeed PostSpecimenAttributesEmbed
         |> Json.Decode.Pipeline.required "description" Json.Decode.string
         |> Json.Decode.Pipeline.required "provider" Json.Decode.string
-        |> Json.Decode.Pipeline.required "provider_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postSpecimenAttributesPostMetadataDecoder : Json.Decode.Decoder PostSpecimenAttributesPostMetadata
@@ -3277,7 +3274,7 @@ postSpecimenAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postSpecimenRelationshipsDecoder : Json.Decode.Decoder PostSpecimenRelationships
@@ -3367,7 +3364,7 @@ postGadgetAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -3380,7 +3377,7 @@ postGadgetAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postGadgetAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -3403,7 +3400,7 @@ postGadgetAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postGadgetRelationshipsDecoder : Json.Decode.Decoder PostGadgetRelationships
@@ -3501,7 +3498,7 @@ postWidgetAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -3514,7 +3511,7 @@ postWidgetAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postWidgetAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -3524,9 +3521,9 @@ postWidgetAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "description" Json.Decode.string
         |> Json.Decode.Pipeline.required "html" Json.Decode.string
         |> Json.Decode.Pipeline.required "provider" Json.Decode.string
-        |> Json.Decode.Pipeline.required "provider_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postWidgetAttributesPostMetadataDecoder : Json.Decode.Decoder PostWidgetAttributesPostMetadata
@@ -3546,7 +3543,7 @@ postWidgetAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postWidgetRelationshipsDecoder : Json.Decode.Decoder PostWidgetRelationships
@@ -3618,7 +3615,7 @@ postGizmoAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -3631,7 +3628,7 @@ postGizmoAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postGizmoAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -3653,7 +3650,7 @@ postGizmoAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postGizmoRelationshipsDecoder : Json.Decode.Decoder PostGizmoRelationships
@@ -3746,7 +3743,7 @@ postPartAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -3759,7 +3756,7 @@ postPartAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postPartAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -3780,7 +3777,7 @@ postPartAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postPartRelationshipsDecoder : Json.Decode.Decoder PostPartRelationships
@@ -3875,7 +3872,7 @@ postChunkAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "min_cents_pledged_to_view" Json.Decode.int
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
@@ -3889,7 +3886,7 @@ postChunkAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postChunkAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -3899,9 +3896,9 @@ postChunkAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "description" Json.Decode.string
         |> Json.Decode.Pipeline.required "html" Json.Decode.string
         |> Json.Decode.Pipeline.required "provider" Json.Decode.string
-        |> Json.Decode.Pipeline.required "provider_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postChunkAttributesPostMetadataDecoder : Json.Decode.Decoder PostChunkAttributesPostMetadata
@@ -3921,7 +3918,7 @@ postChunkAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postChunkRelationshipsDecoder : Json.Decode.Decoder PostChunkRelationships
@@ -3987,7 +3984,7 @@ postPieceAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -4000,7 +3997,7 @@ postPieceAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postPieceAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -4010,9 +4007,9 @@ postPieceAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "description" Json.Decode.string
         |> Json.Decode.Pipeline.required "html" Json.Decode.string
         |> Json.Decode.Pipeline.required "provider" Json.Decode.string
-        |> Json.Decode.Pipeline.required "provider_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postPieceAttributesPostMetadataDecoder : Json.Decode.Decoder PostPieceAttributesPostMetadata
@@ -4032,7 +4029,7 @@ postPieceAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postPieceRelationshipsDecoder : Json.Decode.Decoder PostPieceRelationships
@@ -4097,7 +4094,7 @@ postThingyAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -4110,7 +4107,7 @@ postThingyAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postThingyAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -4132,7 +4129,7 @@ postThingyAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postThingyRelationshipsDecoder : Json.Decode.Decoder PostThingyRelationships
@@ -4197,7 +4194,7 @@ postThingamajigAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -4210,7 +4207,7 @@ postThingamajigAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postThingamajigAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -4232,7 +4229,7 @@ postThingamajigAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postThingamajigRelationshipsDecoder : Json.Decode.Decoder PostThingamajigRelationships
@@ -4326,7 +4323,7 @@ postWhatsitAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
@@ -4339,7 +4336,7 @@ postWhatsitAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postWhatsitAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -4361,7 +4358,7 @@ postWhatsitAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postWhatsitRelationshipsDecoder : Json.Decode.Decoder PostWhatsitRelationships
@@ -4426,7 +4423,7 @@ postDoodadAttributesDecoder =
         |> Json.Decode.Pipeline.required "is_new_to_current_user" Json.Decode.bool
         |> Json.Decode.Pipeline.required "is_paid" Json.Decode.bool
         |> Json.Decode.Pipeline.required "like_count" Json.Decode.int
-        |> Json.Decode.Pipeline.required "meta_image_url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "min_cents_pledged_to_view" Json.Decode.int
         |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
@@ -4440,7 +4437,7 @@ postDoodadAttributesDecoder =
         |> Json.Decode.Pipeline.required "thumbnail" postDoodadAttributesThumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "upgrade_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
         |> Json.Decode.Pipeline.required "was_posted_by_campaign_owner" Json.Decode.bool
 
 
@@ -4462,7 +4459,7 @@ postDoodadAttributesThumbnailDecoder =
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postDoodadRelationshipsDecoder : Json.Decode.Decoder PostDoodadRelationships
