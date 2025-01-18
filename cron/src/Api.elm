@@ -84,16 +84,13 @@ postsUrl cursor =
         "https://www.patreon.com"
         [ "api", "posts" ]
         [ Url.Builder.string "include"
-            ([ "campaign"
-             , "access_rules"
+            ([ "access_rules"
              , "access_rules.tier.null"
              , "attachments_media"
              , "audio"
              , "audio_preview.null"
-             , "drop"
              , "images"
              , "media"
-             , "native_video_insights"
              , "user"
              , "user_defined_tags"
              , "video.null"
@@ -101,27 +98,14 @@ postsUrl cursor =
              ]
                 |> String.join ","
             )
-        , Url.Builder.string "fields[campaign]"
-            ([ "show_audio_post_download_links"
-             , "avatar_photo_url"
-             , "avatar_photo_image_urls"
-             , "name"
-             , "url"
-             ]
-                |> String.join ","
-            )
+        , Url.Builder.string "fields[campaign]" ""
         , Url.Builder.string "fields[post]"
             ([ "change_visibility_at"
-             , "commenter_count"
              , "content"
              , "created_at"
-             , "current_user_comment_disallowed_reason"
              , "embed"
              , "image"
-             , "insights_last_updated_at"
              , "meta_image_url"
-             , "min_cents_pledged_to_view"
-             , "monetization_ineligibility_reason"
              , "post_file"
              , "post_metadata"
              , "published_at"
@@ -133,14 +117,9 @@ postsUrl cursor =
              , "thumbnail_url"
              , "title"
              , "url"
-             , "moderation_status"
-             , "post_level_suspension_removal_date"
-             , "pls_one_liners_by_category"
              , "video"
              , "video_preview"
-             , "view_count"
              , "content_unlock_options"
-             , "watch_state"
              ]
                 |> String.join ","
             )
@@ -238,12 +217,10 @@ type alias PostObject =
 
 
 type alias PostObjectAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -320,7 +297,6 @@ type alias PostObjectAttributesThumbnail =
 type alias PostObjectRelationships =
     { accessRules : PostObjectRelationshipsAccessRules
     , audio : PostObjectRelationshipsAudio
-    , campaign : PostObjectRelationshipsCampaign
     , images : PostObjectRelationshipsImages
     , media : PostObjectRelationshipsMedia
     , user : PostObjectRelationshipsUser
@@ -414,13 +390,11 @@ type alias PostMember =
 
 
 type alias PostMemberAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , embed : PostMemberAttributesEmbed
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -470,7 +444,6 @@ type alias PostMemberAttributesThumbnail =
 
 type alias PostMemberRelationships =
     { accessRules : PostMemberRelationshipsAccessRules
-    , campaign : PostMemberRelationshipsCampaign
     , images : PostMemberRelationshipsImages
     , media : PostMemberRelationshipsMedia
     , user : PostMemberRelationshipsUser
@@ -543,11 +516,9 @@ type alias PostEntity =
 
 
 type alias PostEntityAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postType : String
@@ -559,7 +530,6 @@ type alias PostEntityAttributes =
 
 type alias PostEntityRelationships =
     { accessRules : PostEntityRelationshipsAccessRules
-    , campaign : PostEntityRelationshipsCampaign
     , user : PostEntityRelationshipsUser
     }
 
@@ -612,12 +582,10 @@ type alias PostThing =
 
 
 type alias PostThingAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -643,7 +611,6 @@ type alias PostThingRelationships =
     { accessRules : PostThingRelationshipsAccessRules
     , attachmentsMedia : PostThingRelationshipsAttachmentsMedia
     , audio : PostThingRelationshipsAudio
-    , campaign : PostThingRelationshipsCampaign
     , images : PostThingRelationshipsImages
     , media : PostThingRelationshipsMedia
     , user : PostThingRelationshipsUser
@@ -740,12 +707,10 @@ type alias PostInstance =
 
 
 type alias PostInstanceAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -769,7 +734,6 @@ type alias PostInstanceAttributesThumbnail =
 
 type alias PostInstanceRelationships =
     { accessRules : PostInstanceRelationshipsAccessRules
-    , campaign : PostInstanceRelationshipsCampaign
     , images : PostInstanceRelationshipsImages
     , media : PostInstanceRelationshipsMedia
     , user : PostInstanceRelationshipsUser
@@ -842,12 +806,10 @@ type alias PostConstituent =
 
 
 type alias PostConstituentAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -870,7 +832,6 @@ type alias PostConstituentAttributesThumbnail =
 
 type alias PostConstituentRelationships =
     { accessRules : PostConstituentRelationshipsAccessRules
-    , campaign : PostConstituentRelationshipsCampaign
     , images : PostConstituentRelationshipsImages
     , media : PostConstituentRelationshipsMedia
     , user : PostConstituentRelationshipsUser
@@ -943,13 +904,11 @@ type alias PostSpecimen =
 
 
 type alias PostSpecimenAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , embed : PostSpecimenAttributesEmbed
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -982,7 +941,6 @@ type alias PostSpecimenAttributesThumbnail =
 
 type alias PostSpecimenRelationships =
     { accessRules : PostSpecimenRelationshipsAccessRules
-    , campaign : PostSpecimenRelationshipsCampaign
     , images : PostSpecimenRelationshipsImages
     , media : PostSpecimenRelationshipsMedia
     , user : PostSpecimenRelationshipsUser
@@ -1065,12 +1023,10 @@ type alias PostGadget =
 
 
 type alias PostGadgetAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -1095,7 +1051,6 @@ type alias PostGadgetAttributesThumbnail =
 type alias PostGadgetRelationships =
     { accessRules : PostGadgetRelationshipsAccessRules
     , audio : PostGadgetRelationshipsAudio
-    , campaign : PostGadgetRelationshipsCampaign
     , media : PostGadgetRelationshipsMedia
     , user : PostGadgetRelationshipsUser
     , userDefinedTags : PostGadgetRelationshipsUserDefinedTags
@@ -1183,13 +1138,11 @@ type alias PostWidget =
 
 
 type alias PostWidgetAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , embed : PostWidgetAttributesEmbed
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -1223,7 +1176,6 @@ type alias PostWidgetAttributesThumbnail =
 
 type alias PostWidgetRelationships =
     { accessRules : PostWidgetRelationshipsAccessRules
-    , campaign : PostWidgetRelationshipsCampaign
     , images : PostWidgetRelationshipsImages
     , media : PostWidgetRelationshipsMedia
     , user : PostWidgetRelationshipsUser
@@ -1283,12 +1235,10 @@ type alias PostGizmo =
 
 
 type alias PostGizmoAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -1314,7 +1264,6 @@ type alias PostGizmoRelationships =
     { accessRules : PostGizmoRelationshipsAccessRules
     , audio : PostGizmoRelationshipsAudio
     , audioPreview : PostGizmoRelationshipsAudioPreview
-    , campaign : PostGizmoRelationshipsCampaign
     , images : PostGizmoRelationshipsImages
     , media : PostGizmoRelationshipsMedia
     , user : PostGizmoRelationshipsUser
@@ -1386,12 +1335,10 @@ type alias PostPart =
 
 
 type alias PostPartAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -1418,7 +1365,6 @@ type alias PostPartRelationships =
     , attachmentsMedia : PostPartRelationshipsAttachmentsMedia
     , audio : PostPartRelationshipsAudio
     , audioPreview : PostPartRelationshipsAudioPreview
-    , campaign : PostPartRelationshipsCampaign
     , media : PostPartRelationshipsMedia
     , user : PostPartRelationshipsUser
     , userDefinedTags : PostPartRelationshipsUserDefinedTags
@@ -1494,14 +1440,11 @@ type alias PostChunk =
 
 
 type alias PostChunkAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , embed : PostChunkAttributesEmbed
     , image : Image
     , metaImageUrl : Url
-    , minCentsPledgedToView : Int
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -1535,7 +1478,6 @@ type alias PostChunkAttributesThumbnail =
 
 type alias PostChunkRelationships =
     { accessRules : PostChunkRelationshipsAccessRules
-    , campaign : PostChunkRelationshipsCampaign
     , images : PostChunkRelationshipsImages
     , media : PostChunkRelationshipsMedia
     , user : PostChunkRelationshipsUser
@@ -1585,13 +1527,11 @@ type alias PostPiece =
 
 
 type alias PostPieceAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , embed : PostPieceAttributesEmbed
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -1625,7 +1565,6 @@ type alias PostPieceAttributesThumbnail =
 
 type alias PostPieceRelationships =
     { accessRules : PostPieceRelationshipsAccessRules
-    , campaign : PostPieceRelationshipsCampaign
     , images : PostPieceRelationshipsImages
     , media : PostPieceRelationshipsMedia
     , user : PostPieceRelationshipsUser
@@ -1675,12 +1614,10 @@ type alias PostThingy =
 
 
 type alias PostThingyAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -1704,7 +1641,6 @@ type alias PostThingyAttributesThumbnail =
 
 type alias PostThingyRelationships =
     { accessRules : PostThingyRelationshipsAccessRules
-    , campaign : PostThingyRelationshipsCampaign
     , images : PostThingyRelationshipsImages
     , media : PostThingyRelationshipsMedia
     , user : PostThingyRelationshipsUser
@@ -1754,12 +1690,10 @@ type alias PostThingamajig =
 
 
 type alias PostThingamajigAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -1786,7 +1720,6 @@ type alias PostThingamajigRelationships =
     , attachmentsMedia : PostThingamajigRelationshipsAttachmentsMedia
     , audio : PostThingamajigRelationshipsAudio
     , audioPreview : PostThingamajigRelationshipsAudioPreview
-    , campaign : PostThingamajigRelationshipsCampaign
     , images : PostThingamajigRelationshipsImages
     , media : PostThingamajigRelationshipsMedia
     , user : PostThingamajigRelationshipsUser
@@ -1862,12 +1795,10 @@ type alias PostWhatsit =
 
 
 type alias PostWhatsitAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , image : Image
     , metaImageUrl : Url
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -1891,7 +1822,6 @@ type alias PostWhatsitAttributesThumbnail =
 
 type alias PostWhatsitRelationships =
     { accessRules : PostWhatsitRelationshipsAccessRules
-    , campaign : PostWhatsitRelationshipsCampaign
     , images : PostWhatsitRelationshipsImages
     , media : PostWhatsitRelationshipsMedia
     , user : PostWhatsitRelationshipsUser
@@ -1941,13 +1871,10 @@ type alias PostDoodad =
 
 
 type alias PostDoodadAttributes =
-    { commenterCount : Int
-    , content : String
+    { content : String
     , createdAt : String
     , image : Image
     , metaImageUrl : Url
-    , minCentsPledgedToView : Int
-    , moderationStatus : String
     , patreonUrl : String
     , pledgeUrl : String
     , postFile : PostFile
@@ -1971,7 +1898,6 @@ type alias PostDoodadAttributesThumbnail =
 
 type alias PostDoodadRelationships =
     { accessRules : PostDoodadRelationshipsAccessRules
-    , campaign : PostDoodadRelationshipsCampaign
     , images : PostDoodadRelationshipsImages
     , media : PostDoodadRelationshipsMedia
     , user : PostDoodadRelationshipsUser
@@ -2047,12 +1973,10 @@ postObjectDecoder =
 postObjectAttributesDecoder : Json.Decode.Decoder PostObjectAttributes
 postObjectAttributesDecoder =
     Json.Decode.succeed PostObjectAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -2120,7 +2044,6 @@ postObjectRelationshipsDecoder =
     Json.Decode.succeed PostObjectRelationships
         |> Json.Decode.Pipeline.required "access_rules" postObjectRelationshipsAccessRulesDecoder
         |> Json.Decode.Pipeline.required "audio" postObjectRelationshipsAudioDecoder
-        |> Json.Decode.Pipeline.required "campaign" postObjectRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" postObjectRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postObjectRelationshipsMediaDecoder
         |> Json.Decode.Pipeline.required "user" postObjectRelationshipsUserDecoder
@@ -2202,13 +2125,11 @@ postMemberDecoder =
 postMemberAttributesDecoder : Json.Decode.Decoder PostMemberAttributes
 postMemberAttributesDecoder =
     Json.Decode.succeed PostMemberAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "embed" postMemberAttributesEmbedDecoder
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -2282,7 +2203,6 @@ postMemberRelationshipsDecoder : Json.Decode.Decoder PostMemberRelationships
 postMemberRelationshipsDecoder =
     Json.Decode.succeed PostMemberRelationships
         |> Json.Decode.Pipeline.required "access_rules" postMemberRelationshipsAccessRulesDecoder
-        |> Json.Decode.Pipeline.required "campaign" postMemberRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" postMemberRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postMemberRelationshipsMediaDecoder
         |> Json.Decode.Pipeline.required "user" postMemberRelationshipsUserDecoder
@@ -2344,11 +2264,9 @@ postEntityDecoder =
 postEntityAttributesDecoder : Json.Decode.Decoder PostEntityAttributes
 postEntityAttributesDecoder =
     Json.Decode.succeed PostEntityAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
@@ -2361,7 +2279,6 @@ postEntityRelationshipsDecoder : Json.Decode.Decoder PostEntityRelationships
 postEntityRelationshipsDecoder =
     Json.Decode.succeed PostEntityRelationships
         |> Json.Decode.Pipeline.required "access_rules" postEntityRelationshipsAccessRulesDecoder
-        |> Json.Decode.Pipeline.required "campaign" postEntityRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "user" postEntityRelationshipsUserDecoder
 
 
@@ -2409,12 +2326,10 @@ postThingDecoder =
 postThingAttributesDecoder : Json.Decode.Decoder PostThingAttributes
 postThingAttributesDecoder =
     Json.Decode.succeed PostThingAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -2468,7 +2383,6 @@ postThingRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" postThingRelationshipsAccessRulesDecoder
         |> Json.Decode.Pipeline.required "attachments_media" postThingRelationshipsAttachmentsMediaDecoder
         |> Json.Decode.Pipeline.required "audio" postThingRelationshipsAudioDecoder
-        |> Json.Decode.Pipeline.required "campaign" postThingRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" postThingRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postThingRelationshipsMediaDecoder
         |> Json.Decode.Pipeline.required "user" postThingRelationshipsUserDecoder
@@ -2549,12 +2463,10 @@ postInstanceDecoder =
 postInstanceAttributesDecoder : Json.Decode.Decoder PostInstanceAttributes
 postInstanceAttributesDecoder =
     Json.Decode.succeed PostInstanceAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -2580,7 +2492,6 @@ postInstanceRelationshipsDecoder : Json.Decode.Decoder PostInstanceRelationships
 postInstanceRelationshipsDecoder =
     Json.Decode.succeed PostInstanceRelationships
         |> Json.Decode.Pipeline.required "access_rules" postInstanceRelationshipsAccessRulesDecoder
-        |> Json.Decode.Pipeline.required "campaign" postInstanceRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" postInstanceRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postInstanceRelationshipsMediaDecoder
         |> Json.Decode.Pipeline.required "user" postInstanceRelationshipsUserDecoder
@@ -2642,12 +2553,10 @@ postConstituentDecoder =
 postConstituentAttributesDecoder : Json.Decode.Decoder PostConstituentAttributes
 postConstituentAttributesDecoder =
     Json.Decode.succeed PostConstituentAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -2672,7 +2581,6 @@ postConstituentRelationshipsDecoder : Json.Decode.Decoder PostConstituentRelatio
 postConstituentRelationshipsDecoder =
     Json.Decode.succeed PostConstituentRelationships
         |> Json.Decode.Pipeline.required "access_rules" postConstituentRelationshipsAccessRulesDecoder
-        |> Json.Decode.Pipeline.required "campaign" postConstituentRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" postConstituentRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postConstituentRelationshipsMediaDecoder
         |> Json.Decode.Pipeline.required "user" postConstituentRelationshipsUserDecoder
@@ -2734,13 +2642,11 @@ postSpecimenDecoder =
 postSpecimenAttributesDecoder : Json.Decode.Decoder PostSpecimenAttributes
 postSpecimenAttributesDecoder =
     Json.Decode.succeed PostSpecimenAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "embed" postSpecimenAttributesEmbedDecoder
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -2776,7 +2682,6 @@ postSpecimenRelationshipsDecoder : Json.Decode.Decoder PostSpecimenRelationships
 postSpecimenRelationshipsDecoder =
     Json.Decode.succeed PostSpecimenRelationships
         |> Json.Decode.Pipeline.required "access_rules" postSpecimenRelationshipsAccessRulesDecoder
-        |> Json.Decode.Pipeline.required "campaign" postSpecimenRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" postSpecimenRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postSpecimenRelationshipsMediaDecoder
         |> Json.Decode.Pipeline.required "user" postSpecimenRelationshipsUserDecoder
@@ -2845,12 +2750,10 @@ postGadgetDecoder =
 postGadgetAttributesDecoder : Json.Decode.Decoder PostGadgetAttributes
 postGadgetAttributesDecoder =
     Json.Decode.succeed PostGadgetAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -2877,7 +2780,6 @@ postGadgetRelationshipsDecoder =
     Json.Decode.succeed PostGadgetRelationships
         |> Json.Decode.Pipeline.required "access_rules" postGadgetRelationshipsAccessRulesDecoder
         |> Json.Decode.Pipeline.required "audio" postGadgetRelationshipsAudioDecoder
-        |> Json.Decode.Pipeline.required "campaign" postGadgetRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "media" postGadgetRelationshipsMediaDecoder
         |> Json.Decode.Pipeline.required "user" postGadgetRelationshipsUserDecoder
         |> Json.Decode.Pipeline.required "user_defined_tags" postGadgetRelationshipsUserDefinedTagsDecoder
@@ -2952,13 +2854,11 @@ postWidgetDecoder =
 postWidgetAttributesDecoder : Json.Decode.Decoder PostWidgetAttributes
 postWidgetAttributesDecoder =
     Json.Decode.succeed PostWidgetAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "embed" postWidgetAttributesEmbedDecoder
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -2995,7 +2895,6 @@ postWidgetRelationshipsDecoder : Json.Decode.Decoder PostWidgetRelationships
 postWidgetRelationshipsDecoder =
     Json.Decode.succeed PostWidgetRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "campaign" postWidgetRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postWidgetRelationshipsUserDecoder
@@ -3046,12 +2945,10 @@ postGizmoDecoder =
 postGizmoAttributesDecoder : Json.Decode.Decoder PostGizmoAttributes
 postGizmoAttributesDecoder =
     Json.Decode.succeed PostGizmoAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -3079,7 +2976,6 @@ postGizmoRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "audio" postGizmoRelationshipsAudioDecoder
         |> Json.Decode.Pipeline.required "audio_preview" postGizmoRelationshipsAudioPreviewDecoder
-        |> Json.Decode.Pipeline.required "campaign" postGizmoRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postGizmoRelationshipsUserDecoder
@@ -3149,12 +3045,10 @@ postPartDecoder =
 postPartAttributesDecoder : Json.Decode.Decoder PostPartAttributes
 postPartAttributesDecoder =
     Json.Decode.succeed PostPartAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -3183,7 +3077,6 @@ postPartRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "attachments_media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "audio" postPartRelationshipsAudioDecoder
         |> Json.Decode.Pipeline.required "audio_preview" postPartRelationshipsAudioPreviewDecoder
-        |> Json.Decode.Pipeline.required "campaign" postPartRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postPartRelationshipsUserDecoder
         |> Json.Decode.Pipeline.required "user_defined_tags" listOfIdAndTypeDecoder
@@ -3253,14 +3146,11 @@ postChunkDecoder =
 postChunkAttributesDecoder : Json.Decode.Decoder PostChunkAttributes
 postChunkAttributesDecoder =
     Json.Decode.succeed PostChunkAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "embed" postChunkAttributesEmbedDecoder
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "min_cents_pledged_to_view" Json.Decode.int
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -3297,7 +3187,6 @@ postChunkRelationshipsDecoder : Json.Decode.Decoder PostChunkRelationships
 postChunkRelationshipsDecoder =
     Json.Decode.succeed PostChunkRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "campaign" postChunkRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postChunkRelationshipsUserDecoder
@@ -3341,13 +3230,11 @@ postPieceDecoder =
 postPieceAttributesDecoder : Json.Decode.Decoder PostPieceAttributes
 postPieceAttributesDecoder =
     Json.Decode.succeed PostPieceAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "embed" postPieceAttributesEmbedDecoder
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -3384,7 +3271,6 @@ postPieceRelationshipsDecoder : Json.Decode.Decoder PostPieceRelationships
 postPieceRelationshipsDecoder =
     Json.Decode.succeed PostPieceRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "campaign" postPieceRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postPieceRelationshipsUserDecoder
@@ -3428,12 +3314,10 @@ postThingyDecoder =
 postThingyAttributesDecoder : Json.Decode.Decoder PostThingyAttributes
 postThingyAttributesDecoder =
     Json.Decode.succeed PostThingyAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -3459,7 +3343,6 @@ postThingyRelationshipsDecoder : Json.Decode.Decoder PostThingyRelationships
 postThingyRelationshipsDecoder =
     Json.Decode.succeed PostThingyRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "campaign" postThingyRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postThingyRelationshipsUserDecoder
@@ -3503,12 +3386,10 @@ postThingamajigDecoder =
 postThingamajigAttributesDecoder : Json.Decode.Decoder PostThingamajigAttributes
 postThingamajigAttributesDecoder =
     Json.Decode.succeed PostThingamajigAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -3537,7 +3418,6 @@ postThingamajigRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "attachments_media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "audio" postThingamajigRelationshipsAudioDecoder
         |> Json.Decode.Pipeline.required "audio_preview" postThingamajigRelationshipsAudioPreviewDecoder
-        |> Json.Decode.Pipeline.required "campaign" postThingamajigRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postThingamajigRelationshipsUserDecoder
@@ -3607,12 +3487,10 @@ postWhatsitDecoder =
 postWhatsitAttributesDecoder : Json.Decode.Decoder PostWhatsitAttributes
 postWhatsitAttributesDecoder =
     Json.Decode.succeed PostWhatsitAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -3638,7 +3516,6 @@ postWhatsitRelationshipsDecoder : Json.Decode.Decoder PostWhatsitRelationships
 postWhatsitRelationshipsDecoder =
     Json.Decode.succeed PostWhatsitRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "campaign" postWhatsitRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postWhatsitRelationshipsUserDecoder
@@ -3682,13 +3559,10 @@ postDoodadDecoder =
 postDoodadAttributesDecoder : Json.Decode.Decoder PostDoodadAttributes
 postDoodadAttributesDecoder =
     Json.Decode.succeed PostDoodadAttributes
-        |> Json.Decode.Pipeline.required "commenter_count" Json.Decode.int
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
         |> Json.Decode.Pipeline.required "image" imageDecoder
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
-        |> Json.Decode.Pipeline.required "min_cents_pledged_to_view" Json.Decode.int
-        |> Json.Decode.Pipeline.required "moderation_status" Json.Decode.string
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "post_file" postFileDecoder
@@ -3714,7 +3588,6 @@ postDoodadRelationshipsDecoder : Json.Decode.Decoder PostDoodadRelationships
 postDoodadRelationshipsDecoder =
     Json.Decode.succeed PostDoodadRelationships
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "campaign" postDoodadRelationshipsCampaignDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postDoodadRelationshipsUserDecoder
