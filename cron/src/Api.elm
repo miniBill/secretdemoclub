@@ -337,12 +337,7 @@ type alias Progress =
 
 type alias PostObjectAttributesPostMetadata =
     { imageOrder : List String
-    , platform : PostObjectAttributesPostMetadataPlatform
     }
-
-
-type alias PostObjectAttributesPostMetadataPlatform =
-    {}
 
 
 type alias PostObjectAttributesThumbnail =
@@ -510,11 +505,6 @@ type alias AverageColorsOfCorners =
 
 
 type alias PostMemberAttributesPostMetadata =
-    { platform : PostMemberAttributesPostMetadataPlatform
-    }
-
-
-type alias PostMemberAttributesPostMetadataPlatform =
     {}
 
 
@@ -715,13 +705,7 @@ type alias PostThingAttributes =
 
 
 type alias PostThingAttributesPostMetadata =
-    { imageOrder : List String
-    , platform : PostThingAttributesPostMetadataPlatform
-    }
-
-
-type alias PostThingAttributesPostMetadataPlatform =
-    {}
+    { imageOrder : List String }
 
 
 type alias PostThingAttributesThumbnail =
@@ -866,13 +850,7 @@ type alias PostInstanceAttributes =
 
 
 type alias PostInstanceAttributesPostMetadata =
-    { imageOrder : List String
-    , platform : PostInstanceAttributesPostMetadataPlatform
-    }
-
-
-type alias PostInstanceAttributesPostMetadataPlatform =
-    {}
+    { imageOrder : List String }
 
 
 type alias PostInstanceAttributesThumbnail =
@@ -1119,11 +1097,6 @@ type alias PostSpecimenAttributesEmbed =
 
 
 type alias PostSpecimenAttributesPostMetadata =
-    { platform : PostSpecimenAttributesPostMetadataPlatform
-    }
-
-
-type alias PostSpecimenAttributesPostMetadataPlatform =
     {}
 
 
@@ -1254,13 +1227,8 @@ type alias PostGadgetAttributes =
 
 type alias PostGadgetAttributesPostMetadata =
     { episodeNumber : Int
-    , platform : PostGadgetAttributesPostMetadataPlatform
     , season : Int
     }
-
-
-type alias PostGadgetAttributesPostMetadataPlatform =
-    {}
 
 
 type alias PostGadgetAttributesThumbnail =
@@ -1406,11 +1374,6 @@ type alias PostWidgetAttributesEmbed =
 
 
 type alias PostWidgetAttributesPostMetadata =
-    { platform : PostWidgetAttributesPostMetadataPlatform
-    }
-
-
-type alias PostWidgetAttributesPostMetadataPlatform =
     {}
 
 
@@ -1518,12 +1481,7 @@ type alias PostGizmoAttributes =
 
 type alias PostGizmoAttributesPostMetadata =
     { imageOrder : List String
-    , platform : PostGizmoAttributesPostMetadataPlatform
     }
-
-
-type alias PostGizmoAttributesPostMetadataPlatform =
-    {}
 
 
 type alias PostGizmoAttributesThumbnail =
@@ -1643,11 +1601,6 @@ type alias PostPartAttributes =
 
 
 type alias PostPartAttributesPostMetadata =
-    { platform : PostPartAttributesPostMetadataPlatform
-    }
-
-
-type alias PostPartAttributesPostMetadataPlatform =
     {}
 
 
@@ -1785,11 +1738,6 @@ type alias PostChunkAttributesEmbed =
 
 
 type alias PostChunkAttributesPostMetadata =
-    { platform : PostChunkAttributesPostMetadataPlatform
-    }
-
-
-type alias PostChunkAttributesPostMetadataPlatform =
     {}
 
 
@@ -1897,11 +1845,6 @@ type alias PostPieceAttributesEmbed =
 
 
 type alias PostPieceAttributesPostMetadata =
-    { platform : PostPieceAttributesPostMetadataPlatform
-    }
-
-
-type alias PostPieceAttributesPostMetadataPlatform =
     {}
 
 
@@ -1999,12 +1942,7 @@ type alias PostThingyAttributes =
 
 type alias PostThingyAttributesPostMetadata =
     { imageOrder : List String
-    , platform : PostThingyAttributesPostMetadataPlatform
     }
-
-
-type alias PostThingyAttributesPostMetadataPlatform =
-    {}
 
 
 type alias PostThingyAttributesThumbnail =
@@ -2101,12 +2039,7 @@ type alias PostThingamajigAttributes =
 
 type alias PostThingamajigAttributesPostMetadata =
     { imageOrder : List String
-    , platform : PostThingamajigAttributesPostMetadataPlatform
     }
-
-
-type alias PostThingamajigAttributesPostMetadataPlatform =
-    {}
 
 
 type alias PostThingamajigAttributesThumbnail =
@@ -2232,12 +2165,7 @@ type alias PostWhatsitAttributes =
 
 type alias PostWhatsitAttributesPostMetadata =
     { imageOrder : List String
-    , platform : PostWhatsitAttributesPostMetadataPlatform
     }
-
-
-type alias PostWhatsitAttributesPostMetadataPlatform =
-    {}
 
 
 type alias PostWhatsitAttributesThumbnail =
@@ -2335,12 +2263,7 @@ type alias PostDoodadAttributes =
 
 type alias PostDoodadAttributesPostMetadata =
     { imageOrder : List String
-    , platform : PostDoodadAttributesPostMetadataPlatform
     }
-
-
-type alias PostDoodadAttributesPostMetadataPlatform =
-    {}
 
 
 type alias PostDoodadAttributesThumbnail =
@@ -2488,12 +2411,6 @@ postObjectAttributesPostMetadataDecoder : Json.Decode.Decoder PostObjectAttribut
 postObjectAttributesPostMetadataDecoder =
     Json.Decode.succeed PostObjectAttributesPostMetadata
         |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
-        |> Json.Decode.Pipeline.required "platform" postObjectAttributesPostMetadataPlatformDecoder
-
-
-postObjectAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostObjectAttributesPostMetadataPlatform
-postObjectAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostObjectAttributesPostMetadataPlatform
 
 
 postObjectAttributesThumbnailDecoder : Json.Decode.Decoder PostObjectAttributesThumbnail
@@ -2675,12 +2592,6 @@ averageColorsOfCornersDecoder =
 postMemberAttributesPostMetadataDecoder : Json.Decode.Decoder PostMemberAttributesPostMetadata
 postMemberAttributesPostMetadataDecoder =
     Json.Decode.succeed PostMemberAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "platform" postMemberAttributesPostMetadataPlatformDecoder
-
-
-postMemberAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostMemberAttributesPostMetadataPlatform
-postMemberAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostMemberAttributesPostMetadataPlatform
 
 
 postMemberAttributesThumbnailDecoder : Json.Decode.Decoder PostMemberAttributesThumbnail
@@ -2896,12 +2807,6 @@ postThingAttributesPostMetadataDecoder : Json.Decode.Decoder PostThingAttributes
 postThingAttributesPostMetadataDecoder =
     Json.Decode.succeed PostThingAttributesPostMetadata
         |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
-        |> Json.Decode.Pipeline.required "platform" postThingAttributesPostMetadataPlatformDecoder
-
-
-postThingAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostThingAttributesPostMetadataPlatform
-postThingAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostThingAttributesPostMetadataPlatform
 
 
 postThingAttributesThumbnailDecoder : Json.Decode.Decoder PostThingAttributesThumbnail
@@ -3035,12 +2940,6 @@ postInstanceAttributesPostMetadataDecoder : Json.Decode.Decoder PostInstanceAttr
 postInstanceAttributesPostMetadataDecoder =
     Json.Decode.succeed PostInstanceAttributesPostMetadata
         |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
-        |> Json.Decode.Pipeline.required "platform" postInstanceAttributesPostMetadataPlatformDecoder
-
-
-postInstanceAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostInstanceAttributesPostMetadataPlatform
-postInstanceAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostInstanceAttributesPostMetadataPlatform
 
 
 postInstanceAttributesThumbnailDecoder : Json.Decode.Decoder PostInstanceAttributesThumbnail
@@ -3273,12 +3172,6 @@ postSpecimenAttributesEmbedDecoder =
 postSpecimenAttributesPostMetadataDecoder : Json.Decode.Decoder PostSpecimenAttributesPostMetadata
 postSpecimenAttributesPostMetadataDecoder =
     Json.Decode.succeed PostSpecimenAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "platform" postSpecimenAttributesPostMetadataPlatformDecoder
-
-
-postSpecimenAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostSpecimenAttributesPostMetadataPlatform
-postSpecimenAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostSpecimenAttributesPostMetadataPlatform
 
 
 postSpecimenAttributesThumbnailDecoder : Json.Decode.Decoder PostSpecimenAttributesThumbnail
@@ -3398,13 +3291,7 @@ postGadgetAttributesPostMetadataDecoder : Json.Decode.Decoder PostGadgetAttribut
 postGadgetAttributesPostMetadataDecoder =
     Json.Decode.succeed PostGadgetAttributesPostMetadata
         |> Json.Decode.Pipeline.required "episode_number" Json.Decode.int
-        |> Json.Decode.Pipeline.required "platform" postGadgetAttributesPostMetadataPlatformDecoder
         |> Json.Decode.Pipeline.required "season" Json.Decode.int
-
-
-postGadgetAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostGadgetAttributesPostMetadataPlatform
-postGadgetAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostGadgetAttributesPostMetadataPlatform
 
 
 postGadgetAttributesThumbnailDecoder : Json.Decode.Decoder PostGadgetAttributesThumbnail
@@ -3542,12 +3429,6 @@ postWidgetAttributesEmbedDecoder =
 postWidgetAttributesPostMetadataDecoder : Json.Decode.Decoder PostWidgetAttributesPostMetadata
 postWidgetAttributesPostMetadataDecoder =
     Json.Decode.succeed PostWidgetAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "platform" postWidgetAttributesPostMetadataPlatformDecoder
-
-
-postWidgetAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostWidgetAttributesPostMetadataPlatform
-postWidgetAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostWidgetAttributesPostMetadataPlatform
 
 
 postWidgetAttributesThumbnailDecoder : Json.Decode.Decoder PostWidgetAttributesThumbnail
@@ -3649,12 +3530,6 @@ postGizmoAttributesPostMetadataDecoder : Json.Decode.Decoder PostGizmoAttributes
 postGizmoAttributesPostMetadataDecoder =
     Json.Decode.succeed PostGizmoAttributesPostMetadata
         |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
-        |> Json.Decode.Pipeline.required "platform" postGizmoAttributesPostMetadataPlatformDecoder
-
-
-postGizmoAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostGizmoAttributesPostMetadataPlatform
-postGizmoAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostGizmoAttributesPostMetadataPlatform
 
 
 postGizmoAttributesThumbnailDecoder : Json.Decode.Decoder PostGizmoAttributesThumbnail
@@ -3776,12 +3651,6 @@ postPartAttributesDecoder =
 postPartAttributesPostMetadataDecoder : Json.Decode.Decoder PostPartAttributesPostMetadata
 postPartAttributesPostMetadataDecoder =
     Json.Decode.succeed PostPartAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "platform" postPartAttributesPostMetadataPlatformDecoder
-
-
-postPartAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostPartAttributesPostMetadataPlatform
-postPartAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostPartAttributesPostMetadataPlatform
 
 
 postPartAttributesThumbnailDecoder : Json.Decode.Decoder PostPartAttributesThumbnail
@@ -3917,12 +3786,6 @@ postChunkAttributesEmbedDecoder =
 postChunkAttributesPostMetadataDecoder : Json.Decode.Decoder PostChunkAttributesPostMetadata
 postChunkAttributesPostMetadataDecoder =
     Json.Decode.succeed PostChunkAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "platform" postChunkAttributesPostMetadataPlatformDecoder
-
-
-postChunkAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostChunkAttributesPostMetadataPlatform
-postChunkAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostChunkAttributesPostMetadataPlatform
 
 
 postChunkAttributesThumbnailDecoder : Json.Decode.Decoder PostChunkAttributesThumbnail
@@ -4028,12 +3891,6 @@ postPieceAttributesEmbedDecoder =
 postPieceAttributesPostMetadataDecoder : Json.Decode.Decoder PostPieceAttributesPostMetadata
 postPieceAttributesPostMetadataDecoder =
     Json.Decode.succeed PostPieceAttributesPostMetadata
-        |> Json.Decode.Pipeline.required "platform" postPieceAttributesPostMetadataPlatformDecoder
-
-
-postPieceAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostPieceAttributesPostMetadataPlatform
-postPieceAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostPieceAttributesPostMetadataPlatform
 
 
 postPieceAttributesThumbnailDecoder : Json.Decode.Decoder PostPieceAttributesThumbnail
@@ -4128,12 +3985,6 @@ postThingyAttributesPostMetadataDecoder : Json.Decode.Decoder PostThingyAttribut
 postThingyAttributesPostMetadataDecoder =
     Json.Decode.succeed PostThingyAttributesPostMetadata
         |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
-        |> Json.Decode.Pipeline.required "platform" postThingyAttributesPostMetadataPlatformDecoder
-
-
-postThingyAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostThingyAttributesPostMetadataPlatform
-postThingyAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostThingyAttributesPostMetadataPlatform
 
 
 postThingyAttributesThumbnailDecoder : Json.Decode.Decoder PostThingyAttributesThumbnail
@@ -4228,12 +4079,6 @@ postThingamajigAttributesPostMetadataDecoder : Json.Decode.Decoder PostThingamaj
 postThingamajigAttributesPostMetadataDecoder =
     Json.Decode.succeed PostThingamajigAttributesPostMetadata
         |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
-        |> Json.Decode.Pipeline.required "platform" postThingamajigAttributesPostMetadataPlatformDecoder
-
-
-postThingamajigAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostThingamajigAttributesPostMetadataPlatform
-postThingamajigAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostThingamajigAttributesPostMetadataPlatform
 
 
 postThingamajigAttributesThumbnailDecoder : Json.Decode.Decoder PostThingamajigAttributesThumbnail
@@ -4357,12 +4202,6 @@ postWhatsitAttributesPostMetadataDecoder : Json.Decode.Decoder PostWhatsitAttrib
 postWhatsitAttributesPostMetadataDecoder =
     Json.Decode.succeed PostWhatsitAttributesPostMetadata
         |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
-        |> Json.Decode.Pipeline.required "platform" postWhatsitAttributesPostMetadataPlatformDecoder
-
-
-postWhatsitAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostWhatsitAttributesPostMetadataPlatform
-postWhatsitAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostWhatsitAttributesPostMetadataPlatform
 
 
 postWhatsitAttributesThumbnailDecoder : Json.Decode.Decoder PostWhatsitAttributesThumbnail
@@ -4458,12 +4297,6 @@ postDoodadAttributesPostMetadataDecoder : Json.Decode.Decoder PostDoodadAttribut
 postDoodadAttributesPostMetadataDecoder =
     Json.Decode.succeed PostDoodadAttributesPostMetadata
         |> Json.Decode.Pipeline.required "image_order" (Json.Decode.list Json.Decode.string)
-        |> Json.Decode.Pipeline.required "platform" postDoodadAttributesPostMetadataPlatformDecoder
-
-
-postDoodadAttributesPostMetadataPlatformDecoder : Json.Decode.Decoder PostDoodadAttributesPostMetadataPlatform
-postDoodadAttributesPostMetadataPlatformDecoder =
-    Json.Decode.succeed PostDoodadAttributesPostMetadataPlatform
 
 
 postDoodadAttributesThumbnailDecoder : Json.Decode.Decoder PostDoodadAttributesThumbnail
