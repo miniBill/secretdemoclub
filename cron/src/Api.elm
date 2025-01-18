@@ -80,6 +80,12 @@ getPaginated { cookie } toUrl decoder =
 
 postsUrl : String -> String
 postsUrl cursor =
+    let
+        fields type_ list =
+            Url.Builder.string
+                ("fields[" ++ type_ ++ "]")
+                (String.join "," list)
+    in
     Url.Builder.crossOrigin
         "https://www.patreon.com"
         [ "api", "posts" ]
@@ -91,96 +97,63 @@ postsUrl cursor =
              , "audio_preview.null"
              , "images"
              , "media"
-             , "user"
              , "user_defined_tags"
              , "video.null"
              , "content_unlock_options.product_variant.null"
              ]
                 |> String.join ","
             )
-        , Url.Builder.string "fields[campaign]" ""
-        , Url.Builder.string "fields[post]"
-            ([ "change_visibility_at"
-             , "content"
-             , "created_at"
-             , "embed"
-             , "image"
-             , "meta_image_url"
-             , "post_file"
-             , "post_metadata"
-             , "published_at"
-             , "patreon_url"
-             , "post_type"
-             , "pledge_url"
-             , "preview_asset_type"
-             , "thumbnail"
-             , "thumbnail_url"
-             , "title"
-             , "url"
-             , "video"
-             , "video_preview"
-             , "content_unlock_options"
-             ]
-                |> String.join ","
-            )
-        , Url.Builder.string "fields[post_tag]"
-            ([ "tag_type"
-             , "value"
-             ]
-                |> String.join ","
-            )
-        , Url.Builder.string "fields[user]"
-            ([ "image_url"
-             , "full_name"
-             , "url"
-             ]
-                |> String.join ","
-            )
-        , Url.Builder.string "fields[access_rule]"
-            ([ "access_rule_type"
-             , "amount_cents"
-             ]
-                |> String.join ","
-            )
-        , Url.Builder.string "fields[media]"
-            ([ "id"
-             , "image_urls"
-             , "display"
-             , "download_url"
-             , "metadata"
-             , "file_name"
-             ]
-                |> String.join ","
-            )
-        , Url.Builder.string "fields[native_video_insights]"
-            ([ "average_view_duration"
-             , "average_view_pct"
-             , "has_preview"
-             , "id"
-             , "last_updated_at"
-             , "num_views"
-             , "preview_views"
-             , "video_duration"
-             ]
-                |> String.join ","
-            )
-        , Url.Builder.string "fields[product-variant]"
-            ([ "price_cents"
-             , "currency_code"
-             , "checkout_url"
-             , "is_hidden"
-             , "published_at_datetime"
-             , "content_type"
-             , "orders_count"
-             , "access_metadata"
-             ]
-                |> String.join ","
-            )
-        , Url.Builder.string "fields[content-unlock-option]" "content_unlock_type"
+        , fields "post"
+            [ "change_visibility_at"
+            , "content"
+            , "created_at"
+            , "embed"
+            , "image"
+            , "meta_image_url"
+            , "post_file"
+            , "post_metadata"
+            , "published_at"
+            , "patreon_url"
+            , "post_type"
+            , "pledge_url"
+            , "preview_asset_type"
+            , "thumbnail"
+            , "thumbnail_url"
+            , "title"
+            , "url"
+            , "video"
+            , "video_preview"
+            , "content_unlock_options"
+            ]
+        , fields "post_tag"
+            [ "tag_type"
+            , "value"
+            ]
+        , fields "access_rule"
+            [ "access_rule_type"
+            ]
+        , fields "media"
+            [ "id"
+            , "image_urls"
+            , "display"
+            , "download_url"
+            , "metadata"
+            , "file_name"
+            ]
+        , fields "productvariant"
+            [ "price_cents"
+            , "currency_code"
+            , "checkout_url"
+            , "is_hidden"
+            , "published_at_datetime"
+            , "content_type"
+            , "orders_count"
+            , "access_metadata"
+            ]
+        , fields "contentunlock-option" [ "content_unlock_type" ]
         , Url.Builder.string "filter[campaign_id]" "119662"
-        , Url.Builder.string "filter[contains_exclusive_posts]" "true"
-        , Url.Builder.string "filter[is_draft]" "false"
-        , Url.Builder.string "filter[accessible_by_user_id]" "26157566"
+
+        -- , Url.Builder.string "filter[contains_exclusive_posts]" "true"
         , Url.Builder.string "sort" "-published_at"
         , Url.Builder.string "page[cursor]" cursor
         , Url.Builder.string "json-api-use-default-includes" "false"
@@ -298,7 +271,6 @@ type alias PostObjectRelationships =
     , audio : PostObjectRelationshipsAudio
     , images : PostObjectRelationshipsImages
     , media : PostObjectRelationshipsMedia
-    , user : PostObjectRelationshipsUser
     }
 
 
@@ -422,7 +394,6 @@ type alias PostMemberRelationships =
     { accessRules : PostMemberRelationshipsAccessRules
     , images : PostMemberRelationshipsImages
     , media : PostMemberRelationshipsMedia
-    , user : PostMemberRelationshipsUser
     }
 
 
@@ -491,7 +462,6 @@ type alias PostEntityAttributes =
 
 type alias PostEntityRelationships =
     { accessRules : PostEntityRelationshipsAccessRules
-    , user : PostEntityRelationshipsUser
     }
 
 
@@ -551,7 +521,6 @@ type alias PostThingRelationships =
     , audio : PostThingRelationshipsAudio
     , images : PostThingRelationshipsImages
     , media : PostThingRelationshipsMedia
-    , user : PostThingRelationshipsUser
     }
 
 
@@ -651,7 +620,6 @@ type alias PostInstanceRelationships =
     { accessRules : PostInstanceRelationshipsAccessRules
     , images : PostInstanceRelationshipsImages
     , media : PostInstanceRelationshipsMedia
-    , user : PostInstanceRelationshipsUser
     }
 
 
@@ -726,7 +694,6 @@ type alias PostConstituentRelationships =
     { accessRules : PostConstituentRelationshipsAccessRules
     , images : PostConstituentRelationshipsImages
     , media : PostConstituentRelationshipsMedia
-    , user : PostConstituentRelationshipsUser
     }
 
 
@@ -812,7 +779,6 @@ type alias PostSpecimenRelationships =
     { accessRules : PostSpecimenRelationshipsAccessRules
     , images : PostSpecimenRelationshipsImages
     , media : PostSpecimenRelationshipsMedia
-    , user : PostSpecimenRelationshipsUser
     , userDefinedTags : PostSpecimenRelationshipsUserDefinedTags
     }
 
@@ -898,7 +864,6 @@ type alias PostGadgetRelationships =
     { accessRules : PostGadgetRelationshipsAccessRules
     , audio : PostGadgetRelationshipsAudio
     , media : PostGadgetRelationshipsMedia
-    , user : PostGadgetRelationshipsUser
     , userDefinedTags : PostGadgetRelationshipsUserDefinedTags
     }
 
@@ -1001,7 +966,6 @@ type alias PostWidgetRelationships =
     { accessRules : PostWidgetRelationshipsAccessRules
     , images : PostWidgetRelationshipsImages
     , media : PostWidgetRelationshipsMedia
-    , user : PostWidgetRelationshipsUser
     , userDefinedTags : PostWidgetRelationshipsUserDefinedTags
     }
 
@@ -1070,7 +1034,6 @@ type alias PostGizmoRelationships =
     , audioPreview : PostGizmoRelationshipsAudioPreview
     , images : PostGizmoRelationshipsImages
     , media : PostGizmoRelationshipsMedia
-    , user : PostGizmoRelationshipsUser
     }
 
 
@@ -1151,7 +1114,6 @@ type alias PostPartRelationships =
     , audio : PostPartRelationshipsAudio
     , audioPreview : PostPartRelationshipsAudioPreview
     , media : PostPartRelationshipsMedia
-    , user : PostPartRelationshipsUser
     , userDefinedTags : PostPartRelationshipsUserDefinedTags
     }
 
@@ -1246,7 +1208,6 @@ type alias PostChunkRelationships =
     { accessRules : PostChunkRelationshipsAccessRules
     , images : PostChunkRelationshipsImages
     , media : PostChunkRelationshipsMedia
-    , user : PostChunkRelationshipsUser
     }
 
 
@@ -1314,7 +1275,6 @@ type alias PostPieceRelationships =
     { accessRules : PostPieceRelationshipsAccessRules
     , images : PostPieceRelationshipsImages
     , media : PostPieceRelationshipsMedia
-    , user : PostPieceRelationshipsUser
     }
 
 
@@ -1371,7 +1331,6 @@ type alias PostThingyRelationships =
     { accessRules : PostThingyRelationshipsAccessRules
     , images : PostThingyRelationshipsImages
     , media : PostThingyRelationshipsMedia
-    , user : PostThingyRelationshipsUser
     }
 
 
@@ -1431,7 +1390,6 @@ type alias PostThingamajigRelationships =
     , audioPreview : PostThingamajigRelationshipsAudioPreview
     , images : PostThingamajigRelationshipsImages
     , media : PostThingamajigRelationshipsMedia
-    , user : PostThingamajigRelationshipsUser
     }
 
 
@@ -1514,7 +1472,6 @@ type alias PostWhatsitRelationships =
     { accessRules : PostWhatsitRelationshipsAccessRules
     , images : PostWhatsitRelationshipsImages
     , media : PostWhatsitRelationshipsMedia
-    , user : PostWhatsitRelationshipsUser
     }
 
 
@@ -1571,7 +1528,6 @@ type alias PostDoodadRelationships =
     { accessRules : PostDoodadRelationshipsAccessRules
     , images : PostDoodadRelationshipsImages
     , media : PostDoodadRelationshipsMedia
-    , user : PostDoodadRelationshipsUser
     }
 
 
@@ -1697,7 +1653,6 @@ postObjectRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "audio" postObjectRelationshipsAudioDecoder
         |> Json.Decode.Pipeline.required "images" postObjectRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postObjectRelationshipsMediaDecoder
-        |> Json.Decode.Pipeline.required "user" postObjectRelationshipsUserDecoder
 
 
 postObjectRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostObjectRelationshipsAccessRules
@@ -1843,7 +1798,6 @@ postMemberRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" postMemberRelationshipsAccessRulesDecoder
         |> Json.Decode.Pipeline.required "images" postMemberRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postMemberRelationshipsMediaDecoder
-        |> Json.Decode.Pipeline.required "user" postMemberRelationshipsUserDecoder
 
 
 postMemberRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostMemberRelationshipsAccessRules
@@ -1904,7 +1858,6 @@ postEntityRelationshipsDecoder : Json.Decode.Decoder PostEntityRelationships
 postEntityRelationshipsDecoder =
     Json.Decode.succeed PostEntityRelationships
         |> Json.Decode.Pipeline.required "access_rules" postEntityRelationshipsAccessRulesDecoder
-        |> Json.Decode.Pipeline.required "user" postEntityRelationshipsUserDecoder
 
 
 postEntityRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostEntityRelationshipsAccessRules
@@ -1988,7 +1941,6 @@ postThingRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "audio" postThingRelationshipsAudioDecoder
         |> Json.Decode.Pipeline.required "images" postThingRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postThingRelationshipsMediaDecoder
-        |> Json.Decode.Pipeline.required "user" postThingRelationshipsUserDecoder
 
 
 postThingRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostThingRelationshipsAccessRules
@@ -2075,7 +2027,6 @@ postInstanceRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" postInstanceRelationshipsAccessRulesDecoder
         |> Json.Decode.Pipeline.required "images" postInstanceRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postInstanceRelationshipsMediaDecoder
-        |> Json.Decode.Pipeline.required "user" postInstanceRelationshipsUserDecoder
 
 
 postInstanceRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostInstanceRelationshipsAccessRules
@@ -2142,7 +2093,6 @@ postConstituentRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" postConstituentRelationshipsAccessRulesDecoder
         |> Json.Decode.Pipeline.required "images" postConstituentRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postConstituentRelationshipsMediaDecoder
-        |> Json.Decode.Pipeline.required "user" postConstituentRelationshipsUserDecoder
 
 
 postConstituentRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostConstituentRelationshipsAccessRules
@@ -2221,7 +2171,6 @@ postSpecimenRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" postSpecimenRelationshipsAccessRulesDecoder
         |> Json.Decode.Pipeline.required "images" postSpecimenRelationshipsImagesDecoder
         |> Json.Decode.Pipeline.required "media" postSpecimenRelationshipsMediaDecoder
-        |> Json.Decode.Pipeline.required "user" postSpecimenRelationshipsUserDecoder
         |> Json.Decode.Pipeline.required "user_defined_tags" postSpecimenRelationshipsUserDefinedTagsDecoder
 
 
@@ -2296,7 +2245,6 @@ postGadgetRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" postGadgetRelationshipsAccessRulesDecoder
         |> Json.Decode.Pipeline.required "audio" postGadgetRelationshipsAudioDecoder
         |> Json.Decode.Pipeline.required "media" postGadgetRelationshipsMediaDecoder
-        |> Json.Decode.Pipeline.required "user" postGadgetRelationshipsUserDecoder
         |> Json.Decode.Pipeline.required "user_defined_tags" postGadgetRelationshipsUserDefinedTagsDecoder
 
 
@@ -2390,7 +2338,6 @@ postWidgetRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "user" postWidgetRelationshipsUserDecoder
         |> Json.Decode.Pipeline.required "user_defined_tags" listOfIdAndTypeDecoder
 
 
@@ -2449,7 +2396,6 @@ postGizmoRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "audio_preview" postGizmoRelationshipsAudioPreviewDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "user" postGizmoRelationshipsUserDecoder
 
 
 postGizmoRelationshipsAudioDecoder : Json.Decode.Decoder PostGizmoRelationshipsAudio
@@ -2527,7 +2473,6 @@ postPartRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "audio" postPartRelationshipsAudioDecoder
         |> Json.Decode.Pipeline.required "audio_preview" postPartRelationshipsAudioPreviewDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "user" postPartRelationshipsUserDecoder
         |> Json.Decode.Pipeline.required "user_defined_tags" listOfIdAndTypeDecoder
 
 
@@ -2616,7 +2561,6 @@ postChunkRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "user" postChunkRelationshipsUserDecoder
 
 
 postChunkRelationshipsUserDecoder : Json.Decode.Decoder PostChunkRelationshipsUser
@@ -2678,7 +2622,6 @@ postPieceRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "user" postPieceRelationshipsUserDecoder
 
 
 postPieceRelationshipsUserDecoder : Json.Decode.Decoder PostPieceRelationshipsUser
@@ -2728,7 +2671,6 @@ postThingyRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "user" postThingyRelationshipsUserDecoder
 
 
 postThingyRelationshipsUserDecoder : Json.Decode.Decoder PostThingyRelationshipsUser
@@ -2781,7 +2723,6 @@ postThingamajigRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "audio_preview" postThingamajigRelationshipsAudioPreviewDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "user" postThingamajigRelationshipsUserDecoder
 
 
 postThingamajigRelationshipsAudioDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAudio
@@ -2857,7 +2798,6 @@ postWhatsitRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "user" postWhatsitRelationshipsUserDecoder
 
 
 postWhatsitRelationshipsUserDecoder : Json.Decode.Decoder PostWhatsitRelationshipsUser
@@ -2907,7 +2847,6 @@ postDoodadRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "access_rules" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
-        |> Json.Decode.Pipeline.required "user" postDoodadRelationshipsUserDecoder
 
 
 postDoodadRelationshipsUserDecoder : Json.Decode.Decoder PostDoodadRelationshipsUser
