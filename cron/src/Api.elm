@@ -358,6 +358,10 @@ type alias PostObjectRelationshipsAccessRules =
 
 
 type alias PostObjectRelationshipsAccessRulesDataObject =
+    IdAndType
+
+
+type alias IdAndType =
     { id : String
     , type_ : String
     }
@@ -370,9 +374,7 @@ type alias PostObjectRelationshipsAudio =
 
 
 type alias PostObjectRelationshipsAudioData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostObjectRelationshipsAudioLinks =
@@ -387,9 +389,7 @@ type alias PostObjectRelationshipsCampaign =
 
 
 type alias PostObjectRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostObjectRelationshipsCampaignLinks =
@@ -403,9 +403,7 @@ type alias PostObjectRelationshipsImages =
 
 
 type alias PostObjectRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostObjectRelationshipsMedia =
@@ -414,9 +412,7 @@ type alias PostObjectRelationshipsMedia =
 
 
 type alias PostObjectRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostObjectRelationshipsUser =
@@ -426,9 +422,7 @@ type alias PostObjectRelationshipsUser =
 
 
 type alias PostObjectRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostObjectRelationshipsUserLinks =
@@ -546,9 +540,7 @@ type alias PostMemberRelationshipsAccessRules =
 
 
 type alias PostMemberRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostMemberRelationshipsCampaign =
@@ -558,9 +550,7 @@ type alias PostMemberRelationshipsCampaign =
 
 
 type alias PostMemberRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostMemberRelationshipsCampaignLinks =
@@ -574,9 +564,7 @@ type alias PostMemberRelationshipsImages =
 
 
 type alias PostMemberRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostMemberRelationshipsMedia =
@@ -585,9 +573,7 @@ type alias PostMemberRelationshipsMedia =
 
 
 type alias PostMemberRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostMemberRelationshipsUser =
@@ -597,9 +583,7 @@ type alias PostMemberRelationshipsUser =
 
 
 type alias PostMemberRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostMemberRelationshipsUserLinks =
@@ -655,9 +639,7 @@ type alias PostEntityRelationshipsAccessRules =
 
 
 type alias PostEntityRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostEntityRelationshipsCampaign =
@@ -667,9 +649,7 @@ type alias PostEntityRelationshipsCampaign =
 
 
 type alias PostEntityRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostEntityRelationshipsCampaignLinks =
@@ -684,9 +664,7 @@ type alias PostEntityRelationshipsUser =
 
 
 type alias PostEntityRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostEntityRelationshipsUserLinks =
@@ -781,9 +759,7 @@ type alias PostThingRelationshipsAccessRules =
 
 
 type alias PostThingRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingRelationshipsAttachmentsMedia =
@@ -792,9 +768,7 @@ type alias PostThingRelationshipsAttachmentsMedia =
 
 
 type alias PostThingRelationshipsAttachmentsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingRelationshipsAudio =
@@ -804,9 +778,7 @@ type alias PostThingRelationshipsAudio =
 
 
 type alias PostThingRelationshipsAudioData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingRelationshipsAudioLinks =
@@ -821,9 +793,7 @@ type alias PostThingRelationshipsCampaign =
 
 
 type alias PostThingRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingRelationshipsCampaignLinks =
@@ -837,9 +807,7 @@ type alias PostThingRelationshipsImages =
 
 
 type alias PostThingRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingRelationshipsMedia =
@@ -848,9 +816,7 @@ type alias PostThingRelationshipsMedia =
 
 
 type alias PostThingRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingRelationshipsUser =
@@ -860,9 +826,7 @@ type alias PostThingRelationshipsUser =
 
 
 type alias PostThingRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingRelationshipsUserLinks =
@@ -970,9 +934,7 @@ type alias PostInstanceRelationshipsAccessRules =
 
 
 type alias PostInstanceRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostInstanceRelationshipsCampaign =
@@ -982,9 +944,7 @@ type alias PostInstanceRelationshipsCampaign =
 
 
 type alias PostInstanceRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostInstanceRelationshipsCampaignLinks =
@@ -998,9 +958,7 @@ type alias PostInstanceRelationshipsImages =
 
 
 type alias PostInstanceRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostInstanceRelationshipsMedia =
@@ -1009,9 +967,7 @@ type alias PostInstanceRelationshipsMedia =
 
 
 type alias PostInstanceRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostInstanceRelationshipsUser =
@@ -1021,9 +977,7 @@ type alias PostInstanceRelationshipsUser =
 
 
 type alias PostInstanceRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostInstanceRelationshipsUserLinks =
@@ -1124,9 +1078,7 @@ type alias PostConstituentRelationshipsAccessRules =
 
 
 type alias PostConstituentRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostConstituentRelationshipsCampaign =
@@ -1136,9 +1088,7 @@ type alias PostConstituentRelationshipsCampaign =
 
 
 type alias PostConstituentRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostConstituentRelationshipsCampaignLinks =
@@ -1152,9 +1102,7 @@ type alias PostConstituentRelationshipsImages =
 
 
 type alias PostConstituentRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostConstituentRelationshipsMedia =
@@ -1163,9 +1111,7 @@ type alias PostConstituentRelationshipsMedia =
 
 
 type alias PostConstituentRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostConstituentRelationshipsUser =
@@ -1175,9 +1121,7 @@ type alias PostConstituentRelationshipsUser =
 
 
 type alias PostConstituentRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostConstituentRelationshipsUserLinks =
@@ -1295,9 +1239,7 @@ type alias PostSpecimenRelationshipsAccessRules =
 
 
 type alias PostSpecimenRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostSpecimenRelationshipsCampaign =
@@ -1307,9 +1249,7 @@ type alias PostSpecimenRelationshipsCampaign =
 
 
 type alias PostSpecimenRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostSpecimenRelationshipsCampaignLinks =
@@ -1323,9 +1263,7 @@ type alias PostSpecimenRelationshipsImages =
 
 
 type alias PostSpecimenRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostSpecimenRelationshipsMedia =
@@ -1334,9 +1272,7 @@ type alias PostSpecimenRelationshipsMedia =
 
 
 type alias PostSpecimenRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostSpecimenRelationshipsUser =
@@ -1346,9 +1282,7 @@ type alias PostSpecimenRelationshipsUser =
 
 
 type alias PostSpecimenRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostSpecimenRelationshipsUserLinks =
@@ -1362,9 +1296,7 @@ type alias PostSpecimenRelationshipsUserDefinedTags =
 
 
 type alias PostSpecimenRelationshipsUserDefinedTagsDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGadget =
@@ -1454,9 +1386,7 @@ type alias PostGadgetRelationshipsAccessRules =
 
 
 type alias PostGadgetRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGadgetRelationshipsAudio =
@@ -1466,9 +1396,7 @@ type alias PostGadgetRelationshipsAudio =
 
 
 type alias PostGadgetRelationshipsAudioData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGadgetRelationshipsAudioLinks =
@@ -1483,9 +1411,7 @@ type alias PostGadgetRelationshipsCampaign =
 
 
 type alias PostGadgetRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGadgetRelationshipsCampaignLinks =
@@ -1499,9 +1425,7 @@ type alias PostGadgetRelationshipsMedia =
 
 
 type alias PostGadgetRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGadgetRelationshipsUser =
@@ -1511,9 +1435,7 @@ type alias PostGadgetRelationshipsUser =
 
 
 type alias PostGadgetRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGadgetRelationshipsUserLinks =
@@ -1527,9 +1449,7 @@ type alias PostGadgetRelationshipsUserDefinedTags =
 
 
 type alias PostGadgetRelationshipsUserDefinedTagsDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostWidget =
@@ -1643,9 +1563,7 @@ type alias PostWidgetRelationshipsAccessRules =
 
 
 type alias PostWidgetRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostWidgetRelationshipsCampaign =
@@ -1655,9 +1573,7 @@ type alias PostWidgetRelationshipsCampaign =
 
 
 type alias PostWidgetRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostWidgetRelationshipsCampaignLinks =
@@ -1671,9 +1587,7 @@ type alias PostWidgetRelationshipsImages =
 
 
 type alias PostWidgetRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostWidgetRelationshipsMedia =
@@ -1682,9 +1596,7 @@ type alias PostWidgetRelationshipsMedia =
 
 
 type alias PostWidgetRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostWidgetRelationshipsUser =
@@ -1694,9 +1606,7 @@ type alias PostWidgetRelationshipsUser =
 
 
 type alias PostWidgetRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostWidgetRelationshipsUserLinks =
@@ -1710,9 +1620,7 @@ type alias PostWidgetRelationshipsUserDefinedTags =
 
 
 type alias PostWidgetRelationshipsUserDefinedTagsDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGizmo =
@@ -1802,9 +1710,7 @@ type alias PostGizmoRelationshipsAccessRules =
 
 
 type alias PostGizmoRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGizmoRelationshipsAudio =
@@ -1814,9 +1720,7 @@ type alias PostGizmoRelationshipsAudio =
 
 
 type alias PostGizmoRelationshipsAudioData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGizmoRelationshipsAudioLinks =
@@ -1831,9 +1735,7 @@ type alias PostGizmoRelationshipsAudioPreview =
 
 
 type alias PostGizmoRelationshipsAudioPreviewData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGizmoRelationshipsAudioPreviewLinks =
@@ -1848,9 +1750,7 @@ type alias PostGizmoRelationshipsCampaign =
 
 
 type alias PostGizmoRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGizmoRelationshipsCampaignLinks =
@@ -1864,9 +1764,7 @@ type alias PostGizmoRelationshipsImages =
 
 
 type alias PostGizmoRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGizmoRelationshipsMedia =
@@ -1875,9 +1773,7 @@ type alias PostGizmoRelationshipsMedia =
 
 
 type alias PostGizmoRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGizmoRelationshipsUser =
@@ -1887,9 +1783,7 @@ type alias PostGizmoRelationshipsUser =
 
 
 type alias PostGizmoRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostGizmoRelationshipsUserLinks =
@@ -1984,9 +1878,7 @@ type alias PostPartRelationshipsAccessRules =
 
 
 type alias PostPartRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPartRelationshipsAttachmentsMedia =
@@ -1995,9 +1887,7 @@ type alias PostPartRelationshipsAttachmentsMedia =
 
 
 type alias PostPartRelationshipsAttachmentsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPartRelationshipsAudio =
@@ -2007,9 +1897,7 @@ type alias PostPartRelationshipsAudio =
 
 
 type alias PostPartRelationshipsAudioData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPartRelationshipsAudioLinks =
@@ -2024,9 +1912,7 @@ type alias PostPartRelationshipsAudioPreview =
 
 
 type alias PostPartRelationshipsAudioPreviewData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPartRelationshipsAudioPreviewLinks =
@@ -2041,9 +1927,7 @@ type alias PostPartRelationshipsCampaign =
 
 
 type alias PostPartRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPartRelationshipsCampaignLinks =
@@ -2057,9 +1941,7 @@ type alias PostPartRelationshipsMedia =
 
 
 type alias PostPartRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPartRelationshipsUser =
@@ -2069,9 +1951,7 @@ type alias PostPartRelationshipsUser =
 
 
 type alias PostPartRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPartRelationshipsUserLinks =
@@ -2085,9 +1965,7 @@ type alias PostPartRelationshipsUserDefinedTags =
 
 
 type alias PostPartRelationshipsUserDefinedTagsDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostChunk =
@@ -2201,9 +2079,7 @@ type alias PostChunkRelationshipsAccessRules =
 
 
 type alias PostChunkRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostChunkRelationshipsCampaign =
@@ -2213,9 +2089,7 @@ type alias PostChunkRelationshipsCampaign =
 
 
 type alias PostChunkRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostChunkRelationshipsCampaignLinks =
@@ -2229,9 +2103,7 @@ type alias PostChunkRelationshipsImages =
 
 
 type alias PostChunkRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostChunkRelationshipsMedia =
@@ -2240,9 +2112,7 @@ type alias PostChunkRelationshipsMedia =
 
 
 type alias PostChunkRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostChunkRelationshipsUser =
@@ -2252,9 +2122,7 @@ type alias PostChunkRelationshipsUser =
 
 
 type alias PostChunkRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostChunkRelationshipsUserLinks =
@@ -2372,9 +2240,7 @@ type alias PostPieceRelationshipsAccessRules =
 
 
 type alias PostPieceRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPieceRelationshipsCampaign =
@@ -2384,9 +2250,7 @@ type alias PostPieceRelationshipsCampaign =
 
 
 type alias PostPieceRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPieceRelationshipsCampaignLinks =
@@ -2400,9 +2264,7 @@ type alias PostPieceRelationshipsImages =
 
 
 type alias PostPieceRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPieceRelationshipsMedia =
@@ -2411,9 +2273,7 @@ type alias PostPieceRelationshipsMedia =
 
 
 type alias PostPieceRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPieceRelationshipsUser =
@@ -2423,9 +2283,7 @@ type alias PostPieceRelationshipsUser =
 
 
 type alias PostPieceRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostPieceRelationshipsUserLinks =
@@ -2533,9 +2391,7 @@ type alias PostThingyRelationshipsAccessRules =
 
 
 type alias PostThingyRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingyRelationshipsCampaign =
@@ -2545,9 +2401,7 @@ type alias PostThingyRelationshipsCampaign =
 
 
 type alias PostThingyRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingyRelationshipsCampaignLinks =
@@ -2561,9 +2415,7 @@ type alias PostThingyRelationshipsImages =
 
 
 type alias PostThingyRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingyRelationshipsMedia =
@@ -2572,9 +2424,7 @@ type alias PostThingyRelationshipsMedia =
 
 
 type alias PostThingyRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingyRelationshipsUser =
@@ -2584,9 +2434,7 @@ type alias PostThingyRelationshipsUser =
 
 
 type alias PostThingyRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingyRelationshipsUserLinks =
@@ -2682,9 +2530,7 @@ type alias PostThingamajigRelationshipsAccessRules =
 
 
 type alias PostThingamajigRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingamajigRelationshipsAttachmentsMedia =
@@ -2693,9 +2539,7 @@ type alias PostThingamajigRelationshipsAttachmentsMedia =
 
 
 type alias PostThingamajigRelationshipsAttachmentsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingamajigRelationshipsAudio =
@@ -2705,9 +2549,7 @@ type alias PostThingamajigRelationshipsAudio =
 
 
 type alias PostThingamajigRelationshipsAudioData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingamajigRelationshipsAudioLinks =
@@ -2722,9 +2564,7 @@ type alias PostThingamajigRelationshipsAudioPreview =
 
 
 type alias PostThingamajigRelationshipsAudioPreviewData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingamajigRelationshipsAudioPreviewLinks =
@@ -2739,9 +2579,7 @@ type alias PostThingamajigRelationshipsCampaign =
 
 
 type alias PostThingamajigRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingamajigRelationshipsCampaignLinks =
@@ -2755,9 +2593,7 @@ type alias PostThingamajigRelationshipsImages =
 
 
 type alias PostThingamajigRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingamajigRelationshipsMedia =
@@ -2766,9 +2602,7 @@ type alias PostThingamajigRelationshipsMedia =
 
 
 type alias PostThingamajigRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingamajigRelationshipsUser =
@@ -2778,9 +2612,7 @@ type alias PostThingamajigRelationshipsUser =
 
 
 type alias PostThingamajigRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostThingamajigRelationshipsUserLinks =
@@ -2888,9 +2720,7 @@ type alias PostWhatsitRelationshipsAccessRules =
 
 
 type alias PostWhatsitRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostWhatsitRelationshipsCampaign =
@@ -2900,9 +2730,7 @@ type alias PostWhatsitRelationshipsCampaign =
 
 
 type alias PostWhatsitRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostWhatsitRelationshipsCampaignLinks =
@@ -2916,9 +2744,7 @@ type alias PostWhatsitRelationshipsImages =
 
 
 type alias PostWhatsitRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostWhatsitRelationshipsMedia =
@@ -2927,9 +2753,7 @@ type alias PostWhatsitRelationshipsMedia =
 
 
 type alias PostWhatsitRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostWhatsitRelationshipsUser =
@@ -2939,9 +2763,7 @@ type alias PostWhatsitRelationshipsUser =
 
 
 type alias PostWhatsitRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostWhatsitRelationshipsUserLinks =
@@ -3050,9 +2872,7 @@ type alias PostDoodadRelationshipsAccessRules =
 
 
 type alias PostDoodadRelationshipsAccessRulesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostDoodadRelationshipsCampaign =
@@ -3062,9 +2882,7 @@ type alias PostDoodadRelationshipsCampaign =
 
 
 type alias PostDoodadRelationshipsCampaignData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostDoodadRelationshipsCampaignLinks =
@@ -3078,9 +2896,7 @@ type alias PostDoodadRelationshipsImages =
 
 
 type alias PostDoodadRelationshipsImagesDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostDoodadRelationshipsMedia =
@@ -3089,9 +2905,7 @@ type alias PostDoodadRelationshipsMedia =
 
 
 type alias PostDoodadRelationshipsMediaDataObject =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostDoodadRelationshipsUser =
@@ -3101,9 +2915,7 @@ type alias PostDoodadRelationshipsUser =
 
 
 type alias PostDoodadRelationshipsUserData =
-    { id : String
-    , type_ : String
-    }
+    IdAndType
 
 
 type alias PostDoodadRelationshipsUserLinks =
@@ -3236,12 +3048,12 @@ postObjectRelationshipsDecoder =
 postObjectRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostObjectRelationshipsAccessRules
 postObjectRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostObjectRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postObjectRelationshipsAccessRulesDataObjectDecoder)
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
-postObjectRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostObjectRelationshipsAccessRulesDataObject
-postObjectRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostObjectRelationshipsAccessRulesDataObject
+idAndTypeDecoder : Json.Decode.Decoder IdAndType
+idAndTypeDecoder =
+    Json.Decode.succeed IdAndType
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
@@ -3249,15 +3061,8 @@ postObjectRelationshipsAccessRulesDataObjectDecoder =
 postObjectRelationshipsAudioDecoder : Json.Decode.Decoder PostObjectRelationshipsAudio
 postObjectRelationshipsAudioDecoder =
     Json.Decode.succeed PostObjectRelationshipsAudio
-        |> Json.Decode.Pipeline.required "data" postObjectRelationshipsAudioDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postObjectRelationshipsAudioLinksDecoder
-
-
-postObjectRelationshipsAudioDataDecoder : Json.Decode.Decoder PostObjectRelationshipsAudioData
-postObjectRelationshipsAudioDataDecoder =
-    Json.Decode.succeed PostObjectRelationshipsAudioData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postObjectRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostObjectRelationshipsAudioLinks
@@ -3269,15 +3074,8 @@ postObjectRelationshipsAudioLinksDecoder =
 postObjectRelationshipsCampaignDecoder : Json.Decode.Decoder PostObjectRelationshipsCampaign
 postObjectRelationshipsCampaignDecoder =
     Json.Decode.succeed PostObjectRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postObjectRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postObjectRelationshipsCampaignLinksDecoder
-
-
-postObjectRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostObjectRelationshipsCampaignData
-postObjectRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostObjectRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postObjectRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostObjectRelationshipsCampaignLinks
@@ -3289,41 +3087,20 @@ postObjectRelationshipsCampaignLinksDecoder =
 postObjectRelationshipsImagesDecoder : Json.Decode.Decoder PostObjectRelationshipsImages
 postObjectRelationshipsImagesDecoder =
     Json.Decode.succeed PostObjectRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postObjectRelationshipsImagesDataObjectDecoder)
-
-
-postObjectRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostObjectRelationshipsImagesDataObject
-postObjectRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostObjectRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postObjectRelationshipsMediaDecoder : Json.Decode.Decoder PostObjectRelationshipsMedia
 postObjectRelationshipsMediaDecoder =
     Json.Decode.succeed PostObjectRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postObjectRelationshipsMediaDataObjectDecoder)
-
-
-postObjectRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostObjectRelationshipsMediaDataObject
-postObjectRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostObjectRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postObjectRelationshipsUserDecoder : Json.Decode.Decoder PostObjectRelationshipsUser
 postObjectRelationshipsUserDecoder =
     Json.Decode.succeed PostObjectRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postObjectRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postObjectRelationshipsUserLinksDecoder
-
-
-postObjectRelationshipsUserDataDecoder : Json.Decode.Decoder PostObjectRelationshipsUserData
-postObjectRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostObjectRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postObjectRelationshipsUserLinksDecoder : Json.Decode.Decoder PostObjectRelationshipsUserLinks
@@ -3449,28 +3226,14 @@ postMemberRelationshipsDecoder =
 postMemberRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostMemberRelationshipsAccessRules
 postMemberRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostMemberRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postMemberRelationshipsAccessRulesDataObjectDecoder)
-
-
-postMemberRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostMemberRelationshipsAccessRulesDataObject
-postMemberRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostMemberRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postMemberRelationshipsCampaignDecoder : Json.Decode.Decoder PostMemberRelationshipsCampaign
 postMemberRelationshipsCampaignDecoder =
     Json.Decode.succeed PostMemberRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postMemberRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postMemberRelationshipsCampaignLinksDecoder
-
-
-postMemberRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostMemberRelationshipsCampaignData
-postMemberRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostMemberRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postMemberRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostMemberRelationshipsCampaignLinks
@@ -3482,41 +3245,20 @@ postMemberRelationshipsCampaignLinksDecoder =
 postMemberRelationshipsImagesDecoder : Json.Decode.Decoder PostMemberRelationshipsImages
 postMemberRelationshipsImagesDecoder =
     Json.Decode.succeed PostMemberRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postMemberRelationshipsImagesDataObjectDecoder)
-
-
-postMemberRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostMemberRelationshipsImagesDataObject
-postMemberRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostMemberRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postMemberRelationshipsMediaDecoder : Json.Decode.Decoder PostMemberRelationshipsMedia
 postMemberRelationshipsMediaDecoder =
     Json.Decode.succeed PostMemberRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postMemberRelationshipsMediaDataObjectDecoder)
-
-
-postMemberRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostMemberRelationshipsMediaDataObject
-postMemberRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostMemberRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postMemberRelationshipsUserDecoder : Json.Decode.Decoder PostMemberRelationshipsUser
 postMemberRelationshipsUserDecoder =
     Json.Decode.succeed PostMemberRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postMemberRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postMemberRelationshipsUserLinksDecoder
-
-
-postMemberRelationshipsUserDataDecoder : Json.Decode.Decoder PostMemberRelationshipsUserData
-postMemberRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostMemberRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postMemberRelationshipsUserLinksDecoder : Json.Decode.Decoder PostMemberRelationshipsUserLinks
@@ -3573,28 +3315,14 @@ postEntityRelationshipsDecoder =
 postEntityRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostEntityRelationshipsAccessRules
 postEntityRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostEntityRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postEntityRelationshipsAccessRulesDataObjectDecoder)
-
-
-postEntityRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostEntityRelationshipsAccessRulesDataObject
-postEntityRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostEntityRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postEntityRelationshipsCampaignDecoder : Json.Decode.Decoder PostEntityRelationshipsCampaign
 postEntityRelationshipsCampaignDecoder =
     Json.Decode.succeed PostEntityRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postEntityRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postEntityRelationshipsCampaignLinksDecoder
-
-
-postEntityRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostEntityRelationshipsCampaignData
-postEntityRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostEntityRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postEntityRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostEntityRelationshipsCampaignLinks
@@ -3606,15 +3334,8 @@ postEntityRelationshipsCampaignLinksDecoder =
 postEntityRelationshipsUserDecoder : Json.Decode.Decoder PostEntityRelationshipsUser
 postEntityRelationshipsUserDecoder =
     Json.Decode.succeed PostEntityRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postEntityRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postEntityRelationshipsUserLinksDecoder
-
-
-postEntityRelationshipsUserDataDecoder : Json.Decode.Decoder PostEntityRelationshipsUserData
-postEntityRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostEntityRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postEntityRelationshipsUserLinksDecoder : Json.Decode.Decoder PostEntityRelationshipsUserLinks
@@ -3727,41 +3448,20 @@ postThingRelationshipsDecoder =
 postThingRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostThingRelationshipsAccessRules
 postThingRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostThingRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postThingRelationshipsAccessRulesDataObjectDecoder)
-
-
-postThingRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostThingRelationshipsAccessRulesDataObject
-postThingRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostThingRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postThingRelationshipsAttachmentsMediaDecoder : Json.Decode.Decoder PostThingRelationshipsAttachmentsMedia
 postThingRelationshipsAttachmentsMediaDecoder =
     Json.Decode.succeed PostThingRelationshipsAttachmentsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postThingRelationshipsAttachmentsMediaDataObjectDecoder)
-
-
-postThingRelationshipsAttachmentsMediaDataObjectDecoder : Json.Decode.Decoder PostThingRelationshipsAttachmentsMediaDataObject
-postThingRelationshipsAttachmentsMediaDataObjectDecoder =
-    Json.Decode.succeed PostThingRelationshipsAttachmentsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postThingRelationshipsAudioDecoder : Json.Decode.Decoder PostThingRelationshipsAudio
 postThingRelationshipsAudioDecoder =
     Json.Decode.succeed PostThingRelationshipsAudio
-        |> Json.Decode.Pipeline.required "data" postThingRelationshipsAudioDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postThingRelationshipsAudioLinksDecoder
-
-
-postThingRelationshipsAudioDataDecoder : Json.Decode.Decoder PostThingRelationshipsAudioData
-postThingRelationshipsAudioDataDecoder =
-    Json.Decode.succeed PostThingRelationshipsAudioData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postThingRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostThingRelationshipsAudioLinks
@@ -3773,15 +3473,8 @@ postThingRelationshipsAudioLinksDecoder =
 postThingRelationshipsCampaignDecoder : Json.Decode.Decoder PostThingRelationshipsCampaign
 postThingRelationshipsCampaignDecoder =
     Json.Decode.succeed PostThingRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postThingRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postThingRelationshipsCampaignLinksDecoder
-
-
-postThingRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostThingRelationshipsCampaignData
-postThingRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostThingRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postThingRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostThingRelationshipsCampaignLinks
@@ -3793,41 +3486,20 @@ postThingRelationshipsCampaignLinksDecoder =
 postThingRelationshipsImagesDecoder : Json.Decode.Decoder PostThingRelationshipsImages
 postThingRelationshipsImagesDecoder =
     Json.Decode.succeed PostThingRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postThingRelationshipsImagesDataObjectDecoder)
-
-
-postThingRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostThingRelationshipsImagesDataObject
-postThingRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostThingRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postThingRelationshipsMediaDecoder : Json.Decode.Decoder PostThingRelationshipsMedia
 postThingRelationshipsMediaDecoder =
     Json.Decode.succeed PostThingRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postThingRelationshipsMediaDataObjectDecoder)
-
-
-postThingRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostThingRelationshipsMediaDataObject
-postThingRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostThingRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postThingRelationshipsUserDecoder : Json.Decode.Decoder PostThingRelationshipsUser
 postThingRelationshipsUserDecoder =
     Json.Decode.succeed PostThingRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postThingRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postThingRelationshipsUserLinksDecoder
-
-
-postThingRelationshipsUserDataDecoder : Json.Decode.Decoder PostThingRelationshipsUserData
-postThingRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostThingRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postThingRelationshipsUserLinksDecoder : Json.Decode.Decoder PostThingRelationshipsUserLinks
@@ -3942,28 +3614,14 @@ postInstanceRelationshipsDecoder =
 postInstanceRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostInstanceRelationshipsAccessRules
 postInstanceRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostInstanceRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postInstanceRelationshipsAccessRulesDataObjectDecoder)
-
-
-postInstanceRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostInstanceRelationshipsAccessRulesDataObject
-postInstanceRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostInstanceRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postInstanceRelationshipsCampaignDecoder : Json.Decode.Decoder PostInstanceRelationshipsCampaign
 postInstanceRelationshipsCampaignDecoder =
     Json.Decode.succeed PostInstanceRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postInstanceRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postInstanceRelationshipsCampaignLinksDecoder
-
-
-postInstanceRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostInstanceRelationshipsCampaignData
-postInstanceRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostInstanceRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postInstanceRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostInstanceRelationshipsCampaignLinks
@@ -3975,41 +3633,20 @@ postInstanceRelationshipsCampaignLinksDecoder =
 postInstanceRelationshipsImagesDecoder : Json.Decode.Decoder PostInstanceRelationshipsImages
 postInstanceRelationshipsImagesDecoder =
     Json.Decode.succeed PostInstanceRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postInstanceRelationshipsImagesDataObjectDecoder)
-
-
-postInstanceRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostInstanceRelationshipsImagesDataObject
-postInstanceRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostInstanceRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postInstanceRelationshipsMediaDecoder : Json.Decode.Decoder PostInstanceRelationshipsMedia
 postInstanceRelationshipsMediaDecoder =
     Json.Decode.succeed PostInstanceRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postInstanceRelationshipsMediaDataObjectDecoder)
-
-
-postInstanceRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostInstanceRelationshipsMediaDataObject
-postInstanceRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostInstanceRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postInstanceRelationshipsUserDecoder : Json.Decode.Decoder PostInstanceRelationshipsUser
 postInstanceRelationshipsUserDecoder =
     Json.Decode.succeed PostInstanceRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postInstanceRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postInstanceRelationshipsUserLinksDecoder
-
-
-postInstanceRelationshipsUserDataDecoder : Json.Decode.Decoder PostInstanceRelationshipsUserData
-postInstanceRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostInstanceRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postInstanceRelationshipsUserLinksDecoder : Json.Decode.Decoder PostInstanceRelationshipsUserLinks
@@ -4116,28 +3753,14 @@ postConstituentRelationshipsDecoder =
 postConstituentRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostConstituentRelationshipsAccessRules
 postConstituentRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostConstituentRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postConstituentRelationshipsAccessRulesDataObjectDecoder)
-
-
-postConstituentRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostConstituentRelationshipsAccessRulesDataObject
-postConstituentRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostConstituentRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postConstituentRelationshipsCampaignDecoder : Json.Decode.Decoder PostConstituentRelationshipsCampaign
 postConstituentRelationshipsCampaignDecoder =
     Json.Decode.succeed PostConstituentRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postConstituentRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postConstituentRelationshipsCampaignLinksDecoder
-
-
-postConstituentRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostConstituentRelationshipsCampaignData
-postConstituentRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostConstituentRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postConstituentRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostConstituentRelationshipsCampaignLinks
@@ -4149,41 +3772,20 @@ postConstituentRelationshipsCampaignLinksDecoder =
 postConstituentRelationshipsImagesDecoder : Json.Decode.Decoder PostConstituentRelationshipsImages
 postConstituentRelationshipsImagesDecoder =
     Json.Decode.succeed PostConstituentRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postConstituentRelationshipsImagesDataObjectDecoder)
-
-
-postConstituentRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostConstituentRelationshipsImagesDataObject
-postConstituentRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostConstituentRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postConstituentRelationshipsMediaDecoder : Json.Decode.Decoder PostConstituentRelationshipsMedia
 postConstituentRelationshipsMediaDecoder =
     Json.Decode.succeed PostConstituentRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postConstituentRelationshipsMediaDataObjectDecoder)
-
-
-postConstituentRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostConstituentRelationshipsMediaDataObject
-postConstituentRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostConstituentRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postConstituentRelationshipsUserDecoder : Json.Decode.Decoder PostConstituentRelationshipsUser
 postConstituentRelationshipsUserDecoder =
     Json.Decode.succeed PostConstituentRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postConstituentRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postConstituentRelationshipsUserLinksDecoder
-
-
-postConstituentRelationshipsUserDataDecoder : Json.Decode.Decoder PostConstituentRelationshipsUserData
-postConstituentRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostConstituentRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postConstituentRelationshipsUserLinksDecoder : Json.Decode.Decoder PostConstituentRelationshipsUserLinks
@@ -4309,28 +3911,14 @@ postSpecimenRelationshipsDecoder =
 postSpecimenRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostSpecimenRelationshipsAccessRules
 postSpecimenRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostSpecimenRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postSpecimenRelationshipsAccessRulesDataObjectDecoder)
-
-
-postSpecimenRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostSpecimenRelationshipsAccessRulesDataObject
-postSpecimenRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postSpecimenRelationshipsCampaignDecoder : Json.Decode.Decoder PostSpecimenRelationshipsCampaign
 postSpecimenRelationshipsCampaignDecoder =
     Json.Decode.succeed PostSpecimenRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postSpecimenRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postSpecimenRelationshipsCampaignLinksDecoder
-
-
-postSpecimenRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostSpecimenRelationshipsCampaignData
-postSpecimenRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postSpecimenRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostSpecimenRelationshipsCampaignLinks
@@ -4342,41 +3930,20 @@ postSpecimenRelationshipsCampaignLinksDecoder =
 postSpecimenRelationshipsImagesDecoder : Json.Decode.Decoder PostSpecimenRelationshipsImages
 postSpecimenRelationshipsImagesDecoder =
     Json.Decode.succeed PostSpecimenRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postSpecimenRelationshipsImagesDataObjectDecoder)
-
-
-postSpecimenRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostSpecimenRelationshipsImagesDataObject
-postSpecimenRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postSpecimenRelationshipsMediaDecoder : Json.Decode.Decoder PostSpecimenRelationshipsMedia
 postSpecimenRelationshipsMediaDecoder =
     Json.Decode.succeed PostSpecimenRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postSpecimenRelationshipsMediaDataObjectDecoder)
-
-
-postSpecimenRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostSpecimenRelationshipsMediaDataObject
-postSpecimenRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postSpecimenRelationshipsUserDecoder : Json.Decode.Decoder PostSpecimenRelationshipsUser
 postSpecimenRelationshipsUserDecoder =
     Json.Decode.succeed PostSpecimenRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postSpecimenRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postSpecimenRelationshipsUserLinksDecoder
-
-
-postSpecimenRelationshipsUserDataDecoder : Json.Decode.Decoder PostSpecimenRelationshipsUserData
-postSpecimenRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postSpecimenRelationshipsUserLinksDecoder : Json.Decode.Decoder PostSpecimenRelationshipsUserLinks
@@ -4388,14 +3955,7 @@ postSpecimenRelationshipsUserLinksDecoder =
 postSpecimenRelationshipsUserDefinedTagsDecoder : Json.Decode.Decoder PostSpecimenRelationshipsUserDefinedTags
 postSpecimenRelationshipsUserDefinedTagsDecoder =
     Json.Decode.succeed PostSpecimenRelationshipsUserDefinedTags
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postSpecimenRelationshipsUserDefinedTagsDataObjectDecoder)
-
-
-postSpecimenRelationshipsUserDefinedTagsDataObjectDecoder : Json.Decode.Decoder PostSpecimenRelationshipsUserDefinedTagsDataObject
-postSpecimenRelationshipsUserDefinedTagsDataObjectDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsUserDefinedTagsDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postGadgetDecoder : Json.Decode.Decoder PostGadget
@@ -4489,28 +4049,14 @@ postGadgetRelationshipsDecoder =
 postGadgetRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostGadgetRelationshipsAccessRules
 postGadgetRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostGadgetRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postGadgetRelationshipsAccessRulesDataObjectDecoder)
-
-
-postGadgetRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostGadgetRelationshipsAccessRulesDataObject
-postGadgetRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postGadgetRelationshipsAudioDecoder : Json.Decode.Decoder PostGadgetRelationshipsAudio
 postGadgetRelationshipsAudioDecoder =
     Json.Decode.succeed PostGadgetRelationshipsAudio
-        |> Json.Decode.Pipeline.required "data" postGadgetRelationshipsAudioDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postGadgetRelationshipsAudioLinksDecoder
-
-
-postGadgetRelationshipsAudioDataDecoder : Json.Decode.Decoder PostGadgetRelationshipsAudioData
-postGadgetRelationshipsAudioDataDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsAudioData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postGadgetRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostGadgetRelationshipsAudioLinks
@@ -4522,15 +4068,8 @@ postGadgetRelationshipsAudioLinksDecoder =
 postGadgetRelationshipsCampaignDecoder : Json.Decode.Decoder PostGadgetRelationshipsCampaign
 postGadgetRelationshipsCampaignDecoder =
     Json.Decode.succeed PostGadgetRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postGadgetRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postGadgetRelationshipsCampaignLinksDecoder
-
-
-postGadgetRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostGadgetRelationshipsCampaignData
-postGadgetRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postGadgetRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostGadgetRelationshipsCampaignLinks
@@ -4542,28 +4081,14 @@ postGadgetRelationshipsCampaignLinksDecoder =
 postGadgetRelationshipsMediaDecoder : Json.Decode.Decoder PostGadgetRelationshipsMedia
 postGadgetRelationshipsMediaDecoder =
     Json.Decode.succeed PostGadgetRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postGadgetRelationshipsMediaDataObjectDecoder)
-
-
-postGadgetRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostGadgetRelationshipsMediaDataObject
-postGadgetRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postGadgetRelationshipsUserDecoder : Json.Decode.Decoder PostGadgetRelationshipsUser
 postGadgetRelationshipsUserDecoder =
     Json.Decode.succeed PostGadgetRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postGadgetRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postGadgetRelationshipsUserLinksDecoder
-
-
-postGadgetRelationshipsUserDataDecoder : Json.Decode.Decoder PostGadgetRelationshipsUserData
-postGadgetRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postGadgetRelationshipsUserLinksDecoder : Json.Decode.Decoder PostGadgetRelationshipsUserLinks
@@ -4575,14 +4100,7 @@ postGadgetRelationshipsUserLinksDecoder =
 postGadgetRelationshipsUserDefinedTagsDecoder : Json.Decode.Decoder PostGadgetRelationshipsUserDefinedTags
 postGadgetRelationshipsUserDefinedTagsDecoder =
     Json.Decode.succeed PostGadgetRelationshipsUserDefinedTags
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postGadgetRelationshipsUserDefinedTagsDataObjectDecoder)
-
-
-postGadgetRelationshipsUserDefinedTagsDataObjectDecoder : Json.Decode.Decoder PostGadgetRelationshipsUserDefinedTagsDataObject
-postGadgetRelationshipsUserDefinedTagsDataObjectDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsUserDefinedTagsDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postWidgetDecoder : Json.Decode.Decoder PostWidget
@@ -4703,28 +4221,14 @@ postWidgetRelationshipsDecoder =
 postWidgetRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostWidgetRelationshipsAccessRules
 postWidgetRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostWidgetRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postWidgetRelationshipsAccessRulesDataObjectDecoder)
-
-
-postWidgetRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostWidgetRelationshipsAccessRulesDataObject
-postWidgetRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostWidgetRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postWidgetRelationshipsCampaignDecoder : Json.Decode.Decoder PostWidgetRelationshipsCampaign
 postWidgetRelationshipsCampaignDecoder =
     Json.Decode.succeed PostWidgetRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postWidgetRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postWidgetRelationshipsCampaignLinksDecoder
-
-
-postWidgetRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostWidgetRelationshipsCampaignData
-postWidgetRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostWidgetRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postWidgetRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostWidgetRelationshipsCampaignLinks
@@ -4736,41 +4240,20 @@ postWidgetRelationshipsCampaignLinksDecoder =
 postWidgetRelationshipsImagesDecoder : Json.Decode.Decoder PostWidgetRelationshipsImages
 postWidgetRelationshipsImagesDecoder =
     Json.Decode.succeed PostWidgetRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postWidgetRelationshipsImagesDataObjectDecoder)
-
-
-postWidgetRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostWidgetRelationshipsImagesDataObject
-postWidgetRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostWidgetRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postWidgetRelationshipsMediaDecoder : Json.Decode.Decoder PostWidgetRelationshipsMedia
 postWidgetRelationshipsMediaDecoder =
     Json.Decode.succeed PostWidgetRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postWidgetRelationshipsMediaDataObjectDecoder)
-
-
-postWidgetRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostWidgetRelationshipsMediaDataObject
-postWidgetRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostWidgetRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postWidgetRelationshipsUserDecoder : Json.Decode.Decoder PostWidgetRelationshipsUser
 postWidgetRelationshipsUserDecoder =
     Json.Decode.succeed PostWidgetRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postWidgetRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postWidgetRelationshipsUserLinksDecoder
-
-
-postWidgetRelationshipsUserDataDecoder : Json.Decode.Decoder PostWidgetRelationshipsUserData
-postWidgetRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostWidgetRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postWidgetRelationshipsUserLinksDecoder : Json.Decode.Decoder PostWidgetRelationshipsUserLinks
@@ -4782,14 +4265,7 @@ postWidgetRelationshipsUserLinksDecoder =
 postWidgetRelationshipsUserDefinedTagsDecoder : Json.Decode.Decoder PostWidgetRelationshipsUserDefinedTags
 postWidgetRelationshipsUserDefinedTagsDecoder =
     Json.Decode.succeed PostWidgetRelationshipsUserDefinedTags
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postWidgetRelationshipsUserDefinedTagsDataObjectDecoder)
-
-
-postWidgetRelationshipsUserDefinedTagsDataObjectDecoder : Json.Decode.Decoder PostWidgetRelationshipsUserDefinedTagsDataObject
-postWidgetRelationshipsUserDefinedTagsDataObjectDecoder =
-    Json.Decode.succeed PostWidgetRelationshipsUserDefinedTagsDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postGizmoDecoder : Json.Decode.Decoder PostGizmo
@@ -4883,28 +4359,14 @@ postGizmoRelationshipsDecoder =
 postGizmoRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostGizmoRelationshipsAccessRules
 postGizmoRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostGizmoRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postGizmoRelationshipsAccessRulesDataObjectDecoder)
-
-
-postGizmoRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostGizmoRelationshipsAccessRulesDataObject
-postGizmoRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postGizmoRelationshipsAudioDecoder : Json.Decode.Decoder PostGizmoRelationshipsAudio
 postGizmoRelationshipsAudioDecoder =
     Json.Decode.succeed PostGizmoRelationshipsAudio
-        |> Json.Decode.Pipeline.required "data" postGizmoRelationshipsAudioDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postGizmoRelationshipsAudioLinksDecoder
-
-
-postGizmoRelationshipsAudioDataDecoder : Json.Decode.Decoder PostGizmoRelationshipsAudioData
-postGizmoRelationshipsAudioDataDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsAudioData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postGizmoRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostGizmoRelationshipsAudioLinks
@@ -4916,15 +4378,8 @@ postGizmoRelationshipsAudioLinksDecoder =
 postGizmoRelationshipsAudioPreviewDecoder : Json.Decode.Decoder PostGizmoRelationshipsAudioPreview
 postGizmoRelationshipsAudioPreviewDecoder =
     Json.Decode.succeed PostGizmoRelationshipsAudioPreview
-        |> Json.Decode.Pipeline.required "data" postGizmoRelationshipsAudioPreviewDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postGizmoRelationshipsAudioPreviewLinksDecoder
-
-
-postGizmoRelationshipsAudioPreviewDataDecoder : Json.Decode.Decoder PostGizmoRelationshipsAudioPreviewData
-postGizmoRelationshipsAudioPreviewDataDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsAudioPreviewData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postGizmoRelationshipsAudioPreviewLinksDecoder : Json.Decode.Decoder PostGizmoRelationshipsAudioPreviewLinks
@@ -4936,15 +4391,8 @@ postGizmoRelationshipsAudioPreviewLinksDecoder =
 postGizmoRelationshipsCampaignDecoder : Json.Decode.Decoder PostGizmoRelationshipsCampaign
 postGizmoRelationshipsCampaignDecoder =
     Json.Decode.succeed PostGizmoRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postGizmoRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postGizmoRelationshipsCampaignLinksDecoder
-
-
-postGizmoRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostGizmoRelationshipsCampaignData
-postGizmoRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postGizmoRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostGizmoRelationshipsCampaignLinks
@@ -4956,41 +4404,20 @@ postGizmoRelationshipsCampaignLinksDecoder =
 postGizmoRelationshipsImagesDecoder : Json.Decode.Decoder PostGizmoRelationshipsImages
 postGizmoRelationshipsImagesDecoder =
     Json.Decode.succeed PostGizmoRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postGizmoRelationshipsImagesDataObjectDecoder)
-
-
-postGizmoRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostGizmoRelationshipsImagesDataObject
-postGizmoRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postGizmoRelationshipsMediaDecoder : Json.Decode.Decoder PostGizmoRelationshipsMedia
 postGizmoRelationshipsMediaDecoder =
     Json.Decode.succeed PostGizmoRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postGizmoRelationshipsMediaDataObjectDecoder)
-
-
-postGizmoRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostGizmoRelationshipsMediaDataObject
-postGizmoRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postGizmoRelationshipsUserDecoder : Json.Decode.Decoder PostGizmoRelationshipsUser
 postGizmoRelationshipsUserDecoder =
     Json.Decode.succeed PostGizmoRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postGizmoRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postGizmoRelationshipsUserLinksDecoder
-
-
-postGizmoRelationshipsUserDataDecoder : Json.Decode.Decoder PostGizmoRelationshipsUserData
-postGizmoRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postGizmoRelationshipsUserLinksDecoder : Json.Decode.Decoder PostGizmoRelationshipsUserLinks
@@ -5090,41 +4517,20 @@ postPartRelationshipsDecoder =
 postPartRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostPartRelationshipsAccessRules
 postPartRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostPartRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postPartRelationshipsAccessRulesDataObjectDecoder)
-
-
-postPartRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostPartRelationshipsAccessRulesDataObject
-postPartRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostPartRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postPartRelationshipsAttachmentsMediaDecoder : Json.Decode.Decoder PostPartRelationshipsAttachmentsMedia
 postPartRelationshipsAttachmentsMediaDecoder =
     Json.Decode.succeed PostPartRelationshipsAttachmentsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postPartRelationshipsAttachmentsMediaDataObjectDecoder)
-
-
-postPartRelationshipsAttachmentsMediaDataObjectDecoder : Json.Decode.Decoder PostPartRelationshipsAttachmentsMediaDataObject
-postPartRelationshipsAttachmentsMediaDataObjectDecoder =
-    Json.Decode.succeed PostPartRelationshipsAttachmentsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postPartRelationshipsAudioDecoder : Json.Decode.Decoder PostPartRelationshipsAudio
 postPartRelationshipsAudioDecoder =
     Json.Decode.succeed PostPartRelationshipsAudio
-        |> Json.Decode.Pipeline.required "data" postPartRelationshipsAudioDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postPartRelationshipsAudioLinksDecoder
-
-
-postPartRelationshipsAudioDataDecoder : Json.Decode.Decoder PostPartRelationshipsAudioData
-postPartRelationshipsAudioDataDecoder =
-    Json.Decode.succeed PostPartRelationshipsAudioData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postPartRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostPartRelationshipsAudioLinks
@@ -5136,15 +4542,8 @@ postPartRelationshipsAudioLinksDecoder =
 postPartRelationshipsAudioPreviewDecoder : Json.Decode.Decoder PostPartRelationshipsAudioPreview
 postPartRelationshipsAudioPreviewDecoder =
     Json.Decode.succeed PostPartRelationshipsAudioPreview
-        |> Json.Decode.Pipeline.required "data" postPartRelationshipsAudioPreviewDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postPartRelationshipsAudioPreviewLinksDecoder
-
-
-postPartRelationshipsAudioPreviewDataDecoder : Json.Decode.Decoder PostPartRelationshipsAudioPreviewData
-postPartRelationshipsAudioPreviewDataDecoder =
-    Json.Decode.succeed PostPartRelationshipsAudioPreviewData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postPartRelationshipsAudioPreviewLinksDecoder : Json.Decode.Decoder PostPartRelationshipsAudioPreviewLinks
@@ -5156,15 +4555,8 @@ postPartRelationshipsAudioPreviewLinksDecoder =
 postPartRelationshipsCampaignDecoder : Json.Decode.Decoder PostPartRelationshipsCampaign
 postPartRelationshipsCampaignDecoder =
     Json.Decode.succeed PostPartRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postPartRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postPartRelationshipsCampaignLinksDecoder
-
-
-postPartRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostPartRelationshipsCampaignData
-postPartRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostPartRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postPartRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostPartRelationshipsCampaignLinks
@@ -5176,28 +4568,14 @@ postPartRelationshipsCampaignLinksDecoder =
 postPartRelationshipsMediaDecoder : Json.Decode.Decoder PostPartRelationshipsMedia
 postPartRelationshipsMediaDecoder =
     Json.Decode.succeed PostPartRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postPartRelationshipsMediaDataObjectDecoder)
-
-
-postPartRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostPartRelationshipsMediaDataObject
-postPartRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostPartRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postPartRelationshipsUserDecoder : Json.Decode.Decoder PostPartRelationshipsUser
 postPartRelationshipsUserDecoder =
     Json.Decode.succeed PostPartRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postPartRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postPartRelationshipsUserLinksDecoder
-
-
-postPartRelationshipsUserDataDecoder : Json.Decode.Decoder PostPartRelationshipsUserData
-postPartRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostPartRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postPartRelationshipsUserLinksDecoder : Json.Decode.Decoder PostPartRelationshipsUserLinks
@@ -5209,14 +4587,7 @@ postPartRelationshipsUserLinksDecoder =
 postPartRelationshipsUserDefinedTagsDecoder : Json.Decode.Decoder PostPartRelationshipsUserDefinedTags
 postPartRelationshipsUserDefinedTagsDecoder =
     Json.Decode.succeed PostPartRelationshipsUserDefinedTags
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postPartRelationshipsUserDefinedTagsDataObjectDecoder)
-
-
-postPartRelationshipsUserDefinedTagsDataObjectDecoder : Json.Decode.Decoder PostPartRelationshipsUserDefinedTagsDataObject
-postPartRelationshipsUserDefinedTagsDataObjectDecoder =
-    Json.Decode.succeed PostPartRelationshipsUserDefinedTagsDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postChunkDecoder : Json.Decode.Decoder PostChunk
@@ -5337,28 +4708,14 @@ postChunkRelationshipsDecoder =
 postChunkRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostChunkRelationshipsAccessRules
 postChunkRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostChunkRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postChunkRelationshipsAccessRulesDataObjectDecoder)
-
-
-postChunkRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostChunkRelationshipsAccessRulesDataObject
-postChunkRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostChunkRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postChunkRelationshipsCampaignDecoder : Json.Decode.Decoder PostChunkRelationshipsCampaign
 postChunkRelationshipsCampaignDecoder =
     Json.Decode.succeed PostChunkRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postChunkRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postChunkRelationshipsCampaignLinksDecoder
-
-
-postChunkRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostChunkRelationshipsCampaignData
-postChunkRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostChunkRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postChunkRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostChunkRelationshipsCampaignLinks
@@ -5370,41 +4727,20 @@ postChunkRelationshipsCampaignLinksDecoder =
 postChunkRelationshipsImagesDecoder : Json.Decode.Decoder PostChunkRelationshipsImages
 postChunkRelationshipsImagesDecoder =
     Json.Decode.succeed PostChunkRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postChunkRelationshipsImagesDataObjectDecoder)
-
-
-postChunkRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostChunkRelationshipsImagesDataObject
-postChunkRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostChunkRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postChunkRelationshipsMediaDecoder : Json.Decode.Decoder PostChunkRelationshipsMedia
 postChunkRelationshipsMediaDecoder =
     Json.Decode.succeed PostChunkRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postChunkRelationshipsMediaDataObjectDecoder)
-
-
-postChunkRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostChunkRelationshipsMediaDataObject
-postChunkRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostChunkRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postChunkRelationshipsUserDecoder : Json.Decode.Decoder PostChunkRelationshipsUser
 postChunkRelationshipsUserDecoder =
     Json.Decode.succeed PostChunkRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postChunkRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postChunkRelationshipsUserLinksDecoder
-
-
-postChunkRelationshipsUserDataDecoder : Json.Decode.Decoder PostChunkRelationshipsUserData
-postChunkRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostChunkRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postChunkRelationshipsUserLinksDecoder : Json.Decode.Decoder PostChunkRelationshipsUserLinks
@@ -5530,28 +4866,14 @@ postPieceRelationshipsDecoder =
 postPieceRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostPieceRelationshipsAccessRules
 postPieceRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostPieceRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postPieceRelationshipsAccessRulesDataObjectDecoder)
-
-
-postPieceRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostPieceRelationshipsAccessRulesDataObject
-postPieceRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostPieceRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postPieceRelationshipsCampaignDecoder : Json.Decode.Decoder PostPieceRelationshipsCampaign
 postPieceRelationshipsCampaignDecoder =
     Json.Decode.succeed PostPieceRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postPieceRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postPieceRelationshipsCampaignLinksDecoder
-
-
-postPieceRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostPieceRelationshipsCampaignData
-postPieceRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostPieceRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postPieceRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostPieceRelationshipsCampaignLinks
@@ -5563,41 +4885,20 @@ postPieceRelationshipsCampaignLinksDecoder =
 postPieceRelationshipsImagesDecoder : Json.Decode.Decoder PostPieceRelationshipsImages
 postPieceRelationshipsImagesDecoder =
     Json.Decode.succeed PostPieceRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postPieceRelationshipsImagesDataObjectDecoder)
-
-
-postPieceRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostPieceRelationshipsImagesDataObject
-postPieceRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostPieceRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postPieceRelationshipsMediaDecoder : Json.Decode.Decoder PostPieceRelationshipsMedia
 postPieceRelationshipsMediaDecoder =
     Json.Decode.succeed PostPieceRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postPieceRelationshipsMediaDataObjectDecoder)
-
-
-postPieceRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostPieceRelationshipsMediaDataObject
-postPieceRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostPieceRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postPieceRelationshipsUserDecoder : Json.Decode.Decoder PostPieceRelationshipsUser
 postPieceRelationshipsUserDecoder =
     Json.Decode.succeed PostPieceRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postPieceRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postPieceRelationshipsUserLinksDecoder
-
-
-postPieceRelationshipsUserDataDecoder : Json.Decode.Decoder PostPieceRelationshipsUserData
-postPieceRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostPieceRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postPieceRelationshipsUserLinksDecoder : Json.Decode.Decoder PostPieceRelationshipsUserLinks
@@ -5712,28 +5013,14 @@ postThingyRelationshipsDecoder =
 postThingyRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostThingyRelationshipsAccessRules
 postThingyRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostThingyRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postThingyRelationshipsAccessRulesDataObjectDecoder)
-
-
-postThingyRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostThingyRelationshipsAccessRulesDataObject
-postThingyRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostThingyRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postThingyRelationshipsCampaignDecoder : Json.Decode.Decoder PostThingyRelationshipsCampaign
 postThingyRelationshipsCampaignDecoder =
     Json.Decode.succeed PostThingyRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postThingyRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postThingyRelationshipsCampaignLinksDecoder
-
-
-postThingyRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostThingyRelationshipsCampaignData
-postThingyRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostThingyRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postThingyRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostThingyRelationshipsCampaignLinks
@@ -5745,41 +5032,20 @@ postThingyRelationshipsCampaignLinksDecoder =
 postThingyRelationshipsImagesDecoder : Json.Decode.Decoder PostThingyRelationshipsImages
 postThingyRelationshipsImagesDecoder =
     Json.Decode.succeed PostThingyRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postThingyRelationshipsImagesDataObjectDecoder)
-
-
-postThingyRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostThingyRelationshipsImagesDataObject
-postThingyRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostThingyRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postThingyRelationshipsMediaDecoder : Json.Decode.Decoder PostThingyRelationshipsMedia
 postThingyRelationshipsMediaDecoder =
     Json.Decode.succeed PostThingyRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postThingyRelationshipsMediaDataObjectDecoder)
-
-
-postThingyRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostThingyRelationshipsMediaDataObject
-postThingyRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostThingyRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postThingyRelationshipsUserDecoder : Json.Decode.Decoder PostThingyRelationshipsUser
 postThingyRelationshipsUserDecoder =
     Json.Decode.succeed PostThingyRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postThingyRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postThingyRelationshipsUserLinksDecoder
-
-
-postThingyRelationshipsUserDataDecoder : Json.Decode.Decoder PostThingyRelationshipsUserData
-postThingyRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostThingyRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postThingyRelationshipsUserLinksDecoder : Json.Decode.Decoder PostThingyRelationshipsUserLinks
@@ -5880,41 +5146,20 @@ postThingamajigRelationshipsDecoder =
 postThingamajigRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAccessRules
 postThingamajigRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostThingamajigRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postThingamajigRelationshipsAccessRulesDataObjectDecoder)
-
-
-postThingamajigRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAccessRulesDataObject
-postThingamajigRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postThingamajigRelationshipsAttachmentsMediaDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAttachmentsMedia
 postThingamajigRelationshipsAttachmentsMediaDecoder =
     Json.Decode.succeed PostThingamajigRelationshipsAttachmentsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postThingamajigRelationshipsAttachmentsMediaDataObjectDecoder)
-
-
-postThingamajigRelationshipsAttachmentsMediaDataObjectDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAttachmentsMediaDataObject
-postThingamajigRelationshipsAttachmentsMediaDataObjectDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsAttachmentsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postThingamajigRelationshipsAudioDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAudio
 postThingamajigRelationshipsAudioDecoder =
     Json.Decode.succeed PostThingamajigRelationshipsAudio
-        |> Json.Decode.Pipeline.required "data" postThingamajigRelationshipsAudioDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postThingamajigRelationshipsAudioLinksDecoder
-
-
-postThingamajigRelationshipsAudioDataDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAudioData
-postThingamajigRelationshipsAudioDataDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsAudioData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postThingamajigRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAudioLinks
@@ -5926,15 +5171,8 @@ postThingamajigRelationshipsAudioLinksDecoder =
 postThingamajigRelationshipsAudioPreviewDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAudioPreview
 postThingamajigRelationshipsAudioPreviewDecoder =
     Json.Decode.succeed PostThingamajigRelationshipsAudioPreview
-        |> Json.Decode.Pipeline.required "data" postThingamajigRelationshipsAudioPreviewDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postThingamajigRelationshipsAudioPreviewLinksDecoder
-
-
-postThingamajigRelationshipsAudioPreviewDataDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAudioPreviewData
-postThingamajigRelationshipsAudioPreviewDataDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsAudioPreviewData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postThingamajigRelationshipsAudioPreviewLinksDecoder : Json.Decode.Decoder PostThingamajigRelationshipsAudioPreviewLinks
@@ -5946,15 +5184,8 @@ postThingamajigRelationshipsAudioPreviewLinksDecoder =
 postThingamajigRelationshipsCampaignDecoder : Json.Decode.Decoder PostThingamajigRelationshipsCampaign
 postThingamajigRelationshipsCampaignDecoder =
     Json.Decode.succeed PostThingamajigRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postThingamajigRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postThingamajigRelationshipsCampaignLinksDecoder
-
-
-postThingamajigRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostThingamajigRelationshipsCampaignData
-postThingamajigRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postThingamajigRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostThingamajigRelationshipsCampaignLinks
@@ -5966,41 +5197,20 @@ postThingamajigRelationshipsCampaignLinksDecoder =
 postThingamajigRelationshipsImagesDecoder : Json.Decode.Decoder PostThingamajigRelationshipsImages
 postThingamajigRelationshipsImagesDecoder =
     Json.Decode.succeed PostThingamajigRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postThingamajigRelationshipsImagesDataObjectDecoder)
-
-
-postThingamajigRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostThingamajigRelationshipsImagesDataObject
-postThingamajigRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postThingamajigRelationshipsMediaDecoder : Json.Decode.Decoder PostThingamajigRelationshipsMedia
 postThingamajigRelationshipsMediaDecoder =
     Json.Decode.succeed PostThingamajigRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postThingamajigRelationshipsMediaDataObjectDecoder)
-
-
-postThingamajigRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostThingamajigRelationshipsMediaDataObject
-postThingamajigRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postThingamajigRelationshipsUserDecoder : Json.Decode.Decoder PostThingamajigRelationshipsUser
 postThingamajigRelationshipsUserDecoder =
     Json.Decode.succeed PostThingamajigRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postThingamajigRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postThingamajigRelationshipsUserLinksDecoder
-
-
-postThingamajigRelationshipsUserDataDecoder : Json.Decode.Decoder PostThingamajigRelationshipsUserData
-postThingamajigRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postThingamajigRelationshipsUserLinksDecoder : Json.Decode.Decoder PostThingamajigRelationshipsUserLinks
@@ -6115,28 +5325,14 @@ postWhatsitRelationshipsDecoder =
 postWhatsitRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostWhatsitRelationshipsAccessRules
 postWhatsitRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostWhatsitRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postWhatsitRelationshipsAccessRulesDataObjectDecoder)
-
-
-postWhatsitRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostWhatsitRelationshipsAccessRulesDataObject
-postWhatsitRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostWhatsitRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postWhatsitRelationshipsCampaignDecoder : Json.Decode.Decoder PostWhatsitRelationshipsCampaign
 postWhatsitRelationshipsCampaignDecoder =
     Json.Decode.succeed PostWhatsitRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postWhatsitRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postWhatsitRelationshipsCampaignLinksDecoder
-
-
-postWhatsitRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostWhatsitRelationshipsCampaignData
-postWhatsitRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostWhatsitRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postWhatsitRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostWhatsitRelationshipsCampaignLinks
@@ -6148,41 +5344,20 @@ postWhatsitRelationshipsCampaignLinksDecoder =
 postWhatsitRelationshipsImagesDecoder : Json.Decode.Decoder PostWhatsitRelationshipsImages
 postWhatsitRelationshipsImagesDecoder =
     Json.Decode.succeed PostWhatsitRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postWhatsitRelationshipsImagesDataObjectDecoder)
-
-
-postWhatsitRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostWhatsitRelationshipsImagesDataObject
-postWhatsitRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostWhatsitRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postWhatsitRelationshipsMediaDecoder : Json.Decode.Decoder PostWhatsitRelationshipsMedia
 postWhatsitRelationshipsMediaDecoder =
     Json.Decode.succeed PostWhatsitRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postWhatsitRelationshipsMediaDataObjectDecoder)
-
-
-postWhatsitRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostWhatsitRelationshipsMediaDataObject
-postWhatsitRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostWhatsitRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postWhatsitRelationshipsUserDecoder : Json.Decode.Decoder PostWhatsitRelationshipsUser
 postWhatsitRelationshipsUserDecoder =
     Json.Decode.succeed PostWhatsitRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postWhatsitRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postWhatsitRelationshipsUserLinksDecoder
-
-
-postWhatsitRelationshipsUserDataDecoder : Json.Decode.Decoder PostWhatsitRelationshipsUserData
-postWhatsitRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostWhatsitRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postWhatsitRelationshipsUserLinksDecoder : Json.Decode.Decoder PostWhatsitRelationshipsUserLinks
@@ -6298,28 +5473,14 @@ postDoodadRelationshipsDecoder =
 postDoodadRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostDoodadRelationshipsAccessRules
 postDoodadRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostDoodadRelationshipsAccessRules
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postDoodadRelationshipsAccessRulesDataObjectDecoder)
-
-
-postDoodadRelationshipsAccessRulesDataObjectDecoder : Json.Decode.Decoder PostDoodadRelationshipsAccessRulesDataObject
-postDoodadRelationshipsAccessRulesDataObjectDecoder =
-    Json.Decode.succeed PostDoodadRelationshipsAccessRulesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postDoodadRelationshipsCampaignDecoder : Json.Decode.Decoder PostDoodadRelationshipsCampaign
 postDoodadRelationshipsCampaignDecoder =
     Json.Decode.succeed PostDoodadRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" postDoodadRelationshipsCampaignDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postDoodadRelationshipsCampaignLinksDecoder
-
-
-postDoodadRelationshipsCampaignDataDecoder : Json.Decode.Decoder PostDoodadRelationshipsCampaignData
-postDoodadRelationshipsCampaignDataDecoder =
-    Json.Decode.succeed PostDoodadRelationshipsCampaignData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postDoodadRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostDoodadRelationshipsCampaignLinks
@@ -6331,41 +5492,20 @@ postDoodadRelationshipsCampaignLinksDecoder =
 postDoodadRelationshipsImagesDecoder : Json.Decode.Decoder PostDoodadRelationshipsImages
 postDoodadRelationshipsImagesDecoder =
     Json.Decode.succeed PostDoodadRelationshipsImages
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postDoodadRelationshipsImagesDataObjectDecoder)
-
-
-postDoodadRelationshipsImagesDataObjectDecoder : Json.Decode.Decoder PostDoodadRelationshipsImagesDataObject
-postDoodadRelationshipsImagesDataObjectDecoder =
-    Json.Decode.succeed PostDoodadRelationshipsImagesDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postDoodadRelationshipsMediaDecoder : Json.Decode.Decoder PostDoodadRelationshipsMedia
 postDoodadRelationshipsMediaDecoder =
     Json.Decode.succeed PostDoodadRelationshipsMedia
-        |> Json.Decode.Pipeline.required "data" (Json.Decode.list postDoodadRelationshipsMediaDataObjectDecoder)
-
-
-postDoodadRelationshipsMediaDataObjectDecoder : Json.Decode.Decoder PostDoodadRelationshipsMediaDataObject
-postDoodadRelationshipsMediaDataObjectDecoder =
-    Json.Decode.succeed PostDoodadRelationshipsMediaDataObject
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
+        |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
 postDoodadRelationshipsUserDecoder : Json.Decode.Decoder PostDoodadRelationshipsUser
 postDoodadRelationshipsUserDecoder =
     Json.Decode.succeed PostDoodadRelationshipsUser
-        |> Json.Decode.Pipeline.required "data" postDoodadRelationshipsUserDataDecoder
+        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
         |> Json.Decode.Pipeline.required "links" postDoodadRelationshipsUserLinksDecoder
-
-
-postDoodadRelationshipsUserDataDecoder : Json.Decode.Decoder PostDoodadRelationshipsUserData
-postDoodadRelationshipsUserDataDecoder =
-    Json.Decode.succeed PostDoodadRelationshipsUserData
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type" Json.Decode.string
 
 
 postDoodadRelationshipsUserLinksDecoder : Json.Decode.Decoder PostDoodadRelationshipsUserLinks
