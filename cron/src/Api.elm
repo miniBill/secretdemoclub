@@ -227,7 +227,6 @@ type alias PostVideo =
     , duration : Int
     , fullContentDuration : Int
     , mediaId : Int
-    , progress : Progress
     , state : String
     , url : Url
     }
@@ -240,12 +239,6 @@ type alias PostImage =
     , state : String
     , url : Url
     , width : Int
-    }
-
-
-type alias Progress =
-    { isWatched : Bool
-    , watchState : String
     }
 
 
@@ -806,7 +799,6 @@ postVideoDecoder =
         |> Json.Decode.Pipeline.required "duration" Json.Decode.int
         |> Json.Decode.Pipeline.required "full_content_duration" Json.Decode.int
         |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
-        |> Json.Decode.Pipeline.required "progress" progressDecoder
         |> Json.Decode.Pipeline.required "state" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
@@ -993,13 +985,6 @@ urlDecoder =
                     Nothing ->
                         Json.Decode.fail "Not a valid URL"
             )
-
-
-progressDecoder : Json.Decode.Decoder Progress
-progressDecoder =
-    Json.Decode.succeed Progress
-        |> Json.Decode.Pipeline.required "is_watched" Json.Decode.bool
-        |> Json.Decode.Pipeline.required "watch_state" Json.Decode.string
 
 
 postThingRelationshipsDecoder : Json.Decode.Decoder PostThingRelationships
