@@ -60,7 +60,7 @@ getPaginated { cookie } toUrl decoder =
                         in
                         case next of
                             Just nextCursor ->
-                                if False then
+                                if False || True then
                                     go nextCursor nextAcc
 
                                 else
@@ -171,19 +171,19 @@ type alias Post =
 type alias Attributes =
     { content : String
     , createdAt : String
+    , embed : Maybe Embed
+    , image : Maybe Image
     , metaImageUrl : Url
     , patreonUrl : String
     , pledgeUrl : String
-    , postType : String
-    , publishedAt : String
-    , title : String
-    , url : Url
-    , embed : Maybe Embed
-    , image : Maybe Image
     , postFile : Maybe PostFile
     , postMetadata : Maybe PostMetadata
+    , postType : String
     , previewAssetType : Maybe String
+    , publishedAt : String
     , thumbnail : Maybe Thumbnail
+    , title : String
+    , url : Url
     }
 
 
@@ -215,8 +215,8 @@ type PostFile
 
 type alias PostVideo =
     { defaultThumbnail : Url
-    , duration : Int
-    , fullContentDuration : Int
+    , duration : Float
+    , fullContentDuration : Float
     , mediaId : Int
     , state : String
     , url : Url
@@ -242,11 +242,24 @@ type PostMetadata
         }
 
 
-type alias Thumbnail =
+type Thumbnail
+    = Thumbnail_Square SquareThumbnail
+    | Thumbnail_Gif GifThumbnail
+
+
+type alias SquareThumbnail =
     { large : String
     , large2 : String
     , square : String
     , url : Url
+    }
+
+
+type alias GifThumbnail =
+    { gif_url : Url
+    , height : Int
+    , url : Url
+    , width : Int
     }
 
 
@@ -308,19 +321,19 @@ attributesDecoder =
     Json.Decode.succeed Attributes
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
         |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
+        |> Json.Decode.Pipeline.optional "embed" (Json.Decode.map Just embedDecoder) Nothing
+        |> Json.Decode.Pipeline.optional "image" (Json.Decode.map Just imageDecoder) Nothing
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
         |> Json.Decode.Pipeline.required "patreon_url" Json.Decode.string
         |> Json.Decode.Pipeline.required "pledge_url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
-        |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-        |> Json.Decode.Pipeline.optional "embed" (Json.Decode.map Just embedDecoder) Nothing
-        |> Json.Decode.Pipeline.optional "image" (Json.Decode.map Just imageDecoder) Nothing
         |> Json.Decode.Pipeline.optional "post_file" (Json.Decode.map Just postFileDecoder) Nothing
         |> Json.Decode.Pipeline.optional "post_metadata" (Json.Decode.map Just postMetadataDecoder) Nothing
+        |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.optional "preview_asset_type" (Json.Decode.map Just Json.Decode.string) Nothing
+        |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
         |> Json.Decode.Pipeline.optional "thumbnail" (Json.Decode.map Just thumbnailDecoder) Nothing
+        |> Json.Decode.Pipeline.required "title" Json.Decode.string
+        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 imageDecoder : Json.Decode.Decoder Image
@@ -339,8 +352,8 @@ postVideoDecoder : Json.Decode.Decoder PostVideo
 postVideoDecoder =
     Json.Decode.succeed PostVideo
         |> Json.Decode.Pipeline.required "default_thumbnail" (Json.Decode.field "url" urlDecoder)
-        |> Json.Decode.Pipeline.required "duration" Json.Decode.int
-        |> Json.Decode.Pipeline.required "full_content_duration" Json.Decode.int
+        |> Json.Decode.Pipeline.required "duration" Json.Decode.float
+        |> Json.Decode.Pipeline.required "full_content_duration" Json.Decode.float
         |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
         |> Json.Decode.Pipeline.required "state" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
@@ -445,11 +458,28 @@ averageColorsOfCornersDecoder =
 
 thumbnailDecoder : Json.Decode.Decoder Thumbnail
 thumbnailDecoder =
-    Json.Decode.succeed Thumbnail
+    Json.Decode.oneOf
+        [ Json.Decode.map Thumbnail_Square squareThumbnailDecoder
+        , Json.Decode.map Thumbnail_Gif gifThumbnailDecoder
+        ]
+
+
+squareThumbnailDecoder : Json.Decode.Decoder SquareThumbnail
+squareThumbnailDecoder =
+    Json.Decode.succeed SquareThumbnail
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
+
+
+gifThumbnailDecoder : Json.Decode.Decoder GifThumbnail
+gifThumbnailDecoder =
+    Json.Decode.succeed GifThumbnail
+        |> Json.Decode.Pipeline.required "gif_url" urlDecoder
+        |> Json.Decode.Pipeline.required "height" Json.Decode.int
+        |> Json.Decode.Pipeline.required "url" urlDecoder
+        |> Json.Decode.Pipeline.required "width" Json.Decode.int
 
 
 urlDecoder : Json.Decode.Decoder Url
