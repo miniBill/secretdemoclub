@@ -228,7 +228,7 @@ type alias PostObjectAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostObjectAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
     , url : Url
     }
@@ -278,15 +278,14 @@ type alias Progress =
 
 
 type PostMetadata
-    = MetadataNone
-    | MetadataWithImageOrder (List String)
+    = MetadataWithImageOrder (List String)
     | MetadataPodcast
         { episodeNumber : Int
         , season : Int
         }
 
 
-type alias PostObjectAttributesThumbnail =
+type alias Thumbnail =
     { large : String
     , large2 : String
     , square : String
@@ -329,21 +328,6 @@ type alias PostObjectRelationshipsAudioData =
 
 
 type alias PostObjectRelationshipsAudioLinks =
-    { related : String
-    }
-
-
-type alias PostObjectRelationshipsCampaign =
-    { data : PostObjectRelationshipsCampaignData
-    , links : PostObjectRelationshipsCampaignLinks
-    }
-
-
-type alias PostObjectRelationshipsCampaignData =
-    IdAndType
-
-
-type alias PostObjectRelationshipsCampaignLinks =
     { related : String
     }
 
@@ -402,7 +386,7 @@ type alias PostMemberAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostMemberAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
     , url : Url
     }
@@ -434,14 +418,6 @@ type alias AverageColorsOfCorners =
     }
 
 
-type alias PostMemberAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
-    , url : Url
-    }
-
-
 type alias PostMemberRelationships =
     { accessRules : PostMemberRelationshipsAccessRules
     , images : PostMemberRelationshipsImages
@@ -457,21 +433,6 @@ type alias PostMemberRelationshipsAccessRules =
 
 type alias PostMemberRelationshipsAccessRulesDataObject =
     IdAndType
-
-
-type alias PostMemberRelationshipsCampaign =
-    { data : PostMemberRelationshipsCampaignData
-    , links : PostMemberRelationshipsCampaignLinks
-    }
-
-
-type alias PostMemberRelationshipsCampaignData =
-    IdAndType
-
-
-type alias PostMemberRelationshipsCampaignLinks =
-    { related : String
-    }
 
 
 type alias PostMemberRelationshipsImages =
@@ -543,21 +504,6 @@ type alias PostEntityRelationshipsAccessRulesDataObject =
     IdAndType
 
 
-type alias PostEntityRelationshipsCampaign =
-    { data : PostEntityRelationshipsCampaignData
-    , links : PostEntityRelationshipsCampaignLinks
-    }
-
-
-type alias PostEntityRelationshipsCampaignData =
-    IdAndType
-
-
-type alias PostEntityRelationshipsCampaignLinks =
-    { related : String
-    }
-
-
 type alias PostEntityRelationshipsUser =
     { data : PostEntityRelationshipsUserData
     , links : PostEntityRelationshipsUserLinks
@@ -593,16 +539,8 @@ type alias PostThingAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostThingAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
-    , url : Url
-    }
-
-
-type alias PostThingAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -646,21 +584,6 @@ type alias PostThingRelationshipsAudioData =
 
 
 type alias PostThingRelationshipsAudioLinks =
-    { related : String
-    }
-
-
-type alias PostThingRelationshipsCampaign =
-    { data : PostThingRelationshipsCampaignData
-    , links : PostThingRelationshipsCampaignLinks
-    }
-
-
-type alias PostThingRelationshipsCampaignData =
-    IdAndType
-
-
-type alias PostThingRelationshipsCampaignLinks =
     { related : String
     }
 
@@ -718,16 +641,8 @@ type alias PostInstanceAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostInstanceAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
-    , url : Url
-    }
-
-
-type alias PostInstanceAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -747,21 +662,6 @@ type alias PostInstanceRelationshipsAccessRules =
 
 type alias PostInstanceRelationshipsAccessRulesDataObject =
     IdAndType
-
-
-type alias PostInstanceRelationshipsCampaign =
-    { data : PostInstanceRelationshipsCampaignData
-    , links : PostInstanceRelationshipsCampaignLinks
-    }
-
-
-type alias PostInstanceRelationshipsCampaignData =
-    IdAndType
-
-
-type alias PostInstanceRelationshipsCampaignLinks =
-    { related : String
-    }
 
 
 type alias PostInstanceRelationshipsImages =
@@ -816,16 +716,8 @@ type alias PostConstituentAttributes =
     , postMetadata : PostMetadata
     , postType : String
     , publishedAt : String
-    , thumbnail : PostConstituentAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
-    , url : Url
-    }
-
-
-type alias PostConstituentAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -845,21 +737,6 @@ type alias PostConstituentRelationshipsAccessRules =
 
 type alias PostConstituentRelationshipsAccessRulesDataObject =
     IdAndType
-
-
-type alias PostConstituentRelationshipsCampaign =
-    { data : PostConstituentRelationshipsCampaignData
-    , links : PostConstituentRelationshipsCampaignLinks
-    }
-
-
-type alias PostConstituentRelationshipsCampaignData =
-    IdAndType
-
-
-type alias PostConstituentRelationshipsCampaignLinks =
-    { related : String
-    }
 
 
 type alias PostConstituentRelationshipsImages =
@@ -916,7 +793,7 @@ type alias PostSpecimenAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostSpecimenAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
     , url : Url
     }
@@ -927,14 +804,6 @@ type alias PostSpecimenAttributesEmbed =
     , provider : String
     , providerUrl : Url
     , subject : String
-    , url : Url
-    }
-
-
-type alias PostSpecimenAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -955,21 +824,6 @@ type alias PostSpecimenRelationshipsAccessRules =
 
 type alias PostSpecimenRelationshipsAccessRulesDataObject =
     IdAndType
-
-
-type alias PostSpecimenRelationshipsCampaign =
-    { data : PostSpecimenRelationshipsCampaignData
-    , links : PostSpecimenRelationshipsCampaignLinks
-    }
-
-
-type alias PostSpecimenRelationshipsCampaignData =
-    IdAndType
-
-
-type alias PostSpecimenRelationshipsCampaignLinks =
-    { related : String
-    }
 
 
 type alias PostSpecimenRelationshipsImages =
@@ -1034,16 +888,8 @@ type alias PostGadgetAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostGadgetAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
-    , url : Url
-    }
-
-
-type alias PostGadgetAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -1077,21 +923,6 @@ type alias PostGadgetRelationshipsAudioData =
 
 
 type alias PostGadgetRelationshipsAudioLinks =
-    { related : String
-    }
-
-
-type alias PostGadgetRelationshipsCampaign =
-    { data : PostGadgetRelationshipsCampaignData
-    , links : PostGadgetRelationshipsCampaignLinks
-    }
-
-
-type alias PostGadgetRelationshipsCampaignData =
-    IdAndType
-
-
-type alias PostGadgetRelationshipsCampaignLinks =
     { related : String
     }
 
@@ -1150,7 +981,7 @@ type alias PostWidgetAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostWidgetAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
     , url : Url
     }
@@ -1162,14 +993,6 @@ type alias PostWidgetAttributesEmbed =
     , provider : String
     , providerUrl : Url
     , subject : String
-    , url : Url
-    }
-
-
-type alias PostWidgetAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -1189,17 +1012,6 @@ type alias PostWidgetRelationshipsAccessRules =
 
 type alias ListOfIdAndType =
     { data : List IdAndType
-    }
-
-
-type alias PostWidgetRelationshipsCampaign =
-    { data : IdAndType
-    , links : PostWidgetRelationshipsCampaignLinks
-    }
-
-
-type alias PostWidgetRelationshipsCampaignLinks =
-    { related : String
     }
 
 
@@ -1246,16 +1058,8 @@ type alias PostGizmoAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostGizmoAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
-    , url : Url
-    }
-
-
-type alias PostGizmoAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -1292,17 +1096,6 @@ type alias PostGizmoRelationshipsAudioPreview =
 
 
 type alias PostGizmoRelationshipsAudioPreviewLinks =
-    { related : String
-    }
-
-
-type alias PostGizmoRelationshipsCampaign =
-    { data : IdAndType
-    , links : PostGizmoRelationshipsCampaignLinks
-    }
-
-
-type alias PostGizmoRelationshipsCampaignLinks =
     { related : String
     }
 
@@ -1346,16 +1139,8 @@ type alias PostPartAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostPartAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
-    , url : Url
-    }
-
-
-type alias PostPartAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -1401,17 +1186,6 @@ type alias PostPartRelationshipsAudioPreviewLinks =
     }
 
 
-type alias PostPartRelationshipsCampaign =
-    { data : IdAndType
-    , links : PostPartRelationshipsCampaignLinks
-    }
-
-
-type alias PostPartRelationshipsCampaignLinks =
-    { related : String
-    }
-
-
 type alias PostPartRelationshipsMedia =
     ListOfIdAndType
 
@@ -1452,7 +1226,7 @@ type alias PostChunkAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostChunkAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
     , url : Url
     }
@@ -1468,14 +1242,6 @@ type alias PostChunkAttributesEmbed =
     }
 
 
-type alias PostChunkAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
-    , url : Url
-    }
-
-
 type alias PostChunkRelationships =
     { accessRules : PostChunkRelationshipsAccessRules
     , images : PostChunkRelationshipsImages
@@ -1486,17 +1252,6 @@ type alias PostChunkRelationships =
 
 type alias PostChunkRelationshipsAccessRules =
     ListOfIdAndType
-
-
-type alias PostChunkRelationshipsCampaign =
-    { data : IdAndType
-    , links : PostChunkRelationshipsCampaignLinks
-    }
-
-
-type alias PostChunkRelationshipsCampaignLinks =
-    { related : String
-    }
 
 
 type alias PostChunkRelationshipsImages =
@@ -1539,7 +1294,7 @@ type alias PostPieceAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostPieceAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
     , url : Url
     }
@@ -1555,14 +1310,6 @@ type alias PostPieceAttributesEmbed =
     }
 
 
-type alias PostPieceAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
-    , url : Url
-    }
-
-
 type alias PostPieceRelationships =
     { accessRules : PostPieceRelationshipsAccessRules
     , images : PostPieceRelationshipsImages
@@ -1573,17 +1320,6 @@ type alias PostPieceRelationships =
 
 type alias PostPieceRelationshipsAccessRules =
     ListOfIdAndType
-
-
-type alias PostPieceRelationshipsCampaign =
-    { data : IdAndType
-    , links : PostPieceRelationshipsCampaignLinks
-    }
-
-
-type alias PostPieceRelationshipsCampaignLinks =
-    { related : String
-    }
 
 
 type alias PostPieceRelationshipsImages =
@@ -1625,16 +1361,8 @@ type alias PostThingyAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostThingyAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
-    , url : Url
-    }
-
-
-type alias PostThingyAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -1649,17 +1377,6 @@ type alias PostThingyRelationships =
 
 type alias PostThingyRelationshipsAccessRules =
     ListOfIdAndType
-
-
-type alias PostThingyRelationshipsCampaign =
-    { data : IdAndType
-    , links : PostThingyRelationshipsCampaignLinks
-    }
-
-
-type alias PostThingyRelationshipsCampaignLinks =
-    { related : String
-    }
 
 
 type alias PostThingyRelationshipsImages =
@@ -1701,16 +1418,8 @@ type alias PostThingamajigAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostThingamajigAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
-    , url : Url
-    }
-
-
-type alias PostThingamajigAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -1756,17 +1465,6 @@ type alias PostThingamajigRelationshipsAudioPreviewLinks =
     }
 
 
-type alias PostThingamajigRelationshipsCampaign =
-    { data : IdAndType
-    , links : PostThingamajigRelationshipsCampaignLinks
-    }
-
-
-type alias PostThingamajigRelationshipsCampaignLinks =
-    { related : String
-    }
-
-
 type alias PostThingamajigRelationshipsImages =
     ListOfIdAndType
 
@@ -1806,16 +1504,8 @@ type alias PostWhatsitAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostWhatsitAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
-    , url : Url
-    }
-
-
-type alias PostWhatsitAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -1830,17 +1520,6 @@ type alias PostWhatsitRelationships =
 
 type alias PostWhatsitRelationshipsAccessRules =
     ListOfIdAndType
-
-
-type alias PostWhatsitRelationshipsCampaign =
-    { data : IdAndType
-    , links : PostWhatsitRelationshipsCampaignLinks
-    }
-
-
-type alias PostWhatsitRelationshipsCampaignLinks =
-    { related : String
-    }
 
 
 type alias PostWhatsitRelationshipsImages =
@@ -1882,16 +1561,8 @@ type alias PostDoodadAttributes =
     , postType : String
     , previewAssetType : String
     , publishedAt : String
-    , thumbnail : PostDoodadAttributesThumbnail
+    , thumbnail : Thumbnail
     , title : String
-    , url : Url
-    }
-
-
-type alias PostDoodadAttributesThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
     , url : Url
     }
 
@@ -1906,17 +1577,6 @@ type alias PostDoodadRelationships =
 
 type alias PostDoodadRelationshipsAccessRules =
     ListOfIdAndType
-
-
-type alias PostDoodadRelationshipsCampaign =
-    { data : IdAndType
-    , links : PostDoodadRelationshipsCampaignLinks
-    }
-
-
-type alias PostDoodadRelationshipsCampaignLinks =
-    { related : String
-    }
 
 
 type alias PostDoodadRelationshipsImages =
@@ -1984,7 +1644,7 @@ postObjectAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postObjectAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
@@ -2030,15 +1690,6 @@ postMetadataDecoder =
         ]
 
 
-postObjectAttributesThumbnailDecoder : Json.Decode.Decoder PostObjectAttributesThumbnail
-postObjectAttributesThumbnailDecoder =
-    Json.Decode.succeed PostObjectAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
 postObjectRelationshipsDecoder : Json.Decode.Decoder PostObjectRelationships
 postObjectRelationshipsDecoder =
     Json.Decode.succeed PostObjectRelationships
@@ -2072,19 +1723,6 @@ postObjectRelationshipsAudioDecoder =
 postObjectRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostObjectRelationshipsAudioLinks
 postObjectRelationshipsAudioLinksDecoder =
     Json.Decode.succeed PostObjectRelationshipsAudioLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
-postObjectRelationshipsCampaignDecoder : Json.Decode.Decoder PostObjectRelationshipsCampaign
-postObjectRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostObjectRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postObjectRelationshipsCampaignLinksDecoder
-
-
-postObjectRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostObjectRelationshipsCampaignLinks
-postObjectRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostObjectRelationshipsCampaignLinks
         |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
@@ -2137,7 +1775,7 @@ postMemberAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postMemberAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
@@ -2190,9 +1828,9 @@ averageColorsOfCornersDecoder =
         |> Json.Decode.Pipeline.required "top_right" Json.Decode.string
 
 
-postMemberAttributesThumbnailDecoder : Json.Decode.Decoder PostMemberAttributesThumbnail
-postMemberAttributesThumbnailDecoder =
-    Json.Decode.succeed PostMemberAttributesThumbnail
+thumbnailDecoder : Json.Decode.Decoder Thumbnail
+thumbnailDecoder =
+    Json.Decode.succeed Thumbnail
         |> Json.Decode.Pipeline.required "large" Json.Decode.string
         |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
         |> Json.Decode.Pipeline.required "square" Json.Decode.string
@@ -2212,19 +1850,6 @@ postMemberRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostMemberRelati
 postMemberRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostMemberRelationshipsAccessRules
         |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postMemberRelationshipsCampaignDecoder : Json.Decode.Decoder PostMemberRelationshipsCampaign
-postMemberRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostMemberRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postMemberRelationshipsCampaignLinksDecoder
-
-
-postMemberRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostMemberRelationshipsCampaignLinks
-postMemberRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostMemberRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postMemberRelationshipsImagesDecoder : Json.Decode.Decoder PostMemberRelationshipsImages
@@ -2288,19 +1913,6 @@ postEntityRelationshipsAccessRulesDecoder =
         |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
 
 
-postEntityRelationshipsCampaignDecoder : Json.Decode.Decoder PostEntityRelationshipsCampaign
-postEntityRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostEntityRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postEntityRelationshipsCampaignLinksDecoder
-
-
-postEntityRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostEntityRelationshipsCampaignLinks
-postEntityRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostEntityRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
 postEntityRelationshipsUserDecoder : Json.Decode.Decoder PostEntityRelationshipsUser
 postEntityRelationshipsUserDecoder =
     Json.Decode.succeed PostEntityRelationshipsUser
@@ -2337,7 +1949,7 @@ postThingAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postThingAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
@@ -2366,15 +1978,6 @@ progressDecoder =
     Json.Decode.succeed Progress
         |> Json.Decode.Pipeline.required "is_watched" Json.Decode.bool
         |> Json.Decode.Pipeline.required "watch_state" Json.Decode.string
-
-
-postThingAttributesThumbnailDecoder : Json.Decode.Decoder PostThingAttributesThumbnail
-postThingAttributesThumbnailDecoder =
-    Json.Decode.succeed PostThingAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
 postThingRelationshipsDecoder : Json.Decode.Decoder PostThingRelationships
@@ -2410,19 +2013,6 @@ postThingRelationshipsAudioDecoder =
 postThingRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostThingRelationshipsAudioLinks
 postThingRelationshipsAudioLinksDecoder =
     Json.Decode.succeed PostThingRelationshipsAudioLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
-postThingRelationshipsCampaignDecoder : Json.Decode.Decoder PostThingRelationshipsCampaign
-postThingRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostThingRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postThingRelationshipsCampaignLinksDecoder
-
-
-postThingRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostThingRelationshipsCampaignLinks
-postThingRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostThingRelationshipsCampaignLinks
         |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
@@ -2474,17 +2064,8 @@ postInstanceAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postInstanceAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postInstanceAttributesThumbnailDecoder : Json.Decode.Decoder PostInstanceAttributesThumbnail
-postInstanceAttributesThumbnailDecoder =
-    Json.Decode.succeed PostInstanceAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
@@ -2501,19 +2082,6 @@ postInstanceRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostInstanceRe
 postInstanceRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostInstanceRelationshipsAccessRules
         |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postInstanceRelationshipsCampaignDecoder : Json.Decode.Decoder PostInstanceRelationshipsCampaign
-postInstanceRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostInstanceRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postInstanceRelationshipsCampaignLinksDecoder
-
-
-postInstanceRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostInstanceRelationshipsCampaignLinks
-postInstanceRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostInstanceRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postInstanceRelationshipsImagesDecoder : Json.Decode.Decoder PostInstanceRelationshipsImages
@@ -2563,17 +2131,8 @@ postConstituentAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_metadata" postMetadataDecoder
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postConstituentAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postConstituentAttributesThumbnailDecoder : Json.Decode.Decoder PostConstituentAttributesThumbnail
-postConstituentAttributesThumbnailDecoder =
-    Json.Decode.succeed PostConstituentAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
@@ -2590,19 +2149,6 @@ postConstituentRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostConstit
 postConstituentRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostConstituentRelationshipsAccessRules
         |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postConstituentRelationshipsCampaignDecoder : Json.Decode.Decoder PostConstituentRelationshipsCampaign
-postConstituentRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostConstituentRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postConstituentRelationshipsCampaignLinksDecoder
-
-
-postConstituentRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostConstituentRelationshipsCampaignLinks
-postConstituentRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostConstituentRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postConstituentRelationshipsImagesDecoder : Json.Decode.Decoder PostConstituentRelationshipsImages
@@ -2654,7 +2200,7 @@ postSpecimenAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postSpecimenAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
@@ -2666,15 +2212,6 @@ postSpecimenAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "provider" Json.Decode.string
         |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postSpecimenAttributesThumbnailDecoder : Json.Decode.Decoder PostSpecimenAttributesThumbnail
-postSpecimenAttributesThumbnailDecoder =
-    Json.Decode.succeed PostSpecimenAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
@@ -2692,19 +2229,6 @@ postSpecimenRelationshipsAccessRulesDecoder : Json.Decode.Decoder PostSpecimenRe
 postSpecimenRelationshipsAccessRulesDecoder =
     Json.Decode.succeed PostSpecimenRelationshipsAccessRules
         |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postSpecimenRelationshipsCampaignDecoder : Json.Decode.Decoder PostSpecimenRelationshipsCampaign
-postSpecimenRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postSpecimenRelationshipsCampaignLinksDecoder
-
-
-postSpecimenRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostSpecimenRelationshipsCampaignLinks
-postSpecimenRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostSpecimenRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postSpecimenRelationshipsImagesDecoder : Json.Decode.Decoder PostSpecimenRelationshipsImages
@@ -2761,17 +2285,8 @@ postGadgetAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postGadgetAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postGadgetAttributesThumbnailDecoder : Json.Decode.Decoder PostGadgetAttributesThumbnail
-postGadgetAttributesThumbnailDecoder =
-    Json.Decode.succeed PostGadgetAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
@@ -2801,19 +2316,6 @@ postGadgetRelationshipsAudioDecoder =
 postGadgetRelationshipsAudioLinksDecoder : Json.Decode.Decoder PostGadgetRelationshipsAudioLinks
 postGadgetRelationshipsAudioLinksDecoder =
     Json.Decode.succeed PostGadgetRelationshipsAudioLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
-postGadgetRelationshipsCampaignDecoder : Json.Decode.Decoder PostGadgetRelationshipsCampaign
-postGadgetRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postGadgetRelationshipsCampaignLinksDecoder
-
-
-postGadgetRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostGadgetRelationshipsCampaignLinks
-postGadgetRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostGadgetRelationshipsCampaignLinks
         |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
@@ -2866,7 +2368,7 @@ postWidgetAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postWidgetAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
@@ -2879,15 +2381,6 @@ postWidgetAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "provider" Json.Decode.string
         |> Json.Decode.Pipeline.required "provider_url" urlDecoder
         |> Json.Decode.Pipeline.required "subject" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postWidgetAttributesThumbnailDecoder : Json.Decode.Decoder PostWidgetAttributesThumbnail
-postWidgetAttributesThumbnailDecoder =
-    Json.Decode.succeed PostWidgetAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
@@ -2905,19 +2398,6 @@ listOfIdAndTypeDecoder : Json.Decode.Decoder ListOfIdAndType
 listOfIdAndTypeDecoder =
     Json.Decode.succeed ListOfIdAndType
         |> Json.Decode.Pipeline.required "data" (Json.Decode.list idAndTypeDecoder)
-
-
-postWidgetRelationshipsCampaignDecoder : Json.Decode.Decoder PostWidgetRelationshipsCampaign
-postWidgetRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostWidgetRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postWidgetRelationshipsCampaignLinksDecoder
-
-
-postWidgetRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostWidgetRelationshipsCampaignLinks
-postWidgetRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostWidgetRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postWidgetRelationshipsUserDecoder : Json.Decode.Decoder PostWidgetRelationshipsUser
@@ -2956,17 +2436,8 @@ postGizmoAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postGizmoAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postGizmoAttributesThumbnailDecoder : Json.Decode.Decoder PostGizmoAttributesThumbnail
-postGizmoAttributesThumbnailDecoder =
-    Json.Decode.succeed PostGizmoAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
@@ -3007,19 +2478,6 @@ postGizmoRelationshipsAudioPreviewLinksDecoder =
         |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
-postGizmoRelationshipsCampaignDecoder : Json.Decode.Decoder PostGizmoRelationshipsCampaign
-postGizmoRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postGizmoRelationshipsCampaignLinksDecoder
-
-
-postGizmoRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostGizmoRelationshipsCampaignLinks
-postGizmoRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostGizmoRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
 postGizmoRelationshipsUserDecoder : Json.Decode.Decoder PostGizmoRelationshipsUser
 postGizmoRelationshipsUserDecoder =
     Json.Decode.succeed PostGizmoRelationshipsUser
@@ -3056,17 +2514,8 @@ postPartAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postPartAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postPartAttributesThumbnailDecoder : Json.Decode.Decoder PostPartAttributesThumbnail
-postPartAttributesThumbnailDecoder =
-    Json.Decode.succeed PostPartAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
@@ -3108,19 +2557,6 @@ postPartRelationshipsAudioPreviewLinksDecoder =
         |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
-postPartRelationshipsCampaignDecoder : Json.Decode.Decoder PostPartRelationshipsCampaign
-postPartRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostPartRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postPartRelationshipsCampaignLinksDecoder
-
-
-postPartRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostPartRelationshipsCampaignLinks
-postPartRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostPartRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
 postPartRelationshipsUserDecoder : Json.Decode.Decoder PostPartRelationshipsUser
 postPartRelationshipsUserDecoder =
     Json.Decode.succeed PostPartRelationshipsUser
@@ -3158,7 +2594,7 @@ postChunkAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postChunkAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
@@ -3174,15 +2610,6 @@ postChunkAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
-postChunkAttributesThumbnailDecoder : Json.Decode.Decoder PostChunkAttributesThumbnail
-postChunkAttributesThumbnailDecoder =
-    Json.Decode.succeed PostChunkAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
 postChunkRelationshipsDecoder : Json.Decode.Decoder PostChunkRelationships
 postChunkRelationshipsDecoder =
     Json.Decode.succeed PostChunkRelationships
@@ -3190,19 +2617,6 @@ postChunkRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postChunkRelationshipsUserDecoder
-
-
-postChunkRelationshipsCampaignDecoder : Json.Decode.Decoder PostChunkRelationshipsCampaign
-postChunkRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostChunkRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postChunkRelationshipsCampaignLinksDecoder
-
-
-postChunkRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostChunkRelationshipsCampaignLinks
-postChunkRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostChunkRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postChunkRelationshipsUserDecoder : Json.Decode.Decoder PostChunkRelationshipsUser
@@ -3242,7 +2656,7 @@ postPieceAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postPieceAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
@@ -3258,15 +2672,6 @@ postPieceAttributesEmbedDecoder =
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
-postPieceAttributesThumbnailDecoder : Json.Decode.Decoder PostPieceAttributesThumbnail
-postPieceAttributesThumbnailDecoder =
-    Json.Decode.succeed PostPieceAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
 postPieceRelationshipsDecoder : Json.Decode.Decoder PostPieceRelationships
 postPieceRelationshipsDecoder =
     Json.Decode.succeed PostPieceRelationships
@@ -3274,19 +2679,6 @@ postPieceRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postPieceRelationshipsUserDecoder
-
-
-postPieceRelationshipsCampaignDecoder : Json.Decode.Decoder PostPieceRelationshipsCampaign
-postPieceRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostPieceRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postPieceRelationshipsCampaignLinksDecoder
-
-
-postPieceRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostPieceRelationshipsCampaignLinks
-postPieceRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostPieceRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postPieceRelationshipsUserDecoder : Json.Decode.Decoder PostPieceRelationshipsUser
@@ -3325,17 +2717,8 @@ postThingyAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postThingyAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postThingyAttributesThumbnailDecoder : Json.Decode.Decoder PostThingyAttributesThumbnail
-postThingyAttributesThumbnailDecoder =
-    Json.Decode.succeed PostThingyAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
@@ -3346,19 +2729,6 @@ postThingyRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postThingyRelationshipsUserDecoder
-
-
-postThingyRelationshipsCampaignDecoder : Json.Decode.Decoder PostThingyRelationshipsCampaign
-postThingyRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostThingyRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postThingyRelationshipsCampaignLinksDecoder
-
-
-postThingyRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostThingyRelationshipsCampaignLinks
-postThingyRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostThingyRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postThingyRelationshipsUserDecoder : Json.Decode.Decoder PostThingyRelationshipsUser
@@ -3397,17 +2767,8 @@ postThingamajigAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postThingamajigAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postThingamajigAttributesThumbnailDecoder : Json.Decode.Decoder PostThingamajigAttributesThumbnail
-postThingamajigAttributesThumbnailDecoder =
-    Json.Decode.succeed PostThingamajigAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
@@ -3449,19 +2810,6 @@ postThingamajigRelationshipsAudioPreviewLinksDecoder =
         |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
-postThingamajigRelationshipsCampaignDecoder : Json.Decode.Decoder PostThingamajigRelationshipsCampaign
-postThingamajigRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postThingamajigRelationshipsCampaignLinksDecoder
-
-
-postThingamajigRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostThingamajigRelationshipsCampaignLinks
-postThingamajigRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostThingamajigRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
-
-
 postThingamajigRelationshipsUserDecoder : Json.Decode.Decoder PostThingamajigRelationshipsUser
 postThingamajigRelationshipsUserDecoder =
     Json.Decode.succeed PostThingamajigRelationshipsUser
@@ -3498,17 +2846,8 @@ postWhatsitAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postWhatsitAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postWhatsitAttributesThumbnailDecoder : Json.Decode.Decoder PostWhatsitAttributesThumbnail
-postWhatsitAttributesThumbnailDecoder =
-    Json.Decode.succeed PostWhatsitAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
@@ -3519,19 +2858,6 @@ postWhatsitRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postWhatsitRelationshipsUserDecoder
-
-
-postWhatsitRelationshipsCampaignDecoder : Json.Decode.Decoder PostWhatsitRelationshipsCampaign
-postWhatsitRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostWhatsitRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postWhatsitRelationshipsCampaignLinksDecoder
-
-
-postWhatsitRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostWhatsitRelationshipsCampaignLinks
-postWhatsitRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostWhatsitRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postWhatsitRelationshipsUserDecoder : Json.Decode.Decoder PostWhatsitRelationshipsUser
@@ -3570,17 +2896,8 @@ postDoodadAttributesDecoder =
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "preview_asset_type" Json.Decode.string
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
-        |> Json.Decode.Pipeline.required "thumbnail" postDoodadAttributesThumbnailDecoder
+        |> Json.Decode.Pipeline.required "thumbnail" thumbnailDecoder
         |> Json.Decode.Pipeline.required "title" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" urlDecoder
-
-
-postDoodadAttributesThumbnailDecoder : Json.Decode.Decoder PostDoodadAttributesThumbnail
-postDoodadAttributesThumbnailDecoder =
-    Json.Decode.succeed PostDoodadAttributesThumbnail
-        |> Json.Decode.Pipeline.required "large" Json.Decode.string
-        |> Json.Decode.Pipeline.required "large_2" Json.Decode.string
-        |> Json.Decode.Pipeline.required "square" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
@@ -3591,19 +2908,6 @@ postDoodadRelationshipsDecoder =
         |> Json.Decode.Pipeline.required "images" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "media" listOfIdAndTypeDecoder
         |> Json.Decode.Pipeline.required "user" postDoodadRelationshipsUserDecoder
-
-
-postDoodadRelationshipsCampaignDecoder : Json.Decode.Decoder PostDoodadRelationshipsCampaign
-postDoodadRelationshipsCampaignDecoder =
-    Json.Decode.succeed PostDoodadRelationshipsCampaign
-        |> Json.Decode.Pipeline.required "data" idAndTypeDecoder
-        |> Json.Decode.Pipeline.required "links" postDoodadRelationshipsCampaignLinksDecoder
-
-
-postDoodadRelationshipsCampaignLinksDecoder : Json.Decode.Decoder PostDoodadRelationshipsCampaignLinks
-postDoodadRelationshipsCampaignLinksDecoder =
-    Json.Decode.succeed PostDoodadRelationshipsCampaignLinks
-        |> Json.Decode.Pipeline.required "related" Json.Decode.string
 
 
 postDoodadRelationshipsUserDecoder : Json.Decode.Decoder PostDoodadRelationshipsUser
