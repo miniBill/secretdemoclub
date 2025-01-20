@@ -113,12 +113,7 @@ getPaginated config toUrl itemDecoder =
             in
             case next of
                 Just nextCursor ->
-                    if False || True then
-                        go nextCursor nextAcc
-
-                    else
-                        List.concat nextAcc
-                            |> BackendTask.succeed
+                    go nextCursor nextAcc
 
                 Nothing ->
                     nextAcc
