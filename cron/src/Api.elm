@@ -235,7 +235,7 @@ type alias Attributes =
 
 
 type alias Embed =
-    { description : String
+    { description : Maybe String
     , html : Maybe String
     , provider : String
     , providerUrl : String
@@ -262,7 +262,7 @@ type PostFile
 
 type alias PostVideo =
     { defaultThumbnail : Url
-    , duration : Float
+    , duration : Maybe Float
     , fullContentDuration : Maybe Float
     , mediaId : Int
     , state : String
@@ -399,7 +399,7 @@ postVideoDecoder : Json.Decode.Decoder PostVideo
 postVideoDecoder =
     Json.Decode.succeed PostVideo
         |> Json.Decode.Pipeline.required "default_thumbnail" (Json.Decode.field "url" urlDecoder)
-        |> Json.Decode.Pipeline.required "duration" Json.Decode.float
+        |> Json.Decode.Pipeline.optional "duration" (Json.Decode.map Just Json.Decode.float) Nothing
         |> Json.Decode.Pipeline.optional "full_content_duration" (Json.Decode.map Just Json.Decode.float) Nothing
         |> Json.Decode.Pipeline.required "media_id" Json.Decode.int
         |> Json.Decode.Pipeline.required "state" Json.Decode.string
@@ -458,7 +458,7 @@ idAndTypeDecoder =
 embedDecoder : Json.Decode.Decoder Embed
 embedDecoder =
     Json.Decode.succeed Embed
-        |> Json.Decode.Pipeline.required "description" Json.Decode.string
+        |> Json.Decode.Pipeline.optional "description" (Json.Decode.map Just Json.Decode.string) Nothing
         |> Json.Decode.Pipeline.optional "html" (Json.Decode.map Just Json.Decode.string) Nothing
         |> Json.Decode.Pipeline.required "provider" Json.Decode.string
         |> Json.Decode.Pipeline.required "provider_url" Json.Decode.string
