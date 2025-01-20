@@ -1,79 +1,131 @@
 module Api exposing (getPosts)
 
 import BackendTask exposing (BackendTask)
+import BackendTask.Do as Do
+import BackendTask.File as File
 import BackendTask.Http as Http
 import FatalError exposing (FatalError)
 import Json.Decode
 import Json.Decode.Pipeline
+import Pages.Script as Script
+import SHA256
 import Url exposing (Url)
 import Url.Builder
 
 
 getPosts :
-    { a | cookie : String }
-    -> BackendTask { fatal : FatalError, recoverable : Http.Error } (List Post)
+    { a | workDir : Maybe String, cookie : String }
+    -> BackendTask FatalError (List Post)
 getPosts cookie =
     getPaginated cookie postsUrl postDecoder
-        |> BackendTask.map
-            (\_ -> [])
 
 
 getPaginated :
-    { cfg | cookie : String }
+    { cfg | workDir : Maybe String, cookie : String }
     -> (String -> String)
     -> Json.Decode.Decoder a
-    -> BackendTask { fatal : FatalError, recoverable : Http.Error } (List a)
-getPaginated { cookie } toUrl decoder =
+    -> BackendTask FatalError (List a)
+getPaginated config toUrl itemDecoder =
     let
+        pageDecoder : Json.Decode.Decoder { data : List a, next : Maybe String }
+        pageDecoder =
+            Json.Decode.map2 (\data next -> { data = data, next = next })
+                (Json.Decode.field "data" (Json.Decode.list itemDecoder))
+                (Json.Decode.at
+                    [ "meta", "pagination", "cursors", "next" ]
+                    (Json.Decode.nullable Json.Decode.string)
+                )
+
+        workDir : String
+        workDir =
+            config.workDir |> Maybe.withDefault "work"
+
+        decodeContent : String -> BackendTask FatalError { data : List a, next : Maybe String }
+        decodeContent content =
+            Json.Decode.decodeString pageDecoder content
+                |> Result.mapError (Json.Decode.errorToString >> FatalError.fromString)
+                |> BackendTask.fromResult
+
         go :
             String
             -> List (List a)
-            -> BackendTask { fatal : FatalError, recoverable : Http.Error } (List a)
+            -> BackendTask FatalError (List a)
         go cursor acc =
-            Http.request
-                { url = toUrl cursor
-                , method = "GET"
-                , body = Http.emptyBody
-                , headers =
-                    [ ( "User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0" )
-                    , ( "Referer", "https://www.patreon.com/c/orlagartland/posts" )
-                    , ( "Cookie", cookie )
-                    ]
-                , retries = Nothing
-                , timeoutInMs = Nothing
-                }
-                (Http.expectJson
-                    (Json.Decode.map2 (\data next -> { data = data, next = next })
-                        (Json.Decode.field "data" (Json.Decode.list decoder))
-                        (Json.Decode.at
-                            [ "meta", "pagination", "cursors", "next" ]
-                            (Json.Decode.nullable Json.Decode.string)
-                        )
-                    )
+            let
+                url : String
+                url =
+                    toUrl cursor
+
+                hash : String
+                hash =
+                    SHA256.fromString url
+                        |> SHA256.toHex
+
+                filename : String
+                filename =
+                    hash ++ ".json"
+
+                target : String
+                target =
+                    workDir ++ "/" ++ filename
+            in
+            Do.glob target <| \existing ->
+            Do.do
+                (if not (List.isEmpty existing) then
+                    File.rawFile target
+                        |> BackendTask.allowFatal
+
+                 else
+                    let
+                        httpRequest : BackendTask { fatal : FatalError, recoverable : Http.Error } String
+                        httpRequest =
+                            Http.request
+                                { url = url
+                                , method = "GET"
+                                , body = Http.emptyBody
+                                , headers =
+                                    [ ( "User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0" )
+                                    , ( "Referer", "https://www.patreon.com/c/orlagartland/posts" )
+                                    , ( "Cookie", config.cookie )
+                                    ]
+                                , retries = Nothing
+                                , timeoutInMs = Nothing
+                                }
+                                Http.expectString
+
+                        writeFile : String -> BackendTask { fatal : FatalError, recoverable : Script.Error } ()
+                        writeFile body =
+                            Script.writeFile
+                                { path = target
+                                , body = body
+                                }
+                    in
+                    Do.allowFatal httpRequest <| \body ->
+                    Do.allowFatal (writeFile body) <| \_ ->
+                    BackendTask.succeed body
                 )
-                |> BackendTask.andThen
-                    (\{ next, data } ->
-                        let
-                            nextAcc : List (List a)
-                            nextAcc =
-                                data :: acc
-                        in
-                        case next of
-                            Just nextCursor ->
-                                if False || True then
-                                    go nextCursor nextAcc
+            <| \content ->
+            Do.do (decodeContent content) <| \{ next, data } ->
+            let
+                nextAcc : List (List a)
+                nextAcc =
+                    data :: acc
+            in
+            case next of
+                Just nextCursor ->
+                    if False || True then
+                        go nextCursor nextAcc
 
-                                else
-                                    List.concat nextAcc
-                                        |> BackendTask.succeed
+                    else
+                        List.concat nextAcc
+                            |> BackendTask.succeed
 
-                            Nothing ->
-                                nextAcc
-                                    |> List.reverse
-                                    |> List.concat
-                                    |> List.reverse
-                                    |> BackendTask.succeed
-                    )
+                Nothing ->
+                    nextAcc
+                        |> List.reverse
+                        |> List.concat
+                        |> List.reverse
+                        |> BackendTask.succeed
     in
     go "" []
 
