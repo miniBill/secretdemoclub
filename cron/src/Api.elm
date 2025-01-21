@@ -229,7 +229,7 @@ type alias Attributes =
     , previewAssetType : Maybe String
     , publishedAt : String
     , thumbnail : Maybe Thumbnail
-    , title : String
+    , title : Maybe String
     , url : Url
     }
 
@@ -379,7 +379,7 @@ attributesDecoder =
         |> Json.Decode.Pipeline.optional "preview_asset_type" (Json.Decode.map Just Json.Decode.string) Nothing
         |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
         |> Json.Decode.Pipeline.optional "thumbnail" (Json.Decode.map Just thumbnailDecoder) Nothing
-        |> Json.Decode.Pipeline.required "title" Json.Decode.string
+        |> Json.Decode.Pipeline.required "title" (Json.Decode.nullable Json.Decode.string)
         |> Json.Decode.Pipeline.required "url" urlDecoder
 
 
