@@ -80,7 +80,7 @@ task config =
                 Do.exec "mkdir" [ "-p", config.workDir ++ "/media" ] <| \_ ->
                 Do.exec "rm" [ "-rf", config.workDir ++ "/media-scratch" ] <| \_ ->
                 Do.exec "mkdir" [ config.workDir ++ "/media-scratch" ] <| \_ ->
-                Do.exec "mkdir" [ config.outputDir ] <| \_ ->
+                Do.exec "mkdir" [ "-p", config.outputDir ] <| \_ ->
                 BackendTask.succeed ()
             )
         |> Spinner.Reader.withStep "Getting posts from the Patreon API"
@@ -135,11 +135,9 @@ cachePost config post =
 writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Rss.Post } -> BackendTask FatalError ()
 writePost config { image, media, post } =
     let
-        target : String
-        target =
-            [ config.workDir
-            , "/posts/"
-            , Time.toYear Time.utc post.pubDate
+        filename : String
+        filename =
+            [ Time.toYear Time.utc post.pubDate
                 |> String.fromInt
             , Time.toMonth Time.utc post.pubDate
                 |> monthToNumber
@@ -151,9 +149,16 @@ writePost config { image, media, post } =
             , " - "
             , post.originalTitle
                 |> String.replace "/" "_"
-            , ".md"
             ]
                 |> String.concat
+
+        postsPath : PostsPath
+        postsPath =
+            PostsPath { filename = filename, extension = "md" }
+
+        target : String
+        target =
+            postsPathToPath config postsPath
     in
     Do.glob target <| \existing ->
     if not config.force && not (List.isEmpty existing) then
@@ -245,6 +250,15 @@ type MediaPath
 mediaPathToPath : Config -> MediaPath -> String
 mediaPathToPath config (MediaPath { filename, extension }) =
     String.join "/" [ config.workDir, "media", filename ++ "." ++ extension ]
+
+
+type PostsPath
+    = PostsPath { filename : String, extension : String }
+
+
+postsPathToPath : Config -> PostsPath -> String
+postsPathToPath config (PostsPath { filename, extension }) =
+    String.join "/" [ config.workDir, "posts", filename ++ "." ++ extension ]
 
 
 type ContentAddress
