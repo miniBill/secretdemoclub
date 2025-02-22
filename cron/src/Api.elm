@@ -14,14 +14,14 @@ import Url.Builder
 
 
 getPosts :
-    { a | workDir : Maybe String, cookie : String }
+    { a | workDir : String, cookie : String }
     -> BackendTask FatalError (List Post)
 getPosts cookie =
     getPaginated cookie postsUrl postDecoder
 
 
 getPaginated :
-    { cfg | workDir : Maybe String, cookie : String }
+    { cfg | workDir : String, cookie : String }
     -> (String -> String)
     -> Json.Decode.Decoder a
     -> BackendTask FatalError (List a)
@@ -35,10 +35,6 @@ getPaginated config toUrl itemDecoder =
                     [ "meta", "pagination", "cursors", "next" ]
                     (Json.Decode.nullable Json.Decode.string)
                 )
-
-        workDir : String
-        workDir =
-            config.workDir |> Maybe.withDefault "work"
 
         decodeContent : String -> BackendTask FatalError { data : List a, next : Maybe String }
         decodeContent content =
@@ -67,7 +63,7 @@ getPaginated config toUrl itemDecoder =
 
                 target : String
                 target =
-                    String.join "/" [ workDir, "internal-api", filename ]
+                    String.join "/" [ config.workDir, "internal-api", filename ]
             in
             Do.glob target <| \existing ->
             Do.do

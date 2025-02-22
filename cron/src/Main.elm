@@ -21,7 +21,7 @@ import Url
 
 type alias Config =
     { outputDir : String
-    , workDir : Maybe String
+    , workDir : String
     , force : Bool
     , parallel : Int
     }
@@ -38,7 +38,7 @@ programConfig =
         |> Program.add
             (OptionsParser.build Config
                 |> OptionsParser.with (Option.requiredKeywordArg "output-dir")
-                |> OptionsParser.with (Option.optionalKeywordArg "work-dir")
+                |> OptionsParser.with (Option.optionalKeywordArg "work-dir" |> Option.withDefault "work")
                 |> OptionsParser.with (Option.flag "force")
                 |> OptionsParser.with
                     (Option.optionalKeywordArg "parallel"
@@ -77,14 +77,10 @@ task config =
         )
         |> Spinner.Reader.withStep "Creating output folder"
             (\_ _ ->
-                let
-                    workDir : String
-                    workDir =
-                        config.workDir |> Maybe.withDefault "work"
-                in
-                Do.exec "mkdir" [ "-p", workDir ++ "/media" ] <| \_ ->
-                Do.exec "rm" [ "-rf", workDir ++ "/media-scratch" ] <| \_ ->
-                Do.exec "mkdir" [ workDir ++ "/media-scratch" ] <| \_ ->
+                Do.exec "mkdir" [ "-p", config.workDir ++ "/media" ] <| \_ ->
+                Do.exec "rm" [ "-rf", config.workDir ++ "/media-scratch" ] <| \_ ->
+                Do.exec "mkdir" [ config.workDir ++ "/media-scratch" ] <| \_ ->
+                Do.exec "mkdir" [ config.outputDir ] <| \_ ->
                 BackendTask.succeed ()
             )
         |> Spinner.Reader.withStep "Getting posts from the Patreon API"
@@ -129,23 +125,19 @@ task config =
         |> Spinner.Reader.runSteps
 
 
-cachePost : Config -> Rss.Post -> BackendTask FatalError { image : String, media : String, post : Rss.Post }
+cachePost : Config -> Rss.Post -> BackendTask FatalError { image : ContentAddress, media : ContentAddress, post : Rss.Post }
 cachePost config post =
     Do.do (cache config post.image) <| \image ->
     Do.do (cache config post.mediaUrl) <| \media ->
     BackendTask.succeed { image = image, media = media, post = post }
 
 
-writePost : Config -> { image : String, media : String, post : Rss.Post } -> BackendTask FatalError ()
+writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Rss.Post } -> BackendTask FatalError ()
 writePost config { image, media, post } =
     let
-        workDir : String
-        workDir =
-            config.workDir |> Maybe.withDefault "work"
-
         target : String
         target =
-            [ workDir
+            [ config.workDir
             , "/posts/"
             , Time.toYear Time.utc post.pubDate
                 |> String.fromInt
@@ -174,9 +166,9 @@ writePost config { image, media, post } =
                 [ "Title: " ++ Rss.titleToString post.title
                 , "Category: " ++ category
                 , "Date: " ++ String.fromInt (Time.posixToMillis post.pubDate)
-                , "Image: " ++ image
+                , "Image: " ++ contentAddressToPath image
                 , "Link: " ++ post.link
-                , "Media: " ++ media
+                , "Media: " ++ contentAddressToPath media
                 ]
                     |> String.join "\n"
 
@@ -237,7 +229,58 @@ titleToCategory title =
             "Other"
 
 
-cache : Config -> String -> BackendTask FatalError String
+type ScratchPath
+    = ScratchPath { filename : String, extension : String }
+
+
+scratchPathToPath : Config -> ScratchPath -> String
+scratchPathToPath config (ScratchPath { filename, extension }) =
+    String.join "/" [ config.workDir, "media-scratch", filename ++ "." ++ extension ]
+
+
+type MediaPath
+    = MediaPath { filename : String, extension : String }
+
+
+mediaPathToPath : Config -> MediaPath -> String
+mediaPathToPath config (MediaPath { filename, extension }) =
+    String.join "/" [ config.workDir, "media", filename ++ "." ++ extension ]
+
+
+type ContentAddress
+    = ContentAddress { filename : String, extension : String }
+
+
+contentAddressToPath : ContentAddress -> String
+contentAddressToPath (ContentAddress { filename, extension }) =
+    filename ++ "." ++ extension
+
+
+copyToContentAddressableStorage : Config -> MediaPath -> BackendTask FatalError ContentAddress
+copyToContentAddressableStorage config ((MediaPath { extension }) as mediaPath) =
+    let
+        path : String
+        path =
+            mediaPathToPath config mediaPath
+    in
+    Do.do (Script.command "sha512sum" [ path ]) <| \output ->
+    let
+        sum : String
+        sum =
+            output
+                |> String.split " "
+                |> List.take 1
+                |> String.concat
+
+        target : String
+        target =
+            config.outputDir ++ "/" ++ sum ++ "." ++ extension
+    in
+    Do.exec "cp" [ path, target ] <| \_ ->
+    BackendTask.succeed (ContentAddress { filename = sum, extension = extension })
+
+
+cache : Config -> String -> BackendTask FatalError ContentAddress
 cache config urlString =
     case Url.fromString urlString of
         Nothing ->
@@ -245,10 +288,6 @@ cache config urlString =
 
         Just url ->
             let
-                workDir : String
-                workDir =
-                    config.workDir |> Maybe.withDefault "work"
-
                 clean : String
                 clean =
                     Url.toString
@@ -269,32 +308,46 @@ cache config urlString =
                     SHA256.fromString clean
                         |> SHA256.toHex
 
-                filename : String
-                filename =
-                    hash ++ "." ++ extension
-
-                target : String
-                target =
-                    String.join "/" [ workDir, "media", filename ]
+                scratchPath : ScratchPath
+                scratchPath =
+                    ScratchPath
+                        { filename = hash
+                        , extension = extension
+                        }
 
                 scratchTarget : String
                 scratchTarget =
-                    String.join "/" [ workDir, "media-scratch", filename ]
-            in
-            Do.glob target <| \existing ->
-            if not (List.isEmpty existing) then
-                BackendTask.succeed filename
+                    scratchPathToPath config scratchPath
 
-            else
-                let
-                    opts : List String
-                    opts =
-                        [ urlString, "-s", "-o", scratchTarget ]
-                in
-                Do.log (String.join " " ("curl" :: opts)) <| \_ ->
-                Do.exec "curl" opts <| \_ ->
-                Do.exec "mv" [ scratchTarget, target ] <| \_ ->
-                BackendTask.succeed filename
+                mediaPath : MediaPath
+                mediaPath =
+                    MediaPath
+                        { filename = hash
+                        , extension = extension
+                        }
+
+                mediaTarget : String
+                mediaTarget =
+                    mediaPathToPath config mediaPath
+            in
+            Do.glob mediaTarget <| \existing ->
+            Do.do
+                (if not (List.isEmpty existing) then
+                    BackendTask.succeed ()
+
+                 else
+                    let
+                        opts : List String
+                        opts =
+                            [ urlString, "-s", "-o", scratchTarget ]
+                    in
+                    Do.log (String.join " " ("curl" :: opts)) <| \_ ->
+                    Do.exec "curl" opts <| \_ ->
+                    Do.exec "mv" [ scratchTarget, mediaTarget ] <| \_ ->
+                    BackendTask.succeed ()
+                )
+            <| \_ ->
+            copyToContentAddressableStorage config mediaPath
 
 
 monthToNumber : Time.Month -> Int
