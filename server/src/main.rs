@@ -23,7 +23,7 @@ lazy_static! {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let app: Router = Router::new()
-        .route("/feed", post(post_feed))
+        .route("/api", post(post_api))
         .fallback_service(ServeDir::new("public"));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
@@ -31,7 +31,8 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn post_feed(Json(code): Json<String>) -> Json<String> {
+async fn post_api(Json(code): Json<String>) -> Json<String> {
+    println!("POST {code}");
     let access_token = match get_access_token(code).await {
         Ok(access_token) => access_token,
         Err(e) => {
