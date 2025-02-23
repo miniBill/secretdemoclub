@@ -3,14 +3,12 @@ port module Main exposing (Flags, Model, Msg, main)
 import AppUrl
 import Browser
 import Browser.Navigation exposing (Key)
-import ConcurrentTask exposing (ConcurrentTask)
-import ConcurrentTask.Http as Http
 import Dict
 import Html
 import Html.Attributes
 import Html.Events
+import Http
 import Json.Decode
-import Json.Encode
 import List.Extra
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
@@ -20,7 +18,7 @@ import Route.Index
 import Route.Loading
 import Route.Login
 import Route.Posts
-import Task
+import Task exposing (Task)
 import Time
 import Url exposing (Url)
 import View exposing (View)
@@ -31,7 +29,6 @@ type alias Model =
     , root : Url
     , search : String
     , route : Route
-    , pool : ConcurrentTask.Pool Msg Http.Error { index : String, posts : List Post }
     , index : Maybe String
     , posts : RemoteData Http.Error (List Post)
     , time : Maybe ( Time.Zone, Time.Posix )
@@ -40,13 +37,12 @@ type alias Model =
 
 
 type Msg
-    = LoadedPosts (ConcurrentTask.Response Http.Error { index : String, posts : List Post })
+    = LoadedPosts (Result Http.Error { index : String, posts : List Post })
     | HereAndNow Time.Zone Time.Posix
     | Search String
     | Play Url
     | OnUrlChange Url
     | OnUrlRequest Browser.UrlRequest
-    | OnProgress ( ConcurrentTask.Pool Msg Http.Error { index : String, posts : List Post }, Cmd Msg )
 
 
 type alias Flags =
@@ -96,7 +92,8 @@ init flags url key =
         index =
             Result.toMaybe decodedFlags
 
-        ( pool, loadCmd ) =
+        loadCmd : Cmd Msg
+        loadCmd =
             case index of
                 Nothing ->
                     case
@@ -106,22 +103,14 @@ init flags url key =
                     of
                         Just [ code ] ->
                             loadPostsFromCode code
-                                |> ConcurrentTask.attempt
-                                    { pool = ConcurrentTask.pool
-                                    , send = send
-                                    , onComplete = LoadedPosts
-                                    }
+                                |> Task.attempt LoadedPosts
 
                         _ ->
-                            ( ConcurrentTask.pool, Cmd.none )
+                            Cmd.none
 
                 Just indexUrl ->
                     loadPostsFromIndex indexUrl
-                        |> ConcurrentTask.attempt
-                            { pool = ConcurrentTask.pool
-                            , send = send
-                            , onComplete = LoadedPosts
-                            }
+                        |> Task.attempt LoadedPosts
 
         model : Model
         model =
@@ -129,7 +118,6 @@ init flags url key =
             , root = { url | path = "", query = Nothing, fragment = Nothing }
             , route = route
             , search = search
-            , pool = pool
             , index = index
             , posts = RemoteData.NotAsked
             , time = Nothing
@@ -145,46 +133,54 @@ init flags url key =
     )
 
 
-loadPostsFromCode : String -> ConcurrentTask Http.Error { index : String, posts : List Post }
+loadPostsFromCode : String -> Task Http.Error { index : String, posts : List Post }
 loadPostsFromCode code =
-    Http.post
-        { body = Http.jsonBody (Json.Encode.string code)
+    Http.task
+        { method = "POST"
+        , body = Http.stringBody "text/plain" code
         , url = "/api"
         , headers = []
-        , expect = Http.expectJson Json.Decode.string
+        , resolver = Http.stringResolver generalResolver
         , timeout = Nothing
         }
-        |> ConcurrentTask.andThen loadPostsFromIndex
+        |> Task.andThen loadPostsFromIndex
 
 
-loadPostsFromIndex : String -> ConcurrentTask Http.Error { index : String, posts : List Post }
+generalResolver : Http.Response a -> Result Http.Error a
+generalResolver response =
+    case response of
+        Http.BadUrl_ url ->
+            Http.BadUrl url |> Err
+
+        Http.Timeout_ ->
+            Err Http.Timeout
+
+        Http.NetworkError_ ->
+            Err Http.NetworkError
+
+        Http.BadStatus_ metadata _ ->
+            Http.BadStatus metadata.statusCode |> Err
+
+        Http.GoodStatus_ _ body ->
+            Ok body
+
+
+loadPostsFromIndex : String -> Task Http.Error { index : String, posts : List Post }
 loadPostsFromIndex url =
-    Http.get
-        { url = "/media/" ++ url
+    Http.task
+        { method = "GET"
+        , body = Http.emptyBody
+        , url = "/media/" ++ url
         , headers = []
-        , expect = Http.expectString
+        , resolver = Http.stringResolver generalResolver
         , timeout = Nothing
         }
-        |> ConcurrentTask.andThen
+        |> Task.andThen
             (\list ->
                 list
                     |> String.split ""
                     |> List.Extra.removeWhen String.isEmpty
                     |> Debug.todo "TODO"
-            )
-
-
-urlDecoder : Json.Decode.Decoder Url
-urlDecoder =
-    Json.Decode.string
-        |> Json.Decode.andThen
-            (\indexString ->
-                case Url.fromString indexString of
-                    Nothing ->
-                        Json.Decode.fail ("Invalid URL: " ++ indexString)
-
-                    Just url ->
-                        Json.Decode.succeed url
             )
 
 
@@ -281,23 +277,11 @@ update msg model =
         Play url ->
             ( { model | playing = Just url }, Cmd.none )
 
-        LoadedPosts (ConcurrentTask.Success { index, posts }) ->
+        LoadedPosts (Ok { index, posts }) ->
             ( { model | index = Just index, posts = RemoteData.Success posts }, saveIndex index )
 
-        LoadedPosts (ConcurrentTask.Error err) ->
+        LoadedPosts (Err err) ->
             ( { model | posts = RemoteData.Failure err }, Cmd.none )
-
-        LoadedPosts (ConcurrentTask.UnexpectedError err) ->
-            let
-                _ =
-                    Debug.log "error" err
-            in
-            ( { model
-                | posts =
-                    RemoteData.Failure Http.NetworkError
-              }
-            , Cmd.none
-            )
 
         HereAndNow here now ->
             ( { model | time = Just ( here, now ) }, Cmd.none )
@@ -317,9 +301,6 @@ update msg model =
 
         OnUrlRequest (Browser.External url) ->
             ( model, Browser.Navigation.load url )
-
-        OnProgress ( pool, cmd ) ->
-            ( { model | pool = pool }, cmd )
 
 
 changeRouteTo : Model -> ( Model, Cmd Msg )
@@ -342,17 +323,6 @@ port sendToLocalStorage :
     -> Cmd msg
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    ConcurrentTask.onProgress
-        { send = send
-        , receive = receive
-        , onProgress = OnProgress
-        }
-        model.pool
-
-
-port send : Json.Decode.Value -> Cmd msg
-
-
-port receive : (Json.Decode.Value -> msg) -> Sub msg
+subscriptions : model -> Sub msg
+subscriptions _ =
+    Sub.none
