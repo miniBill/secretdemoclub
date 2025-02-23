@@ -181,7 +181,7 @@ loadPostsFromIndex index =
         |> Task.andThen
             (\list ->
                 list
-                    |> String.split ""
+                    |> String.split "\n"
                     |> List.Extra.removeWhen String.isEmpty
                     |> List.map
                         (\postUrl ->
