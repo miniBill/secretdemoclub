@@ -2,7 +2,7 @@ use anyhow::anyhow;
 use axum::{
     http::{HeaderMap, HeaderValue},
     routing::post,
-    Json, Router,
+    Router,
 };
 use lazy_static::lazy_static;
 use tower_http::services::ServeDir;
@@ -31,13 +31,13 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn post_api(Json(code): Json<String>) -> Json<String> {
+async fn post_api(code: String) -> String {
     println!("POST {code}");
     let access_token = match get_access_token(code).await {
         Ok(access_token) => access_token,
         Err(e) => {
             dbg!("{}", e);
-            return Json("Token request failed".to_string());
+            return "Token request failed".to_string();
         }
     };
 
@@ -45,15 +45,15 @@ async fn post_api(Json(code): Json<String>) -> Json<String> {
         Ok(tier) => tier,
         Err(e) => {
             dbg!("{}", e);
-            return Json("Tier request failed".to_string());
+            return "Tier request failed".to_string();
         }
     };
 
-    Json(match tier {
+    match tier {
         Tier::Bronze => bronze_tier.clone(),
         Tier::Silver => silver_tier.clone(),
         Tier::Gold => gold_tier.clone(),
-    })
+    }
 }
 
 async fn get_access_token(code: String) -> Result<String, reqwest::Error> {
