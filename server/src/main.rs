@@ -64,13 +64,14 @@ async fn get_access_token(code: String) -> Result<String, reqwest::Error> {
         ("client_secret", client_secret.to_string()),
         ("redirect_uri", redirect_uri.to_string()),
     ];
-    let response = reqwest::Client::new()
+    let access_token = reqwest::Client::new()
         .post("https://www.patreon.com/api/oauth2/token")
         .form(&params)
         .send()
-        .await?;
-    dbg!(&response);
-    let access_token = response.json::<AccessToken>().await?.access_token;
+        .await?
+        .json::<AccessToken>()
+        .await?
+        .access_token;
 
     Ok(access_token)
 }
