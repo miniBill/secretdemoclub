@@ -1,12 +1,10 @@
 use anyhow::anyhow;
 use axum::{
-    extract::Query,
     http::{HeaderMap, HeaderValue},
-    routing::{get, post},
+    routing::post,
     Json, Router,
 };
 use lazy_static::lazy_static;
-use serde::Deserialize;
 use tower_http::services::ServeDir;
 use types::{AccessToken, Identity, Included};
 
@@ -17,27 +15,20 @@ lazy_static! {
     static ref client_secret: String = std::env::var("clientSecret").unwrap();
     static ref redirect_uri: String = std::env::var("redirectUri").unwrap();
     static ref orla_campaign_id: String = std::env::var("orlaCampaignId").unwrap();
+    static ref bronze_tier: String = std::env::var("bronzeTier").unwrap();
+    static ref silver_tier: String = std::env::var("silverTier").unwrap();
+    static ref gold_tier: String = std::env::var("goldTier").unwrap();
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let app: Router = Router::new()
-        .route("/feed", get(get_feed))
         .route("/feed", post(post_feed))
         .fallback_service(ServeDir::new("public"));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
     axum::serve(listener, app).await?;
     Ok(())
-}
-
-#[derive(Deserialize)]
-struct UrlParam {
-    code: String,
-}
-
-async fn get_feed(query: Query<UrlParam>) -> Json<String> {
-    post_feed(Json(query.code.clone())).await
 }
 
 async fn post_feed(Json(code): Json<String>) -> Json<String> {
@@ -57,7 +48,11 @@ async fn post_feed(Json(code): Json<String>) -> Json<String> {
         }
     };
 
-    Json(format!("{:?}", tier))
+    Json(match tier {
+        Tier::Bronze => bronze_tier.clone(),
+        Tier::Silver => silver_tier.clone(),
+        Tier::Gold => gold_tier.clone(),
+    })
 }
 
 async fn get_access_token(code: String) -> Result<String, reqwest::Error> {
