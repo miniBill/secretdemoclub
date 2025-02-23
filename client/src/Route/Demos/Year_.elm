@@ -1,18 +1,38 @@
-module Pages.Demos.Year_ exposing (Model, Msg, page)
+module Route.Demos.Year_ exposing (Data, Model, Msg, RouteParams, route)
 
-import Auth
 import Effect exposing (Effect)
 import Html
 import Html.Attributes
 import Html.Events
-import Layouts
-import Page exposing (Page)
 import Route exposing (Route)
-import Rss
+import RouteBuilder exposing (StatelessRoute)
 import Shared
 import Time
 import View exposing (View)
 import View.Post
+
+
+type alias Model =
+    { search : String }
+
+
+type Msg
+    = Search String
+    | Play String
+
+
+type alias RouteParams =
+    { year : String }
+
+
+route : StatelessRoute RouteParams Data ActionData
+route =
+    RouteBuilder.preRenderWithFallback
+        { head = head
+        , pages = pages
+        , data = data
+        }
+        |> RouteBuilder.buildWithLocalState { view = view }
 
 
 page : Auth.User -> Shared.Model -> Route { year : String } -> Page Model Msg
@@ -26,12 +46,13 @@ page _ shared route =
         |> Page.withLayout (\_ -> Layouts.Default {})
 
 
+type alias Data =
+    { something : String
+    }
 
--- INIT
 
-
-type alias Model =
-    { search : String }
+type alias ActionData =
+    {}
 
 
 init : () -> ( Model, Effect Msg )
@@ -39,15 +60,6 @@ init () =
     ( { search = "" }
     , Effect.none
     )
-
-
-
--- UPDATE
-
-
-type Msg
-    = Search String
-    | Play String
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -60,17 +72,9 @@ update msg model =
             ( model, Effect.play url )
 
 
-
--- SUBSCRIPTIONS
-
-
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.none
-
-
-
--- VIEW
 
 
 view : { year : String } -> Shared.Model -> Model -> View Msg

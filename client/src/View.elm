@@ -1,7 +1,6 @@
 module View exposing
     ( View, map
     , none, fromString
-    , toBrowserDocument
     )
 
 {-|
@@ -12,31 +11,13 @@ module View exposing
 
 -}
 
-import Browser
 import Html exposing (Html)
-import Route exposing (Route)
-import Shared.Model
 
 
 type alias View msg =
     { title : String
     , body : List (Html msg)
     , toolbar : List (Html msg)
-    }
-
-
-{-| Used internally by Elm Land to create your application
-so it works with Elm's expected `Browser.Document msg` type.
--}
-toBrowserDocument :
-    { shared : Shared.Model.Model
-    , route : Route ()
-    , view : View msg
-    }
-    -> Browser.Document msg
-toBrowserDocument { view } =
-    { title = view.title
-    , body = view.body
     }
 
 

@@ -1,93 +1,60 @@
-module Pages.Home_ exposing (Model, Msg, page)
+module Route.Index exposing (view)
 
-import Dict
-import Effect
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
-import Layouts
 import List.Extra
 import Maybe.Extra
-import Page exposing (Page)
-import Route exposing (Route)
-import Route.Path as Path
-import Shared
+import Post exposing (Post)
 import Time
+import Url exposing (Url)
 import View exposing (View)
 import View.Post
 
 
-type alias Model =
-    { search : String }
-
-
-type Msg
-    = Search String
-    | Play String
-
-
-page : Shared.Model -> Route () -> Page Model Msg
-page shared _ =
-    Page.new
-        { init = init
-        , view = view shared
-        , update = update
-        , subscriptions = \_ -> Sub.none
+view :
+    { messages
+        | search : String -> msg
+        , play : Url -> msg
+    }
+    ->
+        { model
+            | search : String
+            , posts : List Post
+            , time : Maybe ( Time.Zone, Time.Posix )
         }
-        |> Page.withLayout (\_ -> Layouts.Default {})
-
-
-init : () -> ( Model, Effect.Effect Msg )
-init _ =
-    ( { search = "" }, Effect.none )
-
-
-update : Msg -> Model -> ( Model, Effect.Effect Msg )
-update msg model =
-    case msg of
-        Search search ->
-            ( { model | search = search }, Effect.none )
-
-        Play url ->
-            ( model, Effect.play url )
-
-
-view : Shared.Model -> Model -> View Msg
-view shared model =
+    -> View msg
+view messages model =
     let
-        toolbar : List (Html Msg)
+        toolbar : List (Html msg)
         toolbar =
             [ Html.label []
                 [ Html.text "Search "
                 , Html.input
                     [ Html.Attributes.type_ "search"
                     , Html.Attributes.value model.search
-                    , Html.Events.onInput Search
+                    , Html.Events.onInput messages.search
                     ]
                     []
                 ]
             ]
     in
-    if String.isEmpty model.search || List.isEmpty shared.rss.posts then
+    if String.isEmpty model.search || List.isEmpty model.posts then
         { title = ""
         , body =
             [ Html.a
-                [ Route.href
-                    { path = Path.Demos
-                    , query = Dict.empty
-                    , hash = Nothing
-                    }
+                [ Html.Attributes.href "/demos"
                 ]
                 [ Html.text "Demos" ]
             , let
                 lastPosted =
-                    shared.rss.posts
+                    model.posts
                         |> List.Extra.last
-                        |> Maybe.map .pubDate
-                        |> Maybe.Extra.orElseLazy (\_ -> Maybe.map Tuple.second shared.time)
+                        |> Maybe.map .date
+                        |> Maybe.Extra.orElseLazy (\_ -> Maybe.map Tuple.second model.time)
 
                 here =
-                    shared.time
+                    model.time
                         |> Maybe.map Tuple.first
                         |> Maybe.withDefault Time.utc
 
@@ -104,11 +71,8 @@ view shared model =
                             (\year ->
                                 Html.li []
                                     [ Html.a
-                                        [ Route.href
-                                            { path = Path.Demos_Year_ { year = String.fromInt year }
-                                            , query = Dict.empty
-                                            , hash = Nothing
-                                            }
+                                        [ Html.Attributes.href
+                                            ("/demos/" ++ String.fromInt year)
                                         ]
                                         [ Html.text (String.fromInt year) ]
                                     ]
@@ -121,7 +85,7 @@ view shared model =
     else
         { title = ""
         , body =
-            [ shared.rss.posts
+            [ model.posts
                 |> List.filterMap
                     (\post ->
                         if View.Post.isMatch model.search post then
@@ -130,7 +94,7 @@ view shared model =
                         else
                             Nothing
                     )
-                |> View.Post.viewList Play shared
+                |> View.Post.viewList messages model
             ]
         , toolbar = toolbar
         }

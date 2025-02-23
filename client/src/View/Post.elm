@@ -5,14 +5,19 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Html.Keyed
-import Rss exposing (Post, Title(..))
-import Shared
+import Post exposing (Post)
+import Time
+import Url exposing (Url)
 
 
-viewList : (String -> msg) -> Shared.Model -> List Post -> Html.Html msg
-viewList play shared posts =
+viewList :
+    { messages | play : Url -> msg }
+    -> { model | time : Maybe ( Time.Zone, Time.Posix ) }
+    -> List Post
+    -> Html msg
+viewList messages model posts =
     posts
-        |> List.map (\post -> ( post.link, view play shared post ))
+        |> List.map (\post -> ( Url.toString post.link, view messages model post ))
         |> Html.Keyed.node "div"
             [ Html.Attributes.style "display" "flex"
             , Html.Attributes.style "flex-wrap" "wrap"
@@ -21,8 +26,12 @@ viewList play shared posts =
             ]
 
 
-view : (String -> msg) -> Shared.Model -> Post -> Html msg
-view play shared post =
+view :
+    { messages | play : Url -> msg }
+    -> { model | time : Maybe ( Time.Zone, Time.Posix ) }
+    -> Post
+    -> Html msg
+view { play } model post =
     Html.div
         [ Html.Attributes.style "max-width" "300px"
         , Html.Attributes.style "display" "flex"
@@ -30,7 +39,7 @@ view play shared post =
         , Html.Attributes.style "gap" "8px"
         , Html.Attributes.style "position" "relative"
         , Html.Attributes.style "color" "white"
-        , Html.Events.onClick (play post.mediaUrl)
+        , Html.Events.onClick (play post.media)
         ]
         [ Html.div
             [ Html.Attributes.style "position" "absolute"
@@ -52,16 +61,12 @@ view play shared post =
             , Html.Attributes.style "text-align" "center"
             , Html.Attributes.style "flex" "1"
             ]
-            [ let
-                number : String
-                number =
-                    toNumber post
-              in
-              if String.isEmpty number then
-                Html.text (toKind post)
+            [ case post.number of
+                Nothing ->
+                    Html.text post.category
 
-              else
-                Html.text (toKind post ++ " " ++ number)
+                Just number ->
+                    Html.text (post.category ++ " " ++ number)
             ]
         , Html.div
             [ Html.Attributes.style "position" "absolute"
@@ -97,7 +102,7 @@ view play shared post =
             , Html.Attributes.style "font-weight" "semibold"
             , Html.Attributes.style "text-align" "center"
             ]
-            [ Html.text (Rss.titleToString post.title)
+            [ Html.text post.title
             ]
         , Html.a
             [ Html.Attributes.style "position" "absolute"
@@ -109,15 +114,15 @@ view play shared post =
                 [ ( "show-on-parent-hover", True )
                 , ( "show-if-hover-none", True )
                 ]
-            , Html.Attributes.href post.link
+            , Html.Attributes.href (Url.toString post.link)
             , Html.Attributes.style "flex" "1"
             ]
-            [ case shared.time of
+            [ case model.time of
                 Nothing ->
                     Html.text ""
 
                 Just ( here, _ ) ->
-                    Date.fromPosix here post.pubDate
+                    Date.fromPosix here post.date
                         |> Date.toIsoString
                         |> Html.text
             ]
@@ -131,123 +136,25 @@ view play shared post =
                 [ ( "show-on-parent-hover", True )
                 , ( "show-if-hover-none", True )
                 ]
-            , Html.Attributes.href post.mediaUrl
+            , Html.Attributes.href (Url.toString post.media)
             ]
             [ Html.text "Download" ]
         , Html.img
-            [ Html.Attributes.src post.image
+            [ Html.Attributes.src (Url.toString post.image)
             , Html.Attributes.style "width" "100%"
             ]
             []
         ]
 
 
-toKind : Post -> String
-toKind post =
-    case post.title of
-        Demo _ _ ->
-            "Demo"
-
-        VoiceMemo _ ->
-            "Voice memo"
-
-        BonusDemo _ ->
-            "Bonus demo"
-
-        SongIdea _ ->
-            "Song idea"
-
-        Podcast _ _ ->
-            "Podcast"
-
-        AnIdeaADay _ _ ->
-            "An idea a day"
-
-        FirstDraftFebruary _ _ ->
-            "First draft February"
-
-        AudioDiary _ _ ->
-            "Audio diary"
-
-        Other _ ->
-            "Other"
-
-
-toNumber : Post -> String
-toNumber post =
-    case post.title of
-        Demo number _ ->
-            number
-                |> Maybe.map String.fromFloat
-                |> Maybe.withDefault ""
-
-        VoiceMemo _ ->
-            ""
-
-        BonusDemo _ ->
-            ""
-
-        SongIdea _ ->
-            ""
-
-        Podcast number _ ->
-            number
-                |> Maybe.map String.fromInt
-                |> Maybe.withDefault ""
-
-        AnIdeaADay number _ ->
-            case number of
-                Ok n ->
-                    String.fromInt n
-
-                Err e ->
-                    e
-
-        FirstDraftFebruary number _ ->
-            number
-                |> Maybe.map String.fromInt
-                |> Maybe.withDefault ""
-
-        AudioDiary n _ ->
-            n
-                |> Maybe.withDefault ""
-
-        Other _ ->
-            ""
-
-
 isMatch : String -> Post -> Bool
 isMatch needle post =
-    String.isEmpty (String.trim needle)
-        || (let
-                haystack =
-                    case post.title of
-                        Demo _ title ->
-                            title
-
-                        VoiceMemo title ->
-                            title
-
-                        BonusDemo title ->
-                            title
-
-                        SongIdea title ->
-                            title
-
-                        Podcast _ title ->
-                            title
-
-                        AnIdeaADay _ title ->
-                            title
-
-                        FirstDraftFebruary _ title ->
-                            title
-
-                        AudioDiary _ title ->
-                            title
-
-                        Other title ->
-                            title
-            in
-            String.contains (String.toLower (String.trim needle)) (String.toLower (String.trim haystack))
-           )
+    let
+        cleanNeedle : String
+        cleanNeedle =
+            needle
+                |> String.trim
+                |> String.toLower
+    in
+    String.isEmpty cleanNeedle
+        || String.contains cleanNeedle (String.toLower (String.trim post.title))

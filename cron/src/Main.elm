@@ -183,19 +183,17 @@ writePost config { image, media, post } =
         target =
             postPathToPath config postPath
 
-        category : String
-        category =
-            titleToCategory post.title
-
         body : String
         body =
-            [ "Title: " ++ Rss.titleToString post.title
-            , "Category: " ++ category
-            , "Date: " ++ String.fromInt (Time.posixToMillis post.pubDate)
-            , "Image: " ++ contentAddressToPath image
-            , "Link: " ++ post.link
-            , "Media: " ++ contentAddressToPath media
+            [ Just ("Title: " ++ Rss.titleToString post.title)
+            , Just ("Category: " ++ titleToCategory post.title)
+            , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.pubDate))
+            , Just ("Image: " ++ contentAddressToPath image)
+            , Just ("Link: " ++ post.link)
+            , Just ("Media: " ++ contentAddressToPath media)
+            , Maybe.map (\num -> "Number: " ++ num) (toNumber post.title)
             ]
+                |> List.filterMap identity
                 |> String.join "\n"
     in
     Do.glob target <| \existing ->
@@ -216,11 +214,8 @@ writePost config { image, media, post } =
 titleToCategory : Rss.Title -> String
 titleToCategory title =
     case title of
-        Demo Nothing _ ->
+        Demo _ _ ->
             "Demo"
-
-        Demo (Just n) _ ->
-            "Demo " ++ String.fromFloat n
 
         VoiceMemo _ ->
             "Voice memo"
@@ -231,29 +226,17 @@ titleToCategory title =
         SongIdea _ ->
             "Song idea"
 
-        Podcast Nothing _ ->
+        Podcast _ _ ->
             "Podcast"
 
-        Podcast (Just n) _ ->
-            "Podcast " ++ String.fromInt n
+        AnIdeaADay _ _ ->
+            "An idea a day"
 
-        AnIdeaADay (Err m) _ ->
-            "An idea a day " ++ m
-
-        AnIdeaADay (Ok o) _ ->
-            "An idea a day " ++ String.fromInt o
-
-        FirstDraftFebruary Nothing _ ->
+        FirstDraftFebruary _ _ ->
             "First draft February"
 
-        FirstDraftFebruary (Just n) _ ->
-            "First draft February " ++ String.fromInt n
-
-        AudioDiary Nothing _ ->
+        AudioDiary _ _ ->
             "Audio diary"
-
-        AudioDiary (Just n) _ ->
-            "Audio diary " ++ n
 
         Other _ ->
             "Other"
@@ -438,3 +421,39 @@ monthToNumber month =
 
         Time.Dec ->
             12
+
+
+toNumber : Title -> Maybe String
+toNumber title =
+    case title of
+        Demo number _ ->
+            Maybe.map String.fromFloat number
+
+        VoiceMemo _ ->
+            Nothing
+
+        BonusDemo _ ->
+            Nothing
+
+        SongIdea _ ->
+            Nothing
+
+        Podcast number _ ->
+            Maybe.map String.fromInt number
+
+        AnIdeaADay number _ ->
+            case number of
+                Ok n ->
+                    Just (String.fromInt n)
+
+                Err e ->
+                    Just e
+
+        FirstDraftFebruary number _ ->
+            Maybe.map String.fromInt number
+
+        AudioDiary n _ ->
+            n
+
+        Other _ ->
+            Nothing
