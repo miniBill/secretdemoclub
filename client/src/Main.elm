@@ -199,8 +199,12 @@ loadPostsFromIndex index =
                                             Ok post ->
                                                 Task.succeed post
 
-                                            Err _ ->
-                                                Task.fail (Http.BadBody body)
+                                            Err e ->
+                                                let
+                                                    _ =
+                                                        Debug.log "error parsing post" e
+                                                in
+                                                Task.fail (Http.BadBody (Debug.toString e))
                                     )
                         )
                     |> Task.sequence
@@ -219,12 +223,13 @@ postParser =
         line : String -> (String -> Maybe a) -> Parser a
         line label validate =
             Parser.succeed identity
-                |. Parser.keyword label
-                |. Parser.keyword ": "
-                |= (Parser.Workaround.chompUntilEndOrBefore "\n" |> Parser.getChompedString)
+                |. Parser.symbol label
+                |. Parser.spaces
+                |. Parser.symbol ":"
+                |= (Parser.Workaround.chompUntilEndOrAfter "\n" |> Parser.getChompedString)
                 |> Parser.andThen
                     (\raw ->
-                        case validate raw of
+                        case validate (String.trim raw) of
                             Just res ->
                                 Parser.succeed res
 
