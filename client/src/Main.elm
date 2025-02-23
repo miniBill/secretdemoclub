@@ -222,22 +222,22 @@ view model =
     let
         content : View Msg
         content =
-            if model.route == Index && String.isEmpty model.search then
-                Route.Index.view model
+            case model.posts of
+                RemoteData.Failure err ->
+                    Route.Error.view err
 
-            else
-                case model.posts of
-                    RemoteData.NotAsked ->
+                RemoteData.Loading ->
+                    Route.Loading.view
+
+                RemoteData.NotAsked ->
+                    if model.route == Index && String.isEmpty model.search then
+                        Route.Index.view model
+
+                    else
                         Route.Login.view model
 
-                    RemoteData.Failure err ->
-                        Route.Error.view err
-
-                    RemoteData.Loading ->
-                        Route.Loading.view
-
-                    RemoteData.Success posts ->
-                        Route.Posts.view { play = Play } model posts
+                RemoteData.Success posts ->
+                    Route.Posts.view { play = Play } model posts
     in
     { title =
         if String.isEmpty content.title then
