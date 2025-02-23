@@ -25,6 +25,7 @@ import View exposing (View)
 
 type alias Model =
     { key : Key
+    , root : Url
     , search : String
     , route : Route
     , pool : ConcurrentTask.Pool Msg Http.Error { index : Url, posts : List Post }
@@ -108,6 +109,7 @@ init flags url key =
         model : Model
         model =
             { key = key
+            , root = { url | path = "", query = Nothing, fragment = Nothing }
             , route = route
             , search = search
             , pool = pool
@@ -168,7 +170,7 @@ view model =
             else
                 case model.posts of
                     RemoteData.NotAsked ->
-                        Route.Login.view
+                        Route.Login.view model
 
                     RemoteData.Failure err ->
                         Route.Error.view err

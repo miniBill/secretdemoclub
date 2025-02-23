@@ -2,12 +2,13 @@ module Route.Login exposing (view)
 
 import Html
 import Html.Attributes
+import Url exposing (Url)
 import Url.Builder
 import View exposing (View)
 
 
-view : View msg
-view =
+view : { model | root : Url } -> View msg
+view { root } =
     { title = "Login required"
     , body =
         [ Html.a
@@ -16,9 +17,7 @@ view =
                     [ "oauth2", "authorize" ]
                     [ Url.Builder.string "response_type" "code"
                     , Url.Builder.string "client_id" "XeirGp33CAMMls3EC_mTdZWgMp0XcgzPwkWH8POaLMRX29OUe9AwGVDk4Djn_kMn"
-
-                    -- , Url.Builder.string "redirect_uri" "https://uriel.tail1b193.ts.net"
-                    , Url.Builder.string "redirect_uri" "http://localhost:1234"
+                    , Url.Builder.string "redirect_uri" (Url.toString root)
                     , Url.Builder.string "scope" "identity identity.memberships"
                     ]
                 )
