@@ -128,8 +128,7 @@ init flags url key =
     ( model
     , Cmd.batch
         [ loadCmd
-
-        -- , Browser.Navigation.replaceUrl model.key (Route.toString model.route)
+        , Browser.Navigation.replaceUrl model.key (Route.toString model)
         , Task.map2 HereAndNow Time.here Time.now
             |> Task.perform identity
         ]
@@ -327,8 +326,16 @@ update msg model =
             let
                 { route, search } =
                     Route.parse url
+
+                newModel : Model
+                newModel =
+                    { model | route = route, search = search }
             in
-            changeRouteTo { model | route = route, search = search }
+            if Route.toString model == Route.toString newModel then
+                ( newModel, Cmd.none )
+
+            else
+                changeRouteTo newModel
 
         OnUrlRequest (Browser.Internal url) ->
             ( model, Browser.Navigation.pushUrl model.key (Url.toString url) )
