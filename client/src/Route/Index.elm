@@ -1,8 +1,7 @@
 module Route.Index exposing (view)
 
-import Html exposing (Html)
+import Html
 import Html.Attributes
-import Html.Events
 import List.Extra
 import Maybe.Extra
 import Post exposing (Post)
@@ -14,8 +13,7 @@ import View.Post
 
 view :
     { messages
-        | search : String -> msg
-        , play : Url -> msg
+        | play : Url -> msg
     }
     ->
         { model
@@ -25,20 +23,6 @@ view :
         }
     -> View msg
 view messages model =
-    let
-        toolbar : List (Html msg)
-        toolbar =
-            [ Html.label []
-                [ Html.text "Search "
-                , Html.input
-                    [ Html.Attributes.type_ "search"
-                    , Html.Attributes.value model.search
-                    , Html.Events.onInput messages.search
-                    ]
-                    []
-                ]
-            ]
-    in
     if String.isEmpty model.search || List.isEmpty model.posts then
         { title = ""
         , body =
@@ -79,7 +63,6 @@ view messages model =
                             )
                         |> Html.ul []
             ]
-        , toolbar = toolbar
         }
 
     else
@@ -96,5 +79,4 @@ view messages model =
                     )
                 |> View.Post.viewList messages model
             ]
-        , toolbar = toolbar
         }

@@ -20,6 +20,7 @@
             "elmcraft/core-extra": "2.1.0",
             "folkertdev/elm-sha2": "1.0.0",
             "justinmimbs/date": "4.1.0",
+            "krisajenkins/remotedata": "6.1.0",
             "lydell/elm-app-url": "1.0.4"
         },
         "indirect": {

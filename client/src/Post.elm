@@ -1,4 +1,4 @@
-module Post exposing (..)
+module Post exposing (Post)
 
 import Time
 import Url exposing (Url)

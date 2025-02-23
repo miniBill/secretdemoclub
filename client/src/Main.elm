@@ -1,4 +1,4 @@
-port module Main exposing (main)
+port module Main exposing (Flags, Model, Msg, main)
 
 import Browser
 import Browser.Navigation exposing (Key)
@@ -6,9 +6,11 @@ import ConcurrentTask exposing (ConcurrentTask)
 import ConcurrentTask.Http as Http
 import Html
 import Html.Attributes
+import Html.Events
 import Json.Decode
 import List.Extra
 import Post exposing (Post)
+import RemoteData exposing (RemoteData)
 import Route exposing (Route(..))
 import Route.Demos
 import Route.Demos.Year_
@@ -25,7 +27,7 @@ type alias Model =
     , route : Route
     , pool : ConcurrentTask.Pool Msg Http.Error { index : Url, posts : List Post }
     , index : Maybe Url
-    , posts : List Post
+    , posts : RemoteData Http.Error (List Post)
     , time : Maybe ( Time.Zone, Time.Posix )
     , playing : Maybe Url
     }
@@ -107,7 +109,7 @@ init flags url key =
             , search = search
             , pool = pool
             , index = index
-            , posts = []
+            , posts = RemoteData.NotAsked
             , time = Nothing
             , playing = Nothing
             }
@@ -157,15 +159,24 @@ view model =
     let
         content : View Msg
         content =
-            case model.route of
-                Index ->
+            case ( model.route, model.posts ) of
+                ( Index, _ ) ->
                     Route.Index.view { search = Search, play = Play } model
 
-                Demos Nothing ->
-                    Route.Demos.view { search = Search, play = Play } model
+                ( _, RemoteData.NotAsked ) ->
+                    Route.Login.view
 
-                Demos (Just year) ->
-                    Route.Demos.Year_.view { search = Search, play = Play } model year
+                ( _, RemoteData.Failure err ) ->
+                    Route.ErrorPage.view err
+
+                ( _, RemoteData.Loading ) ->
+                    Route.Loading.view
+
+                ( Demos Nothing, RemoteData.Success posts ) ->
+                    Route.Demos.view { search = Search, play = Play } model posts
+
+                ( Demos (Just year), RemoteData.Success posts ) ->
+                    Route.Demos.Year_.view { search = Search, play = Play } model year posts
     in
     { title =
         if String.isEmpty content.title then
@@ -189,7 +200,17 @@ view model =
                         [ Html.Attributes.href "/" ]
                         [ Html.text "Secret Demo Club HQ" ]
                     ]
-                , Html.div [] content.toolbar
+                , Html.div []
+                    [ Html.label []
+                        [ Html.text "Search "
+                        , Html.input
+                            [ Html.Attributes.type_ "search"
+                            , Html.Attributes.value model.search
+                            , Html.Events.onInput Search
+                            ]
+                            []
+                        ]
+                    ]
                 ]
           , Html.div [ Html.Attributes.style "padding" "0 8px" ] content.body
           , case model.playing of

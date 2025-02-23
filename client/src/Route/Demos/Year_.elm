@@ -1,8 +1,6 @@
 module Route.Demos.Year_ exposing (view)
 
-import Html
-import Html.Attributes
-import Html.Events
+import Html exposing (Html)
 import Post exposing (Post)
 import Time
 import Url exposing (Url)
@@ -10,7 +8,7 @@ import View.Post
 
 
 view :
-    { messages | play : Url -> msg, search : String -> a }
+    { messages | play : Url -> msg }
     ->
         { model
             | posts : List Post
@@ -18,7 +16,7 @@ view :
             , time : Maybe ( Time.Zone, Time.Posix )
         }
     -> Int
-    -> { title : String, body : List (Html.Html msg), toolbar : List (Html.Html a) }
+    -> { title : String, body : List (Html.Html msg), toolbar : List (Html msg) }
 view messages model year =
     let
         here =
@@ -35,16 +33,5 @@ view messages model year =
                         && View.Post.isMatch model.search post
                 )
             |> View.Post.viewList messages model
-        ]
-    , toolbar =
-        [ Html.label []
-            [ Html.text "Search "
-            , Html.input
-                [ Html.Attributes.type_ "search"
-                , Html.Attributes.value model.search
-                , Html.Events.onInput messages.search
-                ]
-                []
-            ]
         ]
     }

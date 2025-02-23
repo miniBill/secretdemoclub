@@ -1,24 +1,26 @@
-module Route.Login exposing (Model, Msg, page)
+module Route.Login exposing (view)
 
-import Auth
-import Effect exposing (Effect)
 import Html
 import Html.Attributes
-import Html.Events
-import Layouts
-import Page exposing (Page)
-import Route exposing (Route)
-import Shared
+import Url.Builder
 import View exposing (View)
-import View.Post
 
 
-page : Shared.Model -> Route () -> Page Model Msg
-page shared _ =
-    Page.new
-        { init = init
-        , update = update
-        , subscriptions = subscriptions
-        , view = view shared
-        }
-        |> Page.withLayout (\_ -> Layouts.Default {})
+view : View msg
+view =
+    { title = "Login required"
+    , body =
+        [ Html.a
+            [ Html.Attributes.href
+                (Url.Builder.crossOrigin "https://www.patreon.com"
+                    [ "oauth2", "authorize" ]
+                    [ Url.Builder.string "response_type" "code"
+                    , Url.Builder.string "client_id" "XeirGp33CAMMls3EC_mTdZWgMp0XcgzPwkWH8POaLMRX29OUe9AwGVDk4Djn_kMn"
+                    , Url.Builder.string "redirect_uri" "https://uriel.tail1b193.ts.net/feed"
+                    , Url.Builder.string "scope" "identity identity.memberships"
+                    ]
+                )
+            ]
+            [ Html.text "Login" ]
+        ]
+    }
