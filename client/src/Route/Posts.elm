@@ -1,4 +1,4 @@
-module View.Post exposing (isMatch, viewList)
+module Route.Posts exposing (view)
 
 import Date
 import Html exposing (Html)
@@ -6,8 +6,55 @@ import Html.Attributes
 import Html.Events
 import Html.Keyed
 import Post exposing (Post)
+import Route exposing (Route(..))
 import Time
 import Url exposing (Url)
+import View exposing (View)
+
+
+view :
+    { messages | play : Url -> msg }
+    ->
+        { model
+            | time : Maybe ( Time.Zone, Time.Posix )
+            , route : Route
+            , search : String
+        }
+    -> List Post
+    -> View msg
+view messages model posts =
+    let
+        here : Time.Zone
+        here =
+            Maybe.map Tuple.first model.time
+                |> Maybe.withDefault Time.utc
+
+        filter : Post -> Bool
+        filter post =
+            case model.route of
+                Index ->
+                    True
+
+                Demos maybeYear ->
+                    (post.category == "Demo")
+                        && (case maybeYear of
+                                Nothing ->
+                                    True
+
+                                Just year ->
+                                    Time.toYear here post.date == year
+                           )
+    in
+    { title = ""
+    , body =
+        [ posts
+            |> List.filter
+                (\post ->
+                    filter post && isMatch model.search post
+                )
+            |> viewList messages model
+        ]
+    }
 
 
 viewList :
@@ -17,7 +64,7 @@ viewList :
     -> Html msg
 viewList messages model posts =
     posts
-        |> List.map (\post -> ( Url.toString post.link, view messages model post ))
+        |> List.map (\post -> ( Url.toString post.link, viewPost messages model post ))
         |> Html.Keyed.node "div"
             [ Html.Attributes.style "display" "flex"
             , Html.Attributes.style "flex-wrap" "wrap"
@@ -26,12 +73,12 @@ viewList messages model posts =
             ]
 
 
-view :
+viewPost :
     { messages | play : Url -> msg }
     -> { model | time : Maybe ( Time.Zone, Time.Posix ) }
     -> Post
     -> Html msg
-view { play } model post =
+viewPost { play } model post =
     Html.div
         [ Html.Attributes.style "max-width" "300px"
         , Html.Attributes.style "display" "flex"

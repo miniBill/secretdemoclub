@@ -2,7 +2,7 @@
     "license": "BSD-3-Clause",
     "type": "module",
     "scripts": {
-        "start": "elm-watch hot",
+        "start": "node dev-server.js",
         "build": "elm-watch build"
     },
     "devDependencies": {

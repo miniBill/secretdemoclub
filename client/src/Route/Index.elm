@@ -5,78 +5,59 @@ import Html.Attributes
 import List.Extra
 import Maybe.Extra
 import Post exposing (Post)
+import RemoteData exposing (RemoteData)
 import Time
-import Url exposing (Url)
 import View exposing (View)
-import View.Post
 
 
 view :
-    { messages
-        | play : Url -> msg
+    { model
+        | posts : RemoteData err (List Post)
+        , time : Maybe ( Time.Zone, Time.Posix )
     }
-    ->
-        { model
-            | search : String
-            , posts : List Post
-            , time : Maybe ( Time.Zone, Time.Posix )
-        }
     -> View msg
-view messages model =
-    if String.isEmpty model.search || List.isEmpty model.posts then
-        { title = ""
-        , body =
-            [ Html.a
-                [ Html.Attributes.href "/demos"
-                ]
-                [ Html.text "Demos" ]
-            , let
-                lastPosted =
-                    model.posts
-                        |> List.Extra.last
-                        |> Maybe.map .date
-                        |> Maybe.Extra.orElseLazy (\_ -> Maybe.map Tuple.second model.time)
+view model =
+    { title = ""
+    , body =
+        [ Html.a
+            [ Html.Attributes.href "/demos"
+            ]
+            [ Html.text "Demos" ]
+        , let
+            lastPosted : Maybe Time.Posix
+            lastPosted =
+                model.posts
+                    |> RemoteData.withDefault []
+                    |> List.Extra.last
+                    |> Maybe.map .date
+                    |> Maybe.Extra.orElseLazy (\_ -> Maybe.map Tuple.second model.time)
 
-                here =
-                    model.time
-                        |> Maybe.map Tuple.first
-                        |> Maybe.withDefault Time.utc
+            here : Time.Zone
+            here =
+                model.time
+                    |> Maybe.map Tuple.first
+                    |> Maybe.withDefault Time.utc
 
-                maybeLastYear =
-                    Maybe.map (Time.toYear here) lastPosted
-              in
-              case maybeLastYear of
-                Nothing ->
-                    Html.text ""
+            maybeLastYear : Maybe Int
+            maybeLastYear =
+                Maybe.map (Time.toYear here) lastPosted
+          in
+          case maybeLastYear of
+            Nothing ->
+                Html.text ""
 
-                Just lastYear ->
-                    List.range 2015 lastYear
-                        |> List.map
-                            (\year ->
-                                Html.li []
-                                    [ Html.a
-                                        [ Html.Attributes.href
-                                            ("/demos/" ++ String.fromInt year)
-                                        ]
-                                        [ Html.text (String.fromInt year) ]
+            Just lastYear ->
+                List.range 2015 lastYear
+                    |> List.map
+                        (\year ->
+                            Html.li []
+                                [ Html.a
+                                    [ Html.Attributes.href
+                                        ("/demos/" ++ String.fromInt year)
                                     ]
-                            )
-                        |> Html.ul []
-            ]
-        }
-
-    else
-        { title = ""
-        , body =
-            [ model.posts
-                |> List.filterMap
-                    (\post ->
-                        if View.Post.isMatch model.search post then
-                            Just post
-
-                        else
-                            Nothing
-                    )
-                |> View.Post.viewList messages model
-            ]
-        }
+                                    [ Html.text (String.fromInt year) ]
+                                ]
+                        )
+                    |> Html.ul []
+        ]
+    }

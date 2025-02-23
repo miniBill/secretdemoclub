@@ -12,9 +12,11 @@ import List.Extra
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
 import Route exposing (Route(..))
-import Route.Demos
-import Route.Demos.Year_
+import Route.Error
 import Route.Index
+import Route.Loading
+import Route.Login
+import Route.Posts
 import Task
 import Time
 import Url exposing (Url)
@@ -86,6 +88,7 @@ init flags url key =
                     in
                     ()
 
+        index : Maybe Url
         index =
             Result.toMaybe decodedFlags
 
@@ -159,24 +162,22 @@ view model =
     let
         content : View Msg
         content =
-            case ( model.route, model.posts ) of
-                ( Index, _ ) ->
-                    Route.Index.view { search = Search, play = Play } model
+            if model.route == Index && String.isEmpty model.search then
+                Route.Index.view model
 
-                ( _, RemoteData.NotAsked ) ->
-                    Route.Login.view
+            else
+                case model.posts of
+                    RemoteData.NotAsked ->
+                        Route.Login.view
 
-                ( _, RemoteData.Failure err ) ->
-                    Route.ErrorPage.view err
+                    RemoteData.Failure err ->
+                        Route.Error.view err
 
-                ( _, RemoteData.Loading ) ->
-                    Route.Loading.view
+                    RemoteData.Loading ->
+                        Route.Loading.view
 
-                ( Demos Nothing, RemoteData.Success posts ) ->
-                    Route.Demos.view { search = Search, play = Play } model posts
-
-                ( Demos (Just year), RemoteData.Success posts ) ->
-                    Route.Demos.Year_.view { search = Search, play = Play } model year posts
+                    RemoteData.Success posts ->
+                        Route.Posts.view { play = Play } model posts
     in
     { title =
         if String.isEmpty content.title then
@@ -250,13 +251,22 @@ update msg model =
             ( { model | playing = Just url }, Cmd.none )
 
         LoadedPosts (ConcurrentTask.Success { index, posts }) ->
-            ( { model | index = Just index, posts = posts }, saveIndex index )
+            ( { model | index = Just index, posts = RemoteData.Success posts }, saveIndex index )
 
-        LoadedPosts (ConcurrentTask.Error _) ->
-            Debug.todo "branch 'LoadedPosts (Error _)' not implemented"
+        LoadedPosts (ConcurrentTask.Error err) ->
+            ( { model | posts = RemoteData.Failure err }, Cmd.none )
 
-        LoadedPosts (ConcurrentTask.UnexpectedError _) ->
-            Debug.todo "branch 'LoadedPosts (UnexpectedError _)' not implemented"
+        LoadedPosts (ConcurrentTask.UnexpectedError err) ->
+            let
+                _ =
+                    Debug.log "error" err
+            in
+            ( { model
+                | posts =
+                    RemoteData.Failure Http.NetworkError
+              }
+            , Cmd.none
+            )
 
         HereAndNow here now ->
             ( { model | time = Just ( here, now ) }, Cmd.none )
