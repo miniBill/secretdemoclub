@@ -113,16 +113,39 @@ task config =
                             |> BackendTask.sequence
                             |> BackendTask.map List.concat
             )
-        |> Spinner.Reader.withStep "Writing output"
+        |> Spinner.Reader.withStep "Writing posts"
             (\_ cachedPosts ->
                 cachedPosts
                     |> List.map (writePost config)
                     |> List.Extra.greedyGroupsOf 10
                     |> List.map BackendTask.combine
                     |> BackendTask.sequence
-                    |> BackendTask.map (\_ -> ())
+                    |> BackendTask.map List.concat
+            )
+        |> Spinner.Reader.withStep "Writing index"
+            (\_ contentAddresses ->
+                let
+                    path : String
+                    path =
+                        config.workDir ++ "/index.md"
+
+                    body : String
+                    body =
+                        contentAddresses
+                            |> List.map contentAddressToPath
+                            |> String.join "\n"
+                in
+                Do.allowFatal
+                    (Script.writeFile
+                        { path = path
+                        , body = body
+                        }
+                    )
+                <| \_ ->
+                copyToContentAddressableStorage config { path = path, extension = "md" }
             )
         |> Spinner.Reader.runSteps
+        |> BackendTask.map (\_ -> ())
 
 
 cachePost : Config -> Rss.Post -> BackendTask FatalError { image : ContentAddress, media : ContentAddress, post : Rss.Post }
@@ -132,7 +155,7 @@ cachePost config post =
     BackendTask.succeed { image = image, media = media, post = post }
 
 
-writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Rss.Post } -> BackendTask FatalError ()
+writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Rss.Post } -> BackendTask FatalError ContentAddress
 writePost config { image, media, post } =
     let
         filename : String
@@ -152,40 +175,43 @@ writePost config { image, media, post } =
             ]
                 |> String.concat
 
-        postsPath : PostsPath
-        postsPath =
-            PostsPath { filename = filename, extension = "md" }
+        postPath : PostPath
+        postPath =
+            PostPath { filename = filename, extension = "md" }
 
         target : String
         target =
-            postsPathToPath config postsPath
+            postPathToPath config postPath
+
+        category : String
+        category =
+            titleToCategory post.title
+
+        body : String
+        body =
+            [ "Title: " ++ Rss.titleToString post.title
+            , "Category: " ++ category
+            , "Date: " ++ String.fromInt (Time.posixToMillis post.pubDate)
+            , "Image: " ++ contentAddressToPath image
+            , "Link: " ++ post.link
+            , "Media: " ++ contentAddressToPath media
+            ]
+                |> String.join "\n"
     in
     Do.glob target <| \existing ->
-    if not config.force && not (List.isEmpty existing) then
-        BackendTask.succeed ()
+    Do.do
+        (if not config.force && not (List.isEmpty existing) then
+            BackendTask.succeed ()
 
-    else
-        let
-            body : String
-            body =
-                [ "Title: " ++ Rss.titleToString post.title
-                , "Category: " ++ category
-                , "Date: " ++ String.fromInt (Time.posixToMillis post.pubDate)
-                , "Image: " ++ contentAddressToPath image
-                , "Link: " ++ post.link
-                , "Media: " ++ contentAddressToPath media
-                ]
-                    |> String.join "\n"
-
-            category : String
-            category =
-                titleToCategory post.title
-        in
-        Script.writeFile
-            { path = target
-            , body = body
-            }
-            |> BackendTask.allowFatal
+         else
+            Script.writeFile
+                { path = target
+                , body = body
+                }
+                |> BackendTask.allowFatal
+        )
+    <| \_ ->
+    copyPostToContentAddressableStorage config postPath
 
 
 titleToCategory : Rss.Title -> String
@@ -252,12 +278,12 @@ mediaPathToPath config (MediaPath { filename, extension }) =
     String.join "/" [ config.workDir, "media", filename ++ "." ++ extension ]
 
 
-type PostsPath
-    = PostsPath { filename : String, extension : String }
+type PostPath
+    = PostPath { filename : String, extension : String }
 
 
-postsPathToPath : Config -> PostsPath -> String
-postsPathToPath config (PostsPath { filename, extension }) =
+postPathToPath : Config -> PostPath -> String
+postPathToPath config (PostPath { filename, extension }) =
     String.join "/" [ config.workDir, "posts", filename ++ "." ++ extension ]
 
 
@@ -270,13 +296,24 @@ contentAddressToPath (ContentAddress { filename, extension }) =
     filename ++ "." ++ extension
 
 
-copyToContentAddressableStorage : Config -> MediaPath -> BackendTask FatalError ContentAddress
-copyToContentAddressableStorage config ((MediaPath { extension }) as mediaPath) =
-    let
-        path : String
-        path =
-            mediaPathToPath config mediaPath
-    in
+copyMediaToContentAddressableStorage : Config -> MediaPath -> BackendTask FatalError ContentAddress
+copyMediaToContentAddressableStorage config ((MediaPath { extension }) as mediaPath) =
+    copyToContentAddressableStorage config
+        { path = mediaPathToPath config mediaPath
+        , extension = extension
+        }
+
+
+copyPostToContentAddressableStorage : Config -> PostPath -> BackendTask FatalError ContentAddress
+copyPostToContentAddressableStorage config ((PostPath { extension }) as postPath) =
+    copyToContentAddressableStorage config
+        { path = postPathToPath config postPath
+        , extension = extension
+        }
+
+
+copyToContentAddressableStorage : Config -> { path : String, extension : String } -> BackendTask FatalError ContentAddress
+copyToContentAddressableStorage config { path, extension } =
     Do.do (Script.command "sha512sum" [ path ]) <| \output ->
     let
         sum : String
@@ -361,7 +398,7 @@ cache config urlString =
                     BackendTask.succeed ()
                 )
             <| \_ ->
-            copyToContentAddressableStorage config mediaPath
+            copyMediaToContentAddressableStorage config mediaPath
 
 
 monthToNumber : Time.Month -> Int
