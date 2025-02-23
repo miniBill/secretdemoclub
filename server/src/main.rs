@@ -1,7 +1,7 @@
 use anyhow::anyhow;
 use axum::{
     http::{HeaderMap, HeaderValue},
-    routing::get,
+    routing::post,
     Json, Router,
 };
 use lazy_static::lazy_static;
@@ -23,7 +23,7 @@ lazy_static! {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let app: Router = Router::new()
-        .route("/api", get(post_api))
+        .route("/api", post(post_api))
         .fallback_service(ServeDir::new("public"));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
