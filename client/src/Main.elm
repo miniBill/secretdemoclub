@@ -277,7 +277,11 @@ view model =
                         Route.Login.view model
 
                 RemoteData.Success posts ->
-                    Route.Posts.view { play = Play } model posts
+                    if model.route == Index && String.isEmpty model.search then
+                        Route.Index.view model
+
+                    else
+                        Route.Posts.view { play = Play } model posts
     in
     { title =
         if String.isEmpty content.title then
