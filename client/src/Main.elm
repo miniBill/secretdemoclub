@@ -10,7 +10,8 @@ import Html.Events
 import Http
 import Json.Decode
 import List.Extra
-import Parser exposing (Parser)
+import Parser exposing ((|.), (|=), Parser)
+import Parser.Workaround
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
 import Route exposing (Route(..))
@@ -33,7 +34,7 @@ type alias Model =
     , index : Maybe String
     , posts : RemoteData Http.Error (List Post)
     , time : Maybe ( Time.Zone, Time.Posix )
-    , playing : Maybe Url
+    , playing : Maybe String
     }
 
 
@@ -41,7 +42,7 @@ type Msg
     = LoadedPosts (Result Http.Error { index : String, posts : List Post })
     | HereAndNow Time.Zone Time.Posix
     | Search String
-    | Play Url
+    | Play String
     | OnUrlChange Url
     | OnUrlRequest Browser.UrlRequest
 
@@ -214,7 +215,41 @@ loadPostsFromIndex index =
 
 postParser : Parser Post
 postParser =
-    Parser.problem "postParser"
+    let
+        line : String -> (String -> Maybe a) -> Parser a
+        line label validate =
+            Parser.succeed identity
+                |. Parser.keyword label
+                |. Parser.keyword ": "
+                |= (Parser.Workaround.chompUntilEndOrBefore "\n" |> Parser.getChompedString)
+                |> Parser.andThen
+                    (\raw ->
+                        case validate raw of
+                            Just res ->
+                                Parser.succeed res
+
+                            Nothing ->
+                                Parser.problem ("Wrong input: " ++ raw)
+                    )
+    in
+    Parser.succeed Post
+        |= line "Title" Just
+        |= line "Category" Just
+        |= line "Date"
+            (\date ->
+                date
+                    |> String.toInt
+                    |> Maybe.map Time.millisToPosix
+            )
+        |= line "Image" Just
+        |= line "Link" Url.fromString
+        |= line "Media" Just
+        |= Parser.oneOf
+            [ Parser.succeed Just
+                |= line "Number" Just
+            , Parser.succeed Nothing
+            ]
+        |. Parser.end
 
 
 view : Model -> Browser.Document Msg
@@ -288,7 +323,7 @@ view model =
                         --
                         , Html.Attributes.controls True
                         , Html.Attributes.autoplay True
-                        , Html.Attributes.src (Url.toString url)
+                        , Html.Attributes.src url
                         ]
                         []
 

@@ -8,8 +8,8 @@ type alias Post =
     { title : String
     , category : String
     , date : Time.Posix
-    , image : Url
+    , image : String
     , link : Url
-    , media : Url
+    , media : String
     , number : Maybe String
     }

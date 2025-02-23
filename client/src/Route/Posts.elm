@@ -8,12 +8,12 @@ import Html.Keyed
 import Post exposing (Post)
 import Route exposing (Route(..))
 import Time
-import Url exposing (Url)
+import Url
 import View exposing (View)
 
 
 view :
-    { messages | play : Url -> msg }
+    { messages | play : String -> msg }
     ->
         { model
             | time : Maybe ( Time.Zone, Time.Posix )
@@ -58,7 +58,7 @@ view messages model posts =
 
 
 viewList :
-    { messages | play : Url -> msg }
+    { messages | play : String -> msg }
     -> { model | time : Maybe ( Time.Zone, Time.Posix ) }
     -> List Post
     -> Html msg
@@ -74,7 +74,7 @@ viewList messages model posts =
 
 
 viewPost :
-    { messages | play : Url -> msg }
+    { messages | play : String -> msg }
     -> { model | time : Maybe ( Time.Zone, Time.Posix ) }
     -> Post
     -> Html msg
@@ -183,11 +183,11 @@ viewPost { play } model post =
                 [ ( "show-on-parent-hover", True )
                 , ( "show-if-hover-none", True )
                 ]
-            , Html.Attributes.href (Url.toString post.media)
+            , Html.Attributes.href ("/media/" ++ post.media)
             ]
             [ Html.text "Download" ]
         , Html.img
-            [ Html.Attributes.src (Url.toString post.image)
+            [ Html.Attributes.src ("/media/" ++ post.image)
             , Html.Attributes.style "width" "100%"
             ]
             []
