@@ -10,6 +10,7 @@ import Html.Events
 import Http
 import Json.Decode
 import List.Extra
+import Parser exposing (Parser)
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
 import Route exposing (Route(..))
@@ -127,6 +128,8 @@ init flags url key =
     ( model
     , Cmd.batch
         [ loadCmd
+
+        -- , Browser.Navigation.replaceUrl model.key (Route.toString model.route)
         , Task.map2 HereAndNow Time.here Time.now
             |> Task.perform identity
         ]
@@ -166,11 +169,11 @@ generalResolver response =
 
 
 loadPostsFromIndex : String -> Task Http.Error { index : String, posts : List Post }
-loadPostsFromIndex url =
+loadPostsFromIndex index =
     Http.task
         { method = "GET"
         , body = Http.emptyBody
-        , url = "/media/" ++ url
+        , url = "/media/" ++ index
         , headers = []
         , resolver = Http.stringResolver generalResolver
         , timeout = Nothing
@@ -180,8 +183,39 @@ loadPostsFromIndex url =
                 list
                     |> String.split ""
                     |> List.Extra.removeWhen String.isEmpty
-                    |> Debug.todo "TODO"
+                    |> List.map
+                        (\postUrl ->
+                            Http.task
+                                { method = "GET"
+                                , body = Http.emptyBody
+                                , url = "/media/" ++ postUrl
+                                , headers = []
+                                , resolver = Http.stringResolver generalResolver
+                                , timeout = Nothing
+                                }
+                                |> Task.andThen
+                                    (\body ->
+                                        case Parser.run postParser body of
+                                            Ok post ->
+                                                Task.succeed post
+
+                                            Err _ ->
+                                                Task.fail (Http.BadBody body)
+                                    )
+                        )
+                    |> Task.sequence
             )
+        |> Task.map
+            (\posts ->
+                { index = index
+                , posts = posts
+                }
+            )
+
+
+postParser : Parser Post
+postParser =
+    Parser.problem "postParser"
 
 
 view : Model -> Browser.Document Msg
