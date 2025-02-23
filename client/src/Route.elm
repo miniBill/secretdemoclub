@@ -1,6 +1,6 @@
 module Route exposing (Route(..), parse, toString)
 
-import AppUrl
+import AppUrl exposing (AppUrl)
 import Dict
 import Url exposing (Url)
 import Url.Builder
@@ -14,6 +14,7 @@ type Route
 parse : Url -> { route : Route, search : String }
 parse url =
     let
+        appUrl : AppUrl
         appUrl =
             AppUrl.fromUrl url
     in
