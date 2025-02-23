@@ -2,11 +2,12 @@ port module Main exposing (main)
 
 import Browser
 import Browser.Navigation exposing (Key)
-import ConcurrentTask
-import ConcurrentTask.Http
+import ConcurrentTask exposing (ConcurrentTask)
+import ConcurrentTask.Http as Http
 import Html
 import Html.Attributes
 import Json.Decode
+import List.Extra
 import Post exposing (Post)
 import Route exposing (Route(..))
 import Route.Demos
@@ -22,7 +23,7 @@ type alias Model =
     { key : Key
     , search : String
     , route : Route
-    , tasks : ConcurrentTask.Pool Msg ConcurrentTask.Http.Error ()
+    , pool : ConcurrentTask.Pool Msg Http.Error { index : Url, posts : List Post }
     , index : Maybe Url
     , posts : List Post
     , time : Maybe ( Time.Zone, Time.Posix )
@@ -31,12 +32,13 @@ type alias Model =
 
 
 type Msg
-    = LoadedPosts { index : Url, posts : List Post }
+    = LoadedPosts (ConcurrentTask.Response Http.Error { index : Url, posts : List Post })
     | HereAndNow Time.Zone Time.Posix
     | Search String
     | Play Url
     | OnUrlChange Url
     | OnUrlRequest Browser.UrlRequest
+    | OnProgress ( ConcurrentTask.Pool Msg Http.Error { index : Url, posts : List Post }, Cmd Msg )
 
 
 type alias Flags =
@@ -72,7 +74,7 @@ init flags url key =
 
         _ =
             case decodedFlags of
-                Ok index ->
+                Ok _ ->
                     ()
 
                 Err e ->
@@ -82,13 +84,29 @@ init flags url key =
                     in
                     ()
 
+        index =
+            Result.toMaybe decodedFlags
+
+        ( pool, loadCmd ) =
+            case index of
+                Nothing ->
+                    ( ConcurrentTask.pool, Cmd.none )
+
+                Just indexUrl ->
+                    loadPostsFrom indexUrl
+                        |> ConcurrentTask.attempt
+                            { pool = ConcurrentTask.pool
+                            , send = send
+                            , onComplete = LoadedPosts
+                            }
+
         model : Model
         model =
             { key = key
             , route = route
             , search = search
-            , tasks = ConcurrentTask.pool
-            , index = Result.toMaybe decodedFlags
+            , pool = pool
+            , index = index
             , posts = []
             , time = Nothing
             , playing = Nothing
@@ -96,21 +114,28 @@ init flags url key =
     in
     ( model
     , Cmd.batch
-        [ case model.index of
-            Nothing ->
-                Cmd.none
-
-            Just index ->
-                loadPostsFrom index
+        [ loadCmd
         , Task.map2 HereAndNow Time.here Time.now
             |> Task.perform identity
         ]
     )
 
 
-loadPostsFrom : Url -> Cmd msg
-loadPostsFrom arg1 =
-    Debug.todo "loadPostsFrom"
+loadPostsFrom : Url -> ConcurrentTask Http.Error { index : Url, posts : List Post }
+loadPostsFrom url =
+    Http.get
+        { url = Url.toString url
+        , headers = []
+        , expect = Http.expectString
+        , timeout = Nothing
+        }
+        |> ConcurrentTask.andThen
+            (\list ->
+                list
+                    |> String.split ""
+                    |> List.Extra.removeWhen String.isEmpty
+                    |> Debug.todo "TODO"
+            )
 
 
 urlDecoder : Json.Decode.Decoder Url
@@ -203,8 +228,14 @@ update msg model =
         Play url ->
             ( { model | playing = Just url }, Cmd.none )
 
-        LoadedPosts { index, posts } ->
+        LoadedPosts (ConcurrentTask.Success { index, posts }) ->
             ( { model | index = Just index, posts = posts }, saveIndex index )
+
+        LoadedPosts (ConcurrentTask.Error _) ->
+            Debug.todo "branch 'LoadedPosts (Error _)' not implemented"
+
+        LoadedPosts (ConcurrentTask.UnexpectedError _) ->
+            Debug.todo "branch 'LoadedPosts (UnexpectedError _)' not implemented"
 
         HereAndNow here now ->
             ( { model | time = Just ( here, now ) }, Cmd.none )
@@ -224,6 +255,9 @@ update msg model =
 
         OnUrlRequest (Browser.External url) ->
             ( model, Browser.Navigation.load url )
+
+        OnProgress ( pool, cmd ) ->
+            ( { model | pool = pool }, cmd )
 
 
 changeRouteTo : Model -> ( Model, Cmd Msg )
@@ -246,6 +280,17 @@ port sendToLocalStorage :
     -> Cmd msg
 
 
-subscriptions : model -> Sub msg
-subscriptions _ =
-    Sub.none
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    ConcurrentTask.onProgress
+        { send = send
+        , receive = receive
+        , onProgress = OnProgress
+        }
+        model.pool
+
+
+port send : Json.Decode.Value -> Cmd msg
+
+
+port receive : (Json.Decode.Value -> msg) -> Sub msg
