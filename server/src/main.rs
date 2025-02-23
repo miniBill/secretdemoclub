@@ -36,7 +36,7 @@ async fn post_api(code: String) -> String {
     let access_token = match get_access_token(code).await {
         Ok(access_token) => access_token,
         Err(e) => {
-            dbg!("{}", e);
+            dbg!(e);
             return "Token request failed".to_string();
         }
     };
@@ -44,7 +44,7 @@ async fn post_api(code: String) -> String {
     let tier: Tier = match get_tier(access_token.clone()).await {
         Ok(tier) => tier,
         Err(e) => {
-            dbg!("{}", e);
+            dbg!(e);
             return "Tier request failed".to_string();
         }
     };
@@ -64,14 +64,13 @@ async fn get_access_token(code: String) -> Result<String, reqwest::Error> {
         ("client_secret", client_secret.to_string()),
         ("redirect_uri", redirect_uri.to_string()),
     ];
-    let access_token = reqwest::Client::new()
+    let response = reqwest::Client::new()
         .post("https://www.patreon.com/api/oauth2/token")
         .form(&params)
         .send()
-        .await?
-        .json::<AccessToken>()
-        .await?
-        .access_token;
+        .await?;
+    dbg!(&response);
+    let access_token = response.json::<AccessToken>().await?.access_token;
 
     Ok(access_token)
 }
