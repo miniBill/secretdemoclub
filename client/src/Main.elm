@@ -1,13 +1,16 @@
 port module Main exposing (Flags, Model, Msg, main)
 
+import AppUrl
 import Browser
 import Browser.Navigation exposing (Key)
 import ConcurrentTask exposing (ConcurrentTask)
 import ConcurrentTask.Http as Http
+import Dict
 import Html
 import Html.Attributes
 import Html.Events
 import Json.Decode
+import Json.Encode
 import List.Extra
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
@@ -28,8 +31,8 @@ type alias Model =
     , root : Url
     , search : String
     , route : Route
-    , pool : ConcurrentTask.Pool Msg Http.Error { index : Url, posts : List Post }
-    , index : Maybe Url
+    , pool : ConcurrentTask.Pool Msg Http.Error { index : String, posts : List Post }
+    , index : Maybe String
     , posts : RemoteData Http.Error (List Post)
     , time : Maybe ( Time.Zone, Time.Posix )
     , playing : Maybe Url
@@ -37,13 +40,13 @@ type alias Model =
 
 
 type Msg
-    = LoadedPosts (ConcurrentTask.Response Http.Error { index : Url, posts : List Post })
+    = LoadedPosts (ConcurrentTask.Response Http.Error { index : String, posts : List Post })
     | HereAndNow Time.Zone Time.Posix
     | Search String
     | Play Url
     | OnUrlChange Url
     | OnUrlRequest Browser.UrlRequest
-    | OnProgress ( ConcurrentTask.Pool Msg Http.Error { index : Url, posts : List Post }, Cmd Msg )
+    | OnProgress ( ConcurrentTask.Pool Msg Http.Error { index : String, posts : List Post }, Cmd Msg )
 
 
 type alias Flags =
@@ -65,11 +68,11 @@ main =
 init : Flags -> Url -> Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        flagsDecoder : Json.Decode.Decoder Url
+        flagsDecoder : Json.Decode.Decoder String
         flagsDecoder =
-            Json.Decode.field "index" urlDecoder
+            Json.Decode.field "index" Json.Decode.string
 
-        decodedFlags : Result String Url
+        decodedFlags : Result String String
         decodedFlags =
             Json.Decode.decodeValue flagsDecoder flags
                 |> Result.mapError Json.Decode.errorToString
@@ -89,17 +92,31 @@ init flags url key =
                     in
                     ()
 
-        index : Maybe Url
+        index : Maybe String
         index =
             Result.toMaybe decodedFlags
 
         ( pool, loadCmd ) =
             case index of
                 Nothing ->
-                    ( ConcurrentTask.pool, Cmd.none )
+                    case
+                        AppUrl.fromUrl url
+                            |> .queryParameters
+                            |> Dict.get "code"
+                    of
+                        Just [ code ] ->
+                            loadPostsFromCode code
+                                |> ConcurrentTask.attempt
+                                    { pool = ConcurrentTask.pool
+                                    , send = send
+                                    , onComplete = LoadedPosts
+                                    }
+
+                        _ ->
+                            ( ConcurrentTask.pool, Cmd.none )
 
                 Just indexUrl ->
-                    loadPostsFrom indexUrl
+                    loadPostsFromIndex indexUrl
                         |> ConcurrentTask.attempt
                             { pool = ConcurrentTask.pool
                             , send = send
@@ -128,10 +145,22 @@ init flags url key =
     )
 
 
-loadPostsFrom : Url -> ConcurrentTask Http.Error { index : Url, posts : List Post }
-loadPostsFrom url =
+loadPostsFromCode : String -> ConcurrentTask Http.Error { index : String, posts : List Post }
+loadPostsFromCode code =
+    Http.post
+        { body = Http.jsonBody (Json.Encode.string code)
+        , url = "/api"
+        , headers = []
+        , expect = Http.expectJson Json.Decode.string
+        , timeout = Nothing
+        }
+        |> ConcurrentTask.andThen loadPostsFromIndex
+
+
+loadPostsFromIndex : String -> ConcurrentTask Http.Error { index : String, posts : List Post }
+loadPostsFromIndex url =
     Http.get
-        { url = Url.toString url
+        { url = "/media/" ++ url
         , headers = []
         , expect = Http.expectString
         , timeout = Nothing
@@ -298,10 +327,10 @@ changeRouteTo model =
     ( model, Browser.Navigation.replaceUrl model.key (Route.toString model) )
 
 
-saveIndex : Url -> Cmd msg
+saveIndex : String -> Cmd msg
 saveIndex url =
     { key = "index"
-    , value = Url.toString url
+    , value = url
     }
         |> sendToLocalStorage
 
