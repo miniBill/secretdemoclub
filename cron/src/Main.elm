@@ -199,7 +199,7 @@ writePost config { image, media, post } =
                 |> String.join "\n"
     in
     Do.glob target <| \existing ->
-    Do.do
+    Do.allowFatal
         (if not config.force && not (List.isEmpty existing) then
             Do.noop
 
@@ -208,7 +208,6 @@ writePost config { image, media, post } =
                 { path = target
                 , body = body
                 }
-                |> BackendTask.allowFatal
         )
     <| \_ ->
     copyPostToContentAddressableStorage config postPath
@@ -314,7 +313,7 @@ copyPostToContentAddressableStorage config ((PostPath { extension }) as postPath
 
 copyToContentAddressableStorage : Config -> { path : String, extension : String } -> BackendTask FatalError ContentAddress
 copyToContentAddressableStorage config { path, extension } =
-    Do.do (Script.command "sha512sum" [ path ]) <| \output ->
+    Do.command "sha512sum" [ path ] <| \output ->
     let
         sum : String
         sum =
