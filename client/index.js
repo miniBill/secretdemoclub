@@ -5,7 +5,7 @@ for (var i = 0; i < localStorage.length; i++) {
     if (!key) {
         continue;
     }
-    flags[key] = localStorage[key];
+    flags[key] = JSON.parse(localStorage[key]);
 }
 
 /** @typedef {{ sendToLocalStorage: { subscribe: ( handler: ( arg: { key: string, value: string } ) => void ) => void }}} Ports */
