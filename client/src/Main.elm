@@ -9,6 +9,8 @@ import Html.Attributes
 import Json.Decode
 import Post exposing (Post)
 import Route exposing (Route(..))
+import Route.Demos
+import Route.Demos.Year_
 import Route.Index
 import Task
 import Time
@@ -134,11 +136,11 @@ view model =
                 Index ->
                     Route.Index.view { search = Search, play = Play } model
 
-                Demos (Just year) ->
-                    Debug.todo "branch 'Demos (Just year)' not implemented"
-
                 Demos Nothing ->
-                    Debug.todo "branch 'Demos Nothing' not implemented"
+                    Route.Demos.view { search = Search, play = Play } model
+
+                Demos (Just year) ->
+                    Route.Demos.Year_.view { search = Search, play = Play } model year
     in
     { title =
         if String.isEmpty content.title then
@@ -204,14 +206,18 @@ update msg model =
         LoadedPosts { index, posts } ->
             ( { model | index = Just index, posts = posts }, saveIndex index )
 
-        HereAndNow _ _ ->
-            Debug.todo "branch 'HereAndNow _ _' not implemented"
+        HereAndNow here now ->
+            ( { model | time = Just ( here, now ) }, Cmd.none )
 
-        Search _ ->
-            Debug.todo "branch 'Search _' not implemented"
+        Search search ->
+            changeRouteTo { model | search = search }
 
         OnUrlChange url ->
-            changeRouteTo (Route.parse url) model
+            let
+                { route, search } =
+                    Route.parse url
+            in
+            changeRouteTo { model | route = route, search = search }
 
         OnUrlRequest (Browser.Internal url) ->
             ( model, Browser.Navigation.pushUrl model.key (Url.toString url) )
@@ -220,14 +226,9 @@ update msg model =
             ( model, Browser.Navigation.load url )
 
 
-changeRouteTo : { route : Route, search : String } -> Model -> ( Model, Cmd Msg )
-changeRouteTo { route, search } model =
-    let
-        newModel : Model
-        newModel =
-            { model | route = route, search = search }
-    in
-    ( newModel, Browser.Navigation.replaceUrl model.key (Route.toString newModel) )
+changeRouteTo : Model -> ( Model, Cmd Msg )
+changeRouteTo model =
+    ( model, Browser.Navigation.replaceUrl model.key (Route.toString model) )
 
 
 saveIndex : Url -> Cmd msg

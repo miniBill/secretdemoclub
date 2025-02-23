@@ -1,48 +1,31 @@
-module Route.Demos exposing (Msg, init, update, view)
+module Route.Demos exposing (view)
 
 import Html
 import Html.Attributes
 import Html.Events
-import Shared
-import Types exposing (DemosModel)
+import Post exposing (Post)
+import Time
 import Url exposing (Url)
 import View exposing (View)
 import View.Post
 
 
-
--- INIT
-
-
-init : DemosModel
-init =
-    { search = "" }
-
-
-
--- UPDATE
-
-
-type Msg
-    = Search String
-    | Play Url
-
-
-update : Msg -> DemosModel -> ( DemosModel, Maybe Shared.Msg )
-update msg model =
-    case msg of
-        Search search ->
-            ( { model | search = search }, Nothing )
-
-        Play media ->
-            ( model, Just (Shared.Play media) )
-
-
-view : Shared.Model -> DemosModel -> View Msg
-view shared model =
+view :
+    { messages
+        | play : Url -> msg
+        , search : String -> msg
+    }
+    ->
+        { model
+            | posts : List Post
+            , search : String
+            , time : Maybe ( Time.Zone, Time.Posix )
+        }
+    -> View msg
+view messages model =
     { title = "demos"
     , body =
-        [ shared.posts
+        [ model.posts
             |> List.filterMap
                 (\post ->
                     if
@@ -54,7 +37,7 @@ view shared model =
                     else
                         Nothing
                 )
-            |> View.Post.viewList Play shared
+            |> View.Post.viewList messages model
         ]
     , toolbar =
         [ Html.label []
@@ -62,7 +45,7 @@ view shared model =
             , Html.input
                 [ Html.Attributes.type_ "search"
                 , Html.Attributes.value model.search
-                , Html.Events.onInput Search
+                , Html.Events.onInput messages.search
                 ]
                 []
             ]

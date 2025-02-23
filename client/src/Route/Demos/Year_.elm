@@ -1,109 +1,40 @@
-module Route.Demos.Year_ exposing (Data, Model, Msg, RouteParams, route)
+module Route.Demos.Year_ exposing (view)
 
-import Effect exposing (Effect)
 import Html
 import Html.Attributes
 import Html.Events
-import Route exposing (Route)
-import RouteBuilder exposing (StatelessRoute)
-import Shared
+import Post exposing (Post)
 import Time
-import View exposing (View)
+import Url exposing (Url)
 import View.Post
 
 
-type alias Model =
-    { search : String }
-
-
-type Msg
-    = Search String
-    | Play String
-
-
-type alias RouteParams =
-    { year : String }
-
-
-route : StatelessRoute RouteParams Data ActionData
-route =
-    RouteBuilder.preRenderWithFallback
-        { head = head
-        , pages = pages
-        , data = data
+view :
+    { messages | play : Url -> msg, search : String -> a }
+    ->
+        { model
+            | posts : List Post
+            , search : String
+            , time : Maybe ( Time.Zone, Time.Posix )
         }
-        |> RouteBuilder.buildWithLocalState { view = view }
-
-
-page : Auth.User -> Shared.Model -> Route { year : String } -> Page Model Msg
-page _ shared route =
-    Page.new
-        { init = init
-        , update = update
-        , subscriptions = subscriptions
-        , view = view route.params shared
-        }
-        |> Page.withLayout (\_ -> Layouts.Default {})
-
-
-type alias Data =
-    { something : String
-    }
-
-
-type alias ActionData =
-    {}
-
-
-init : () -> ( Model, Effect Msg )
-init () =
-    ( { search = "" }
-    , Effect.none
-    )
-
-
-update : Msg -> Model -> ( Model, Effect Msg )
-update msg model =
-    case msg of
-        Search search ->
-            ( { model | search = search }, Effect.none )
-
-        Play url ->
-            ( model, Effect.play url )
-
-
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.none
-
-
-view : { year : String } -> Shared.Model -> Model -> View Msg
-view { year } shared model =
-    { title = year ++ "'s demos"
+    -> Int
+    -> { title : String, body : List (Html.Html msg), toolbar : List (Html.Html a) }
+view messages model year =
+    let
+        here =
+            Maybe.map Tuple.first model.time
+                |> Maybe.withDefault Time.utc
+    in
+    { title = String.fromInt year ++ "'s demos"
     , body =
-        [ shared.rss.posts
-            |> List.filterMap
+        [ model.posts
+            |> List.filter
                 (\post ->
-                    case post.title of
-                        Rss.Demo _ _ ->
-                            let
-                                yearString =
-                                    post.pubDate
-                                        |> Time.toYear
-                                            -- (Yes, I know UTC is wrong half of the year, shush, we're getting the Year and Orla doesn't post at midnight on new Year's eve)
-                                            Time.utc
-                                        |> String.fromInt
-                            in
-                            if yearString == year && View.Post.isMatch model.search post then
-                                Just post
-
-                            else
-                                Nothing
-
-                        _ ->
-                            Nothing
+                    (post.category == "Demo")
+                        && (Time.toYear here post.date == year)
+                        && View.Post.isMatch model.search post
                 )
-            |> View.Post.viewList Play shared
+            |> View.Post.viewList messages model
         ]
     , toolbar =
         [ Html.label []
@@ -111,7 +42,7 @@ view { year } shared model =
             , Html.input
                 [ Html.Attributes.type_ "search"
                 , Html.Attributes.value model.search
-                , Html.Events.onInput Search
+                , Html.Events.onInput messages.search
                 ]
                 []
             ]
