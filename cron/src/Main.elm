@@ -81,7 +81,7 @@ task config =
                 Do.exec "rm" [ "-rf", config.workDir ++ "/media-scratch" ] <| \_ ->
                 Do.exec "mkdir" [ config.workDir ++ "/media-scratch" ] <| \_ ->
                 Do.exec "mkdir" [ "-p", config.outputDir ] <| \_ ->
-                BackendTask.succeed ()
+                Do.noop
             )
         |> Spinner.Reader.withStep "Getting posts from the Patreon API"
             (\env _ ->
@@ -201,7 +201,7 @@ writePost config { image, media, post } =
     Do.glob target <| \existing ->
     Do.do
         (if not config.force && not (List.isEmpty existing) then
-            BackendTask.succeed ()
+            Do.noop
 
          else
             Script.writeFile
@@ -384,7 +384,7 @@ cache config urlString =
             Do.glob mediaTarget <| \existing ->
             Do.do
                 (if not (List.isEmpty existing) then
-                    BackendTask.succeed ()
+                    Do.noop
 
                  else
                     let
@@ -395,7 +395,7 @@ cache config urlString =
                     Do.log (String.join " " ("curl" :: opts)) <| \_ ->
                     Do.exec "curl" opts <| \_ ->
                     Do.exec "mv" [ scratchTarget, mediaTarget ] <| \_ ->
-                    BackendTask.succeed ()
+                    Do.noop
                 )
             <| \_ ->
             copyMediaToContentAddressableStorage config mediaPath
