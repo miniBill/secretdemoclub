@@ -1,6 +1,6 @@
 use anyhow::anyhow;
 use axum::{
-    http::{HeaderMap, HeaderValue},
+    http::{HeaderMap, HeaderValue, StatusCode},
     routing::post,
     Router,
 };
@@ -31,13 +31,13 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn post_api(code: String) -> String {
+async fn post_api(code: String) -> (StatusCode, String) {
     println!("POST {code}");
     let access_token = match get_access_token(code).await {
         Ok(access_token) => access_token,
         Err(e) => {
             dbg!(e);
-            return "Token request failed".to_string();
+            return (StatusCode::UNAUTHORIZED, "Token request failed".to_string());
         }
     };
 
@@ -45,14 +45,17 @@ async fn post_api(code: String) -> String {
         Ok(tier) => tier,
         Err(e) => {
             dbg!(e);
-            return "Tier request failed".to_string();
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Tier request failed".to_string(),
+            );
         }
     };
 
     match tier {
-        Tier::Bronze => bronze_tier.clone(),
-        Tier::Silver => silver_tier.clone(),
-        Tier::Gold => gold_tier.clone(),
+        Tier::Bronze => (StatusCode::OK, bronze_tier.clone()),
+        Tier::Silver => (StatusCode::OK, silver_tier.clone()),
+        Tier::Gold => (StatusCode::OK, gold_tier.clone()),
     }
 }
 
