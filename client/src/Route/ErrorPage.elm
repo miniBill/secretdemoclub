@@ -69,7 +69,7 @@ view error model =
             NotFound ->
                 "Page Not Found"
 
-            InternalError string ->
+            InternalError _ ->
                 "Unexpected Error"
     }
 

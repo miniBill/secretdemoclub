@@ -1,4 +1,4 @@
-module View.Post exposing (isMatch, view, viewList)
+module View.Post exposing (isMatch, viewList)
 
 import Date
 import Html exposing (Html)
