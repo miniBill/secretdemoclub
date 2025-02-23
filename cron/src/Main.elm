@@ -145,7 +145,7 @@ task config =
                 copyToContentAddressableStorage config { path = path, extension = "md" }
             )
         |> Spinner.Reader.runSteps
-        |> BackendTask.map (\_ -> ())
+        |> BackendTask.andThen (\contentAddress -> Script.log ("Index is at " ++ contentAddressToPath contentAddress))
 
 
 cachePost : Config -> Rss.Post -> BackendTask FatalError { image : ContentAddress, media : ContentAddress, post : Rss.Post }
@@ -326,7 +326,7 @@ copyToContentAddressableStorage config { path, extension } =
         target =
             config.outputDir ++ "/" ++ sum ++ "." ++ extension
     in
-    Do.exec "cp" [ path, target ] <| \_ ->
+    Do.exec "cp" [ "-n", path, target ] <| \_ ->
     BackendTask.succeed (ContentAddress { filename = sum, extension = extension })
 
 
