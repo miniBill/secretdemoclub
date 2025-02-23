@@ -6,8 +6,8 @@ try {
         createServer: ({ onRequest, onUpgrade }) =>
             http
                 .createServer((request, response) => {
-                    if (request.url.startsWith("/api?")) {
-                        // Proxy /api?* to localhost:3000.
+                    if (request.url == "/api") {
+                        // Proxy /api to localhost:3000.
                         localhostProxy(request, response, 3000);
                     } else {
                         // Let elm-watch’s server do its thing for all other URLs.
