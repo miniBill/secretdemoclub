@@ -332,7 +332,7 @@ view model =
                         --
                         , Html.Attributes.controls True
                         , Html.Attributes.autoplay True
-                        , Html.Attributes.src url
+                        , Html.Attributes.src ("/media/" ++ url)
                         ]
                         []
 
