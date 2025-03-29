@@ -70,21 +70,17 @@ init flags url key =
         flagsDecoder =
             Json.Decode.field "index" Json.Decode.string
 
-        decodedFlags : Result String String
+        decodedFlags : Maybe String
         decodedFlags =
             Json.Decode.decodeValue flagsDecoder flags
-                |> Result.mapError Json.Decode.errorToString
+                |> Result.toMaybe
 
         { search, route } =
             Route.parse url
 
-        index : Maybe String
-        index =
-            Result.toMaybe decodedFlags
-
         loadCmd : Cmd Msg
         loadCmd =
-            case index of
+            case decodedFlags of
                 Nothing ->
                     case
                         AppUrl.fromUrl url
@@ -108,7 +104,7 @@ init flags url key =
             , root = { url | path = "", query = Nothing, fragment = Nothing }
             , route = route
             , search = search
-            , index = index
+            , index = decodedFlags
             , posts = RemoteData.NotAsked
             , time = Nothing
             , playing = Nothing
