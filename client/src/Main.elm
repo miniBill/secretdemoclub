@@ -78,8 +78,7 @@ init flags url key =
         { search, route } =
             Route.parse url
 
-        loadCmd : Cmd Msg
-        loadCmd =
+        ( loadCmd, posts ) =
             case decodedFlags of
                 Nothing ->
                     case
@@ -88,15 +87,19 @@ init flags url key =
                             |> Dict.get "code"
                     of
                         Just [ code ] ->
-                            loadPostsFromCode code
+                            ( loadPostsFromCode code
                                 |> Task.attempt LoadedPosts
+                            , RemoteData.Loading
+                            )
 
                         _ ->
-                            Cmd.none
+                            ( Cmd.none, RemoteData.NotAsked )
 
                 Just indexUrl ->
-                    loadPostsFromIndex indexUrl
+                    ( loadPostsFromIndex indexUrl
                         |> Task.attempt LoadedPosts
+                    , RemoteData.Loading
+                    )
 
         model : Model
         model =
@@ -105,7 +108,7 @@ init flags url key =
             , route = route
             , search = search
             , index = decodedFlags
-            , posts = RemoteData.NotAsked
+            , posts = posts
             , time = Nothing
             , playing = Nothing
             }
