@@ -1,5 +1,3 @@
-import { showDirectoryPicker } from "native-file-system-adapter";
-
 /** @type {{ [key: string]: string }} flags */
 const flags = {};
 for (var i = 0; i < localStorage.length; i++) {
@@ -15,7 +13,7 @@ for (var i = 0; i < localStorage.length; i++) {
  * @template {type} T
  */
 
-/** @typedef {{ sendToLocalStorage: ElmToJs<{key : string, value: string}>, saveFiles: ElmToJs<{url : string, filename: string}[]>}} Ports */
+/** @typedef {{ sendToLocalStorage: ElmToJs<{key : string, value: string}> }} Ports */
 /** @typedef {{ ports: Ports }} ElmApp */
 /** @type {ElmApp} app */
 const app = Elm.Main.init({
@@ -27,22 +25,6 @@ if (app.ports) {
     if (app.ports.sendToLocalStorage) {
         app.ports.sendToLocalStorage.subscribe(({ key, value }) => {
             window.localStorage[key] = JSON.stringify(value);
-        });
-    }
-    if (app.ports.saveFiles) {
-        app.ports.saveFiles.subscribe(async (files) => {
-            const directory = await showDirectoryPicker();
-
-            for (const { url, filename } of files) {
-                const response = await fetch(url);
-
-                const handle = await directory.getFileHandle(filename, {
-                    create: true,
-                });
-                const writer = await handle.createWritable();
-
-                await response.body.pipeTo(writer);
-            }
         });
     }
 }

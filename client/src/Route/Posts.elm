@@ -5,6 +5,7 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Html.Keyed
+import List.Extra
 import Post exposing (Post)
 import Route exposing (Route(..))
 import Time
@@ -15,7 +16,6 @@ import View exposing (View)
 view :
     { messages
         | play : String -> msg
-        , saveFiles : List Post -> msg
     }
     ->
         { model
@@ -67,9 +67,10 @@ view messages model posts =
     in
     { title = ""
     , body =
-        [ Html.button
-            [ Html.Events.onClick
-                (messages.saveFiles filteredPosts)
+        [ Html.a
+            [ Html.Attributes.href "TODO"
+
+            -- , Html.Attributes.download "TODO"
             ]
             [ Html.text "Download all" ]
         , filteredPosts
@@ -205,6 +206,15 @@ viewPost { play } model post =
                 , ( "show-if-hover-none", True )
                 ]
             , Html.Attributes.href ("/media/" ++ post.media)
+            , let
+                extension : String
+                extension =
+                    post.media
+                        |> String.split "."
+                        |> List.Extra.last
+                        |> Maybe.withDefault "mp3"
+              in
+              Html.Attributes.download (post.title ++ "." ++ extension)
             ]
             [ Html.text "Download" ]
         , Html.img

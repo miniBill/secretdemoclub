@@ -3,15 +3,12 @@
     "type": "module",
     "scripts": {
         "start": "node dev-server.js",
-        "build": "yarn build:esbuild && yarn build:elm",
-        "build:esbuild": "esbuild index.js --bundle --outfile=bundle.js",
-        "build:elm": "elm-watch make"
+        "build": "elm-watch make"
     },
     "devDependencies": {
         "elm": "^0.19.1-6",
         "elm-review": "^2.13.1",
-        "elm-watch": "^2.0.0-beta.6",
-        "esbuild": "^0.25.1"
+        "elm-watch": "^2.0.0-beta.6"
     },
     "dependencies": {
         "native-file-system-adapter": "^3.0.1"

@@ -43,7 +43,6 @@ type Msg
     | HereAndNow Time.Zone Time.Posix
     | Search String
     | Play String
-    | SaveFiles (List Post)
     | OnUrlChange Url
     | OnUrlRequest Browser.UrlRequest
 
@@ -192,7 +191,7 @@ loadPostsFromIndex index =
                                                     _ =
                                                         Debug.log "error parsing post" e
                                                 in
-                                                Task.fail (Http.BadBody (Debug.toString e))
+                                                Task.fail (Http.BadBody "Could not read posts from the server")
                                     )
                         )
                     |> Task.sequence
@@ -340,20 +339,10 @@ innerView model posts =
                 Route.Index.view model
 
             else
-                Route.Posts.view
-                    { play = Play
-                    , saveFiles = SaveFiles
-                    }
-                    model
-                    posts
+                Route.Posts.view { play = Play } model posts
 
         Demos _ ->
-            Route.Posts.view
-                { play = Play
-                , saveFiles = SaveFiles
-                }
-                model
-                posts
+            Route.Posts.view { play = Play } model posts
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -395,18 +384,6 @@ update msg model =
         OnUrlRequest (Browser.External url) ->
             ( model, Browser.Navigation.load url )
 
-        SaveFiles files ->
-            ( model
-            , files
-                |> List.map
-                    (\post ->
-                        { url = post.media
-                        , filename = post.title ++ ".mp3"
-                        }
-                    )
-                |> saveFiles
-            )
-
 
 changeRouteTo : Model -> ( Model, Cmd Msg )
 changeRouteTo model =
@@ -426,9 +403,6 @@ port sendToLocalStorage :
     , value : String
     }
     -> Cmd msg
-
-
-port saveFiles : List { url : String, filename : String } -> Cmd msg
 
 
 subscriptions : model -> Sub msg
