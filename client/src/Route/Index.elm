@@ -5,6 +5,7 @@ import Html.Attributes
 import List.Extra
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
+import Route
 import Time
 import View exposing (View)
 
@@ -46,24 +47,22 @@ view model =
                                 , Html.Attributes.style "flex-direction" "column"
                                 , Html.Attributes.style "gap" "8px"
                                 ]
-                                (case maybeYear of
+                                [ case maybeYear of
                                     Nothing ->
-                                        [ Html.text "All "
-                                        , Html.a
-                                            [ Html.Attributes.href "/demos"
-                                            ]
-                                            [ Html.text "Demos" ]
-                                        ]
+                                        Html.text "All"
 
                                     Just year ->
-                                        [ Html.text (String.fromInt year ++ " ")
-                                        , Html.a
-                                            [ Html.Attributes.href
-                                                ("/demos/" ++ String.fromInt year)
-                                            ]
-                                            [ Html.text "Demos" ]
-                                        ]
-                                )
+                                        Html.text (String.fromInt year)
+                                , Html.a
+                                    [ Html.Attributes.href
+                                        (Route.toString
+                                            { search = ""
+                                            , route = Route.Demos maybeYear
+                                            }
+                                        )
+                                    ]
+                                    [ Html.text "Demos" ]
+                                ]
                         )
                     |> Html.ul
                         [ Html.Attributes.style "display" "flex"
