@@ -78,18 +78,6 @@ init flags url key =
         { search, route } =
             Route.parse url
 
-        _ =
-            case decodedFlags of
-                Ok _ ->
-                    ()
-
-                Err e ->
-                    let
-                        _ =
-                            Debug.log "Error decoding flags" e
-                    in
-                    ()
-
         index : Maybe String
         index =
             Result.toMaybe decodedFlags
