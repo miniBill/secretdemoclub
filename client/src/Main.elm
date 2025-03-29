@@ -43,6 +43,7 @@ type Msg
     | HereAndNow Time.Zone Time.Posix
     | Search String
     | Play String
+    | SaveFiles (List Post)
     | OnUrlChange Url
     | OnUrlRequest Browser.UrlRequest
 
@@ -264,11 +265,7 @@ view model =
                         Route.Login.view model
 
                 RemoteData.Success posts ->
-                    if model.route == Index && String.isEmpty model.search then
-                        Route.Index.view model
-
-                    else
-                        Route.Posts.view { play = Play } model posts
+                    innerView model posts
     in
     { title =
         if String.isEmpty content.title then
@@ -335,6 +332,30 @@ view model =
     }
 
 
+innerView : Model -> List Post -> View Msg
+innerView model posts =
+    case model.route of
+        Index ->
+            if String.isEmpty model.search then
+                Route.Index.view model
+
+            else
+                Route.Posts.view
+                    { play = Play
+                    , saveFiles = SaveFiles
+                    }
+                    model
+                    posts
+
+        Demos _ ->
+            Route.Posts.view
+                { play = Play
+                , saveFiles = SaveFiles
+                }
+                model
+                posts
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -374,6 +395,18 @@ update msg model =
         OnUrlRequest (Browser.External url) ->
             ( model, Browser.Navigation.load url )
 
+        SaveFiles files ->
+            ( model
+            , files
+                |> List.map
+                    (\post ->
+                        { url = post.media
+                        , filename = post.title ++ ".mp3"
+                        }
+                    )
+                |> saveFiles
+            )
+
 
 changeRouteTo : Model -> ( Model, Cmd Msg )
 changeRouteTo model =
@@ -393,6 +426,9 @@ port sendToLocalStorage :
     , value : String
     }
     -> Cmd msg
+
+
+port saveFiles : List { url : String, filename : String } -> Cmd msg
 
 
 subscriptions : model -> Sub msg

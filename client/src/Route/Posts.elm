@@ -13,7 +13,10 @@ import View exposing (View)
 
 
 view :
-    { messages | play : String -> msg }
+    { messages
+        | play : String -> msg
+        , saveFiles : List Post -> msg
+    }
     ->
         { model
             | time : Maybe ( Time.Zone, Time.Posix )
@@ -29,29 +32,47 @@ view messages model posts =
             Maybe.map Tuple.first model.time
                 |> Maybe.withDefault Time.utc
 
-        filter : Post -> Bool
-        filter post =
+        filteredPosts : List Post
+        filteredPosts =
+            List.filter
+                (\post ->
+                    isCorrectCategory post
+                        && isCorrectYear post
+                        && isMatch model.search post
+                )
+                posts
+
+        isCorrectCategory : Post -> Bool
+        isCorrectCategory post =
+            case model.route of
+                Index ->
+                    True
+
+                Demos _ ->
+                    post.category == "Demo"
+
+        isCorrectYear : Post -> Bool
+        isCorrectYear post =
             case model.route of
                 Index ->
                     True
 
                 Demos maybeYear ->
-                    (post.category == "Demo")
-                        && (case maybeYear of
-                                Nothing ->
-                                    True
+                    case maybeYear of
+                        Nothing ->
+                            True
 
-                                Just year ->
-                                    Time.toYear here post.date == year
-                           )
+                        Just year ->
+                            Time.toYear here post.date == year
     in
     { title = ""
     , body =
-        [ posts
-            |> List.filter
-                (\post ->
-                    filter post && isMatch model.search post
-                )
+        [ Html.button
+            [ Html.Events.onClick
+                (messages.saveFiles filteredPosts)
+            ]
+            [ Html.text "Download all" ]
+        , filteredPosts
             |> viewList messages model
         ]
     }
