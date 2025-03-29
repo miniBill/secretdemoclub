@@ -13,5 +13,5 @@ view =
                 ]
             ]
         ]
-    , title = "=("
+    , title = "Loading..."
     }
