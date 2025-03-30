@@ -1,4 +1,4 @@
-module Rss.Parser exposing (Error(..), ErrorWithPath, Path, errorToString, parse)
+module Rss.Parser exposing (Error(..), ErrorWithPath, Path, errorToString, parse, titleParser)
 
 import Imf.DateTime
 import List.Extra
