@@ -228,11 +228,16 @@ viewPost { play } model post =
 isMatch : String -> Post -> Bool
 isMatch needle post =
     let
-        cleanNeedle : String
-        cleanNeedle =
-            needle
+        normalize : String -> String
+        normalize input =
+            input
                 |> String.trim
                 |> String.toLower
+
+        cleanNeedle : String
+        cleanNeedle =
+            normalize needle
     in
     String.isEmpty cleanNeedle
-        || String.contains cleanNeedle (String.toLower (String.trim post.title))
+        || String.contains cleanNeedle (normalize post.title)
+        || String.contains cleanNeedle (normalize post.category)
