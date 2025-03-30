@@ -18,7 +18,8 @@
             "elm/url": "1.0.0",
             "elmcraft/core-extra": "2.1.0",
             "folkertdev/elm-sha2": "1.0.0",
-            "miniBill/elm-xml-parser": "1.0.2"
+            "miniBill/elm-xml-parser": "1.0.2",
+            "wolfadex/elm-rfc3339": "2.0.0"
         },
         "indirect": {
             "Chadtech/elm-bool-extra": "2.4.2",

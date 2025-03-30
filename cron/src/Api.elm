@@ -1,4 +1,4 @@
-module Api exposing (getPosts)
+module Api exposing (Attributes, AudioLinks, AudioRelationships, Embed, IdAndType, Image, Post, PostFile, PostMetadata, Relationships, Thumbnail, getPosts)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
@@ -8,7 +8,10 @@ import FatalError exposing (FatalError)
 import Json.Decode
 import Json.Decode.Pipeline
 import Pages.Script as Script
+import Parser.Advanced
+import Rfc3339
 import SHA256
+import Time
 import Url exposing (Url)
 import Url.Builder
 
@@ -213,7 +216,7 @@ type alias Post =
 
 type alias Attributes =
     { content : Maybe String
-    , createdAt : String
+    , createdAt : Time.Posix
     , embed : Maybe Embed
     , image : Maybe Image
     , metaImageUrl : Url
@@ -223,7 +226,7 @@ type alias Attributes =
     , postMetadata : Maybe PostMetadata
     , postType : String
     , previewAssetType : Maybe String
-    , publishedAt : String
+    , publishedAt : Time.Posix
     , thumbnail : Maybe Thumbnail
     , title : Maybe String
     , url : Url
@@ -363,7 +366,7 @@ attributesDecoder : Json.Decode.Decoder Attributes
 attributesDecoder =
     Json.Decode.succeed Attributes
         |> Json.Decode.Pipeline.optional "content" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> Json.Decode.Pipeline.required "created_at" Json.Decode.string
+        |> Json.Decode.Pipeline.required "created_at" rfc3339Decoder
         |> Json.Decode.Pipeline.optional "embed" (Json.Decode.map Just embedDecoder) Nothing
         |> Json.Decode.Pipeline.optional "image" (Json.Decode.map Just imageDecoder) Nothing
         |> Json.Decode.Pipeline.required "meta_image_url" urlDecoder
@@ -373,10 +376,24 @@ attributesDecoder =
         |> Json.Decode.Pipeline.optional "post_metadata" (Json.Decode.map Just postMetadataDecoder) Nothing
         |> Json.Decode.Pipeline.required "post_type" Json.Decode.string
         |> Json.Decode.Pipeline.optional "preview_asset_type" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> Json.Decode.Pipeline.required "published_at" Json.Decode.string
+        |> Json.Decode.Pipeline.required "published_at" rfc3339Decoder
         |> Json.Decode.Pipeline.optional "thumbnail" (Json.Decode.map Just thumbnailDecoder) Nothing
         |> Json.Decode.Pipeline.required "title" (Json.Decode.nullable Json.Decode.string)
         |> Json.Decode.Pipeline.required "url" urlDecoder
+
+
+rfc3339Decoder : Json.Decode.Decoder Time.Posix
+rfc3339Decoder =
+    Json.Decode.string
+        |> Json.Decode.andThen
+            (\raw ->
+                case Parser.Advanced.run Rfc3339.dateTimeOffsetParser raw of
+                    Ok { instant } ->
+                        Json.Decode.succeed instant
+
+                    Err _ ->
+                        Json.Decode.fail ("Invalid timestamp: " ++ raw)
+            )
 
 
 imageDecoder : Json.Decode.Decoder Image
