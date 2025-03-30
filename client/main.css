@@ -51,23 +51,17 @@ img {
     }
 }
 
-/* Colors */
-a:visited {
-    color: blue;
+body {
+    --background: oklch(0.05 0.0311 281.27);
+    --foreground: oklch(0.94 0.0267 281.27);
+    background-color: var(--background);
+    color: var(--foreground);
 }
 
-/* Dark mode */
-@media screen and (prefers-color-scheme: dark) {
-    body {
-        background-color: black;
-        color: white;
-    }
+a {
+    color: oklch(70.71% 0.1512 281.27);
+}
 
-    a {
-        color: oklch(70.71% 0.1512 264.05300810418345);
-    }
-
-    a:visited {
-        color: oklch(70.71% 0.1512 264.05300810418345);
-    }
+a:visited {
+    color: oklch(70.71% 0.1512 281.27);
 }

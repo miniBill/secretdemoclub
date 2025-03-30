@@ -280,7 +280,7 @@ view model =
                 , Html.Attributes.style "left" "0"
                 , Html.Attributes.style "right" "0"
                 , Html.Attributes.style "z-index" "1"
-                , Html.Attributes.style "background-color" "black"
+                , Html.Attributes.style "background-color" "var(--background)"
                 , Html.Attributes.style "padding" "8px"
                 ]
                 [ Html.div [ Html.Attributes.style "flex" "1" ]
@@ -309,7 +309,7 @@ view model =
                         , Html.Attributes.style "left" "0"
                         , Html.Attributes.style "right" "0"
                         , Html.Attributes.style "z-index" "1"
-                        , Html.Attributes.style "background-color" "black"
+                        , Html.Attributes.style "background-color" "var(--background)"
                         , Html.Attributes.style "padding" "8px"
 
                         --

@@ -46,6 +46,9 @@ view model =
                                 [ Html.Attributes.style "display" "flex"
                                 , Html.Attributes.style "flex-direction" "column"
                                 , Html.Attributes.style "gap" "8px"
+                                , Html.Attributes.style "padding" "8px"
+                                , Html.Attributes.style "border" "1px solid var(--foreground)"
+                                , Html.Attributes.style "border-radius" "8px"
                                 ]
                                 [ case maybeYear of
                                     Nothing ->

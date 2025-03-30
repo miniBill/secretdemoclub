@@ -107,7 +107,7 @@ viewPost { play } model post =
         , Html.Attributes.style "flex-direction" "column"
         , Html.Attributes.style "gap" "8px"
         , Html.Attributes.style "position" "relative"
-        , Html.Attributes.style "color" "white"
+        , Html.Attributes.style "color" "var(--foreground)"
         , Html.Events.onClick (play post.media)
         ]
         [ Html.div
