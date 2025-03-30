@@ -1,3 +1,5 @@
 .envrc
 work
 output
+elm-stuff
+yarn.lock
