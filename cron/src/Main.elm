@@ -11,6 +11,7 @@ import Cli.Program as Program
 import FatalError exposing (FatalError)
 import List.Extra
 import Pages.Script as Script exposing (Script)
+import Parser
 import Rss exposing (Title(..))
 import Rss.Parser
 import SHA256
@@ -87,31 +88,37 @@ task config =
             (\env _ ->
                 Api.getPosts { workDir = config.workDir, cookie = env.cookie }
             )
-        |> Spinner.Reader.withFatalStep "Downloading RSS feed"
-            (\{ rssUrl } _ ->
-                Http.get rssUrl Http.expectString
-            )
+        -- |> Spinner.Reader.withFatalStep "Downloading RSS feed"
+        --     (\{ rssUrl } apiPosts ->
+        --         BackendTask.map
+        --             (Tuple.pair apiPosts)
+        --             (Http.get rssUrl Http.expectString)
+        --     )
         |> Spinner.Reader.withStep "Downloading media"
-            (\_ xml ->
-                case Rss.Parser.parse xml of
-                    Err e ->
-                        let
-                            message : String
-                            message =
-                                "Could not parse RSS: "
-                                    ++ Rss.Parser.errorToString e.error
-                                    ++ "\n  at "
-                                    ++ String.join " > " e.path
-                        in
-                        BackendTask.fail (FatalError.fromString message)
-
-                    Ok posts ->
-                        posts
-                            |> List.map (\post -> cachePost config post)
-                            |> List.Extra.greedyGroupsOf config.parallel
-                            |> List.map BackendTask.combine
-                            |> BackendTask.sequence
-                            |> BackendTask.map List.concat
+            (\_ (apiPosts {- , xml -}) ->
+                -- case Rss.Parser.parse xml of
+                --     Err e ->
+                --         let
+                --             message : String
+                --             message =
+                --                 "Could not parse RSS: "
+                --                     ++ Rss.Parser.errorToString e.error
+                --                     ++ "\n  at "
+                --                     ++ String.join " > " e.path
+                --         in
+                --         BackendTask.fail (FatalError.fromString message)
+                --     Ok posts ->
+                apiPosts
+                    |> List.map (\post -> cachePost config post)
+                    |> List.Extra.greedyGroupsOf config.parallel
+                    |> List.map BackendTask.combine
+                    |> BackendTask.sequence
+                    |> BackendTask.map
+                        (\groups ->
+                            groups
+                                |> List.concat
+                                |> List.filterMap identity
+                        )
             )
         |> Spinner.Reader.withStep "Writing posts"
             (\_ cachedPosts ->
@@ -148,29 +155,81 @@ task config =
         |> BackendTask.andThen (\contentAddress -> Script.log ("Index is at " ++ contentAddressToPath contentAddress))
 
 
-cachePost : Config -> Rss.Post -> BackendTask FatalError { image : ContentAddress, media : ContentAddress, post : Rss.Post }
+cachePost : Config -> Api.Post -> BackendTask FatalError (Maybe { image : ContentAddress, media : ContentAddress, post : Api.Post })
 cachePost config post =
-    Do.do (cache config post.image) <| \image ->
-    Do.do (cache config post.mediaUrl) <| \media ->
-    BackendTask.succeed { image = image, media = media, post = post }
+    case post.attributes.postType of
+        "podcast" ->
+            case
+                Maybe.map2 Tuple.pair
+                    (Maybe.andThen .thumbSquareUrl post.attributes.image)
+                    (Maybe.andThen
+                        (\postFile ->
+                            case postFile of
+                                Api.PostFileVideo { url } ->
+                                    Just url
+
+                                Api.PostFileImage _ ->
+                                    Debug.todo "branch 'PostFileImage _' not implemented"
+                        )
+                        post.attributes.postFile
+                    )
+            of
+                Nothing ->
+                    BackendTask.succeed Nothing
+
+                Just ( thumbUrl, mediaUrl ) ->
+                    Do.do (cache config (Url.toString thumbUrl)) <| \image ->
+                    Do.do (cache config (Url.toString mediaUrl)) <| \media ->
+                    BackendTask.succeed (Just { image = image, media = media, post = post })
+
+        "livestream_youtube" ->
+            BackendTask.succeed Nothing
+
+        "text_only" ->
+            BackendTask.succeed Nothing
+
+        "image_file" ->
+            BackendTask.succeed Nothing
+
+        "link" ->
+            BackendTask.succeed Nothing
+
+        "video_embed" ->
+            BackendTask.succeed Nothing
+
+        "video_external_file" ->
+            BackendTask.succeed Nothing
+
+        "poll" ->
+            BackendTask.succeed Nothing
+
+        "livestream_crowdcast" ->
+            BackendTask.succeed Nothing
+
+        "audio_embed" ->
+            BackendTask.succeed Nothing
+
+        _ ->
+            Debug.todo ("Unsupported post type: " ++ post.attributes.postType ++ " for https://www.patreon.com" ++ post.attributes.patreonUrl)
 
 
-writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Rss.Post } -> BackendTask FatalError ContentAddress
+writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Api.Post } -> BackendTask FatalError ContentAddress
 writePost config { image, media, post } =
     let
         filename : String
         filename =
-            [ Time.toYear Time.utc post.pubDate
+            [ Time.toYear Time.utc post.attributes.publishedAt
                 |> String.fromInt
-            , Time.toMonth Time.utc post.pubDate
+            , Time.toMonth Time.utc post.attributes.publishedAt
                 |> monthToNumber
                 |> String.fromInt
                 |> String.padLeft 2 '0'
-            , Time.toDay Time.utc post.pubDate
+            , Time.toDay Time.utc post.attributes.publishedAt
                 |> String.fromInt
                 |> String.padLeft 2 '0'
             , " - "
-            , post.originalTitle
+            , post.attributes.title
+                |> Maybe.withDefault ""
                 |> String.replace "/" "_"
             ]
                 |> String.concat
@@ -183,15 +242,25 @@ writePost config { image, media, post } =
         target =
             postPathToPath config postPath
 
+        title : Rss.Title
+        title =
+            case post.attributes.title of
+                Nothing ->
+                    Other ""
+
+                Just t ->
+                    Parser.run Rss.Parser.titleParser t
+                        |> Result.withDefault (Other t)
+
         body : String
         body =
-            [ Just ("Title: " ++ Rss.titleToString post.title)
-            , Just ("Category: " ++ titleToCategory post.title)
-            , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.pubDate))
+            [ Just ("Title: " ++ Rss.titleToString title)
+            , Just ("Category: " ++ titleToCategory title)
+            , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.attributes.publishedAt))
             , Just ("Image: " ++ contentAddressToPath image)
-            , Just ("Link: " ++ post.link)
+            , Just ("Link: https://www.patreon.com" ++ post.attributes.patreonUrl)
             , Just ("Media: " ++ contentAddressToPath media)
-            , Maybe.map (\num -> "Number: " ++ num) (toNumber post.title)
+            , Maybe.map (\num -> "Number: " ++ num) (toNumber title)
             ]
                 |> List.filterMap identity
                 |> String.join "\n"

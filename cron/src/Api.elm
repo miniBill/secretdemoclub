@@ -1,4 +1,4 @@
-module Api exposing (Attributes, AudioLinks, AudioRelationships, Embed, IdAndType, Image, Post, PostFile, PostMetadata, Relationships, Thumbnail, getPosts)
+module Api exposing (Attributes, AudioLinks, AudioRelationships, Embed, IdAndType, Image, ImageColors, Post, PostFile(..), PostImage, PostMetadata, PostVideo, Relationships, Thumbnail, getPosts)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
