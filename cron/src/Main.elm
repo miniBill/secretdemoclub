@@ -11,9 +11,11 @@ import FatalError exposing (FatalError)
 import List.Extra
 import Pages.Script as Script exposing (Script)
 import Parser
+import Result.Extra
 import Rss exposing (Title(..))
 import Rss.Parser
 import SHA256
+import Set
 import Spinner.Reader
 import Time
 import Url
@@ -220,74 +222,121 @@ cachePost config post =
             BackendTask.succeed Nothing
 
         _ ->
-            Debug.todo ("Unsupported post type: " ++ post.attributes.postType ++ " for https://www.patreon.com" ++ post.attributes.patreonUrl)
+            BackendTask.fail (FatalError.fromString ("Unsupported post type: " ++ post.attributes.postType ++ " for https://www.patreon.com" ++ post.attributes.patreonUrl))
 
 
 writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Api.Post } -> BackendTask FatalError ContentAddress
 writePost config { image, media, post } =
-    let
-        filename : String
-        filename =
-            [ Time.toYear Time.utc post.attributes.publishedAt
-                |> String.fromInt
-            , Time.toMonth Time.utc post.attributes.publishedAt
-                |> monthToNumber
-                |> String.fromInt
-                |> String.padLeft 2 '0'
-            , Time.toDay Time.utc post.attributes.publishedAt
-                |> String.fromInt
-                |> String.padLeft 2 '0'
-            , " - "
-            , post.attributes.title
-                |> Maybe.withDefault ""
-                |> String.replace "/" "_"
-            ]
-                |> String.concat
+    getTier post
+        |> BackendTask.fromResult
+        |> BackendTask.andThen
+            (\tier ->
+                let
+                    filename : String
+                    filename =
+                        [ Time.toYear Time.utc post.attributes.publishedAt
+                            |> String.fromInt
+                        , Time.toMonth Time.utc post.attributes.publishedAt
+                            |> monthToNumber
+                            |> String.fromInt
+                            |> String.padLeft 2 '0'
+                        , Time.toDay Time.utc post.attributes.publishedAt
+                            |> String.fromInt
+                            |> String.padLeft 2 '0'
+                        , " - "
+                        , post.attributes.title
+                            |> Maybe.withDefault ""
+                            |> String.replace "/" "_"
+                        ]
+                            |> String.concat
 
-        postPath : PostPath
-        postPath =
-            PostPath { filename = filename, extension = "md" }
+                    postPath : PostPath
+                    postPath =
+                        PostPath { filename = filename, extension = "md" }
 
-        target : String
-        target =
-            postPathToPath config postPath
+                    target : String
+                    target =
+                        postPathToPath config postPath
 
-        title : Rss.Title
-        title =
-            case post.attributes.title of
-                Nothing ->
-                    Other ""
+                    title : Rss.Title
+                    title =
+                        case post.attributes.title of
+                            Nothing ->
+                                Other ""
 
-                Just t ->
-                    Parser.run Rss.Parser.titleParser t
-                        |> Result.withDefault (Other t)
+                            Just t ->
+                                Parser.run Rss.Parser.titleParser t
+                                    |> Result.withDefault (Other t)
 
-        body : String
-        body =
-            [ Just ("Title: " ++ Rss.titleToString title)
-            , Just ("Category: " ++ titleToCategory title)
-            , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.attributes.publishedAt))
-            , Just ("Image: " ++ contentAddressToPath image)
-            , Just ("Link: https://www.patreon.com" ++ post.attributes.patreonUrl)
-            , Just ("Media: " ++ contentAddressToPath media)
-            , Maybe.map (\num -> "Number: " ++ num) (toNumber title)
-            ]
-                |> List.filterMap identity
-                |> String.join "\n"
-    in
-    Do.glob target <| \existing ->
-    Do.allowFatal
-        (if not config.force && not (List.isEmpty existing) then
-            Do.noop
+                    body : String
+                    body =
+                        [ Just ("Title: " ++ Rss.titleToString title)
+                        , Just ("Category: " ++ titleToCategory title)
+                        , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.attributes.publishedAt))
+                        , Just ("Image: " ++ contentAddressToPath image)
+                        , Just ("Link: https://www.patreon.com" ++ post.attributes.patreonUrl)
+                        , Just ("Media: " ++ contentAddressToPath media)
+                        , Just ("Tier: " ++ tier)
+                        , Maybe.map (\num -> "Number: " ++ num) (toNumber title)
+                        ]
+                            |> List.filterMap identity
+                            |> String.join "\n"
+                in
+                Do.glob target <| \existing ->
+                Do.allowFatal
+                    (if not config.force && not (List.isEmpty existing) then
+                        Do.noop
 
-         else
-            Script.writeFile
-                { path = target
-                , body = body
-                }
-        )
-    <| \_ ->
-    copyPostToContentAddressableStorage config postPath
+                     else
+                        Script.writeFile
+                            { path = target
+                            , body = body
+                            }
+                    )
+                <| \_ ->
+                copyPostToContentAddressableStorage config postPath
+            )
+
+
+getTier : Api.Post -> Result FatalError String
+getTier post =
+    case
+        post.relationships.accessRules
+            |> List.filterMap .reward
+            |> Result.Extra.combineMap
+                (\reward ->
+                    case String.trim reward.title of
+                        "Gold membership" ->
+                            Ok "Gold"
+
+                        "Silver membership" ->
+                            Ok "Silver"
+
+                        "Bronze membership" ->
+                            Ok "Bronze"
+
+                        title ->
+                            Err (FatalError.fromString title)
+                )
+            |> Result.map (Set.fromList >> Set.toList)
+    of
+        Err e ->
+            Err e
+
+        Ok [ tier ] ->
+            Ok tier
+
+        Ok [] ->
+            Ok "Bronze"
+
+        Ok [ "Bronze", "Gold", "Silver" ] ->
+            Ok "Bronze"
+
+        Ok [ "Gold", "Silver" ] ->
+            Ok "Silver"
+
+        Ok tiers ->
+            Err (FatalError.fromString ("Unknown (too many access rules with a reward): " ++ String.join ", " tiers))
 
 
 titleToCategory : Rss.Title -> String
