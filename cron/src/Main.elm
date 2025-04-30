@@ -16,7 +16,7 @@ import Result.Extra
 import Rss exposing (Title(..))
 import Rss.Parser
 import SHA256
-import Set
+import Set exposing (Set)
 import Spinner.Reader
 import Time
 import Url exposing (Url)
@@ -113,8 +113,47 @@ task config =
                     Ok rssPosts ->
                         BackendTask.succeed ( apiPosts, rssPosts )
             )
-        |> Spinner.Reader.withStep "Downloading media"
+        |> Spinner.Reader.withStep "Checking posts' list"
             (\_ ( apiPosts, rssPosts ) ->
+                let
+                    apiSet : Set String
+                    apiSet =
+                        apiPosts
+                            |> List.map
+                                (\apiPost ->
+                                    "https://www.patreon.com" ++ apiPost.attributes.patreonUrl
+                                )
+                            |> Set.fromList
+
+                    rssSet : Set String
+                    rssSet =
+                        rssPosts
+                            |> List.map
+                                (\rssPost ->
+                                    rssPost.link
+                                )
+                            |> Set.fromList
+                in
+                -- case Set.diff apiSet rssSet |> Set.toList of
+                --     [] ->
+                --         BackendTask.succeed ( apiPosts, rssPosts )
+                --     missingInRss ->
+                --         BackendTask.fail
+                --             (FatalError.fromString
+                --                 ("Posts missing in RSS: " ++ String.join ", " missingInRss)
+                --             )
+                case Set.diff rssSet apiSet |> Set.toList of
+                    [] ->
+                        BackendTask.succeed ( apiPosts, rssPosts )
+
+                    missingInApi ->
+                        BackendTask.fail
+                            (FatalError.fromString
+                                ("Posts missing in API: " ++ String.join ", " missingInApi)
+                            )
+            )
+        |> Spinner.Reader.withStep "Downloading media"
+            (\_ ( apiPosts, _ ) ->
                 apiPosts
                     |> List.map (\post -> cachePost config post)
                     |> List.Extra.greedyGroupsOf config.parallel
