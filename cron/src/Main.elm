@@ -4,7 +4,6 @@ import Api
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
 import BackendTask.Env as Env
-import BackendTask.Http as Http
 import Cli.Option as Option
 import Cli.OptionsParser as OptionsParser
 import Cli.Program as Program
@@ -155,7 +154,7 @@ task config =
         |> BackendTask.andThen (\contentAddress -> Script.log ("Index is at " ++ contentAddressToPath contentAddress))
 
 
-cachePost : Config -> Api.RawPost -> BackendTask FatalError (Maybe { image : ContentAddress, media : ContentAddress, post : Api.RawPost })
+cachePost : Config -> Api.Post -> BackendTask FatalError (Maybe { image : ContentAddress, media : ContentAddress, post : Api.Post })
 cachePost config post =
     let
         _ =
@@ -224,7 +223,7 @@ cachePost config post =
             Debug.todo ("Unsupported post type: " ++ post.attributes.postType ++ " for https://www.patreon.com" ++ post.attributes.patreonUrl)
 
 
-writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Api.RawPost } -> BackendTask FatalError ContentAddress
+writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Api.Post } -> BackendTask FatalError ContentAddress
 writePost config { image, media, post } =
     let
         filename : String

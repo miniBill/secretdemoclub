@@ -1,4 +1,4 @@
-module Api exposing (Attributes, AudioLinks, AudioRelationships, AverageColorsOfCorners, Embed, IdAndType, Image, ImageColors, PostFile(..), PostImage, PostMetadata, RawPost, Relationships, Thumbnail, getPosts)
+module Api exposing (AccessRule, Attributes, AudioLinks, AudioRelationships, AverageColorsOfCorners, Embed, IdAndType, Image, ImageColors, ImageUrls, Media, Post, PostAudioVideo, PostFile(..), PostImage, PostMetadata, PostSize, PostTag, PostType, Relationships, Thumbnail, getPosts)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
@@ -10,6 +10,7 @@ import Json.Decode
 import Json.Encode
 import Pages.Script as Script
 import Parser.Advanced
+import Result.Extra
 import Rfc3339
 import SHA256
 import SeqDict exposing (SeqDict)
@@ -20,115 +21,117 @@ import Url.Builder
 
 getPosts :
     { a | workDir : String, cookie : String }
-    -> BackendTask FatalError (List RawPost)
+    -> BackendTask FatalError (List Post)
 getPosts cookie =
     let
-        rawPosts :
-            BackendTask
-                FatalError
-                ( List RawPost
-                , SeqDict { id : String, type_ : String } RawIncluded
-                )
+        rawPosts : BackendTask FatalError ( List RawPost, SeqDict IdAndType RawIncluded )
         rawPosts =
             getPaginated cookie postsUrl rawPostDecoder rawIncludedDecoder
     in
     rawPosts
         |> BackendTask.andThen
-            (\raw ->
-                BackendTask.succeed (Tuple.first raw)
+            (\( posts, included ) ->
+                posts
+                    |> Result.Extra.combineMap (\rawPost -> rawPostToPost included rawPost)
+                    |> BackendTask.fromResult
             )
 
 
+rawPostToPost :
+    SeqDict IdAndType RawIncluded
+    -> RawPost
+    -> Result FatalError Post
+rawPostToPost included rawPost =
+    Result.map
+        (\relationships ->
+            { id = rawPost.id
+            , attributes = rawPost.attributes
+            , relationships = relationships
+            , type_ = rawPost.type_
+            }
+        )
+        (rawRelationshipsToRelationships included rawPost.relationships)
+        |> Result.mapError FatalError.fromString
+
+
+rawRelationshipsToRelationships : SeqDict IdAndType RawIncluded -> RawRelationships -> Result String Relationships
+rawRelationshipsToRelationships included rawRelationships =
+    let
+        find : IdAndType -> (RawIncluded -> Result String value) -> Result String value
+        find key unpacker =
+            case SeqDict.get key included of
+                Nothing ->
+                    Err "Could not find"
+
+                Just value ->
+                    unpacker value
+
+        asAccessRule : RawIncluded -> Result String AccessRule
+        asAccessRule value =
+            case value of
+                RawIncludedPostAccessRule rule ->
+                    Ok rule
+
+                _ ->
+                    Err "Value is not a valid access rule"
+
+        asMedia : RawIncluded -> Result String Media
+        asMedia value =
+            case value of
+                RawIncludedMedia media ->
+                    Ok media
+
+                _ ->
+                    Err "Value is not a valid media"
+
+        asTag : RawIncluded -> Result String PostTag
+        asTag value =
+            case value of
+                RawIncludedPostTag media ->
+                    Ok media
+
+                _ ->
+                    Err "Value is not a valid post tag"
+
+        asContentUnlockOption : RawIncluded -> Result String {}
+        asContentUnlockOption value =
+            case value of
+                RawIncludedContentUnlockOption ->
+                    Ok {}
+
+                _ ->
+                    Err "Value is not a valid post tag"
+
+        findAll : (RawRelationships -> List IdAndType) -> (RawIncluded -> Result String value) -> Result String (List value)
+        findAll prop unpacker =
+            prop rawRelationships
+                |> Result.Extra.combineMap (\item -> find item unpacker)
+    in
+    Ok Relationships
+        |> Result.Extra.andMap (findAll .accessRules asAccessRule)
+        |> Result.Extra.andMap (findAll .attachmentsMedia asMedia)
+        |> Result.Extra.andMap (Ok rawRelationships.audio)
+        |> Result.Extra.andMap (Ok rawRelationships.audioPreview)
+        |> Result.Extra.andMap (findAll .images asMedia)
+        |> Result.Extra.andMap (findAll .video asMedia)
+        |> Result.Extra.andMap (findAll .media asMedia)
+        |> Result.Extra.andMap (findAll .userDefinedTags asTag)
+        |> Result.Extra.andMap (findAll .contentUnlockOptions asContentUnlockOption)
+
+
 type RawIncluded
-    = RawIncludedMedia IncludedMedia
-    | RawIncludedPostTag IncludedPostTag
-    | RawIncludedPostAccessRule IncludedAccessRule
+    = RawIncludedMedia Media
+    | RawIncludedPostTag PostTag
+    | RawIncludedPostAccessRule AccessRule
     | RawIncludedContentUnlockOption
     | RawIncludedReward IncludedReward
-
-
-type alias IncludedMedia =
-    { display : PostFile
-    , downloadUrl : String
-    , fileName : Maybe String
-    , imageUrls : Maybe ImageUrls
-    }
-
-
-type alias IncludedAccessRule =
-    { accessRuleType : String
-    , amountCents : Maybe Int
-    , currency : String
-    , postCount : Int
-    }
-
-
-type alias IncludedReward =
-    { amount : Int
-    , amountCents : Int
-    , createdAt : Time.Posix
-    , currency : String
-    , description : String
-    , discordRoleIds : List String
-    , editedAt : String
-    , imageUrl : Maybe String
-    , isFreeTier : Bool
-    , patronAmountCents : Int
-    , patronCurrency : String
-    , postCount : Int
-    , published : Bool
-    , publishedAt : Time.Posix
-    , remaining : Maybe Int
-    , requiresShipping : Bool
-    , title : String
-    , unpublishedAt : Maybe Time.Posix
-    , url : String
-    , welcomeMessage : Maybe String
-    , welcomeMessageUnsafe : Maybe String
-    , welcomeVideoEmbed : Maybe String
-    , welcomeVideoUrl : Maybe String
-    }
-
-
-type IncludedPostTag
-    = UserDefined String
-
-
-type alias ImageUrls =
-    { default : Maybe String
-    , defaultBlurred : Maybe String
-    , defaultBlurredSmall : Maybe String
-    , defaultLarge : Maybe String
-    , defaultSmall : String
-    , original : Maybe String
-    , thumbnail : String
-    , thumbnailLarge : Maybe String
-    , thumbnailSmall : Maybe String
-    , url : String
-    }
-
-
-imageUrlsDecoder : Json.Decode.Decoder ImageUrls
-imageUrlsDecoder =
-    DecodeComplete.object ImageUrls
-        |> DecodeComplete.optional "default" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.optional "default_blurred" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.optional "default_blurred_small" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.optional "default_large" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.required "default_small" Json.Decode.string
-        |> DecodeComplete.optional "original" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.required "thumbnail" Json.Decode.string
-        |> DecodeComplete.optional "thumbnail_large" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.optional "thumbnail_small" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.required "url" Json.Decode.string
-        |> DecodeComplete.complete
 
 
 rawIncludedDecoder : String -> Json.Decode.Decoder RawIncluded
 rawIncludedDecoder type_ =
     case type_ of
         "media" ->
-            DecodeComplete.object IncludedMedia
+            DecodeComplete.object Media
                 |> DecodeComplete.required "display" postFileDecoder
                 |> DecodeComplete.required "download_url" Json.Decode.string
                 |> DecodeComplete.required "file_name" (Json.Decode.nullable Json.Decode.string)
@@ -156,7 +159,7 @@ rawIncludedDecoder type_ =
                 |> Json.Decode.map RawIncludedPostTag
 
         "access-rule" ->
-            DecodeComplete.object IncludedAccessRule
+            DecodeComplete.object AccessRule
                 |> DecodeComplete.required "access_rule_type" Json.Decode.string
                 |> DecodeComplete.required "amount_cents" (Json.Decode.nullable Json.Decode.int)
                 |> DecodeComplete.required "currency" Json.Decode.string
@@ -208,10 +211,87 @@ rawIncludedDecoder type_ =
                 |> Json.Decode.andThen (\raw -> Json.Decode.fail (type_ ++ ": " ++ Debug.toString raw))
 
 
+type alias Media =
+    { display : PostFile
+    , downloadUrl : String
+    , fileName : Maybe String
+    , imageUrls : Maybe ImageUrls
+    }
+
+
+type alias AccessRule =
+    { accessRuleType : String
+    , amountCents : Maybe Int
+    , currency : String
+    , postCount : Int
+    }
+
+
+type alias IncludedReward =
+    { amount : Int
+    , amountCents : Int
+    , createdAt : Time.Posix
+    , currency : String
+    , description : String
+    , discordRoleIds : List String
+    , editedAt : String
+    , imageUrl : Maybe String
+    , isFreeTier : Bool
+    , patronAmountCents : Int
+    , patronCurrency : String
+    , postCount : Int
+    , published : Bool
+    , publishedAt : Time.Posix
+    , remaining : Maybe Int
+    , requiresShipping : Bool
+    , title : String
+    , unpublishedAt : Maybe Time.Posix
+    , url : String
+    , welcomeMessage : Maybe String
+    , welcomeMessageUnsafe : Maybe String
+    , welcomeVideoEmbed : Maybe String
+    , welcomeVideoUrl : Maybe String
+    }
+
+
+type PostTag
+    = UserDefined String
+
+
+type alias ImageUrls =
+    { default : Maybe String
+    , defaultBlurred : Maybe String
+    , defaultBlurredSmall : Maybe String
+    , defaultLarge : Maybe String
+    , defaultSmall : String
+    , original : Maybe String
+    , thumbnail : String
+    , thumbnailLarge : Maybe String
+    , thumbnailSmall : Maybe String
+    , url : String
+    }
+
+
+imageUrlsDecoder : Json.Decode.Decoder ImageUrls
+imageUrlsDecoder =
+    DecodeComplete.object ImageUrls
+        |> DecodeComplete.optional "default" (Json.Decode.map Just Json.Decode.string) Nothing
+        |> DecodeComplete.optional "default_blurred" (Json.Decode.map Just Json.Decode.string) Nothing
+        |> DecodeComplete.optional "default_blurred_small" (Json.Decode.map Just Json.Decode.string) Nothing
+        |> DecodeComplete.optional "default_large" (Json.Decode.map Just Json.Decode.string) Nothing
+        |> DecodeComplete.required "default_small" Json.Decode.string
+        |> DecodeComplete.optional "original" (Json.Decode.map Just Json.Decode.string) Nothing
+        |> DecodeComplete.required "thumbnail" Json.Decode.string
+        |> DecodeComplete.optional "thumbnail_large" (Json.Decode.map Just Json.Decode.string) Nothing
+        |> DecodeComplete.optional "thumbnail_small" (Json.Decode.map Just Json.Decode.string) Nothing
+        |> DecodeComplete.required "url" Json.Decode.string
+        |> DecodeComplete.complete
+
+
 type alias Page data included =
     { data : List data
     , next : Maybe String
-    , included : SeqDict { id : String, type_ : String } included
+    , included : SeqDict IdAndType included
     }
 
 
@@ -220,7 +300,7 @@ getPaginated :
     -> (String -> String)
     -> Json.Decode.Decoder data
     -> (String -> Json.Decode.Decoder included)
-    -> BackendTask FatalError ( List data, SeqDict { id : String, type_ : String } included )
+    -> BackendTask FatalError ( List data, SeqDict IdAndType included )
 getPaginated config toUrl dataDecoder includedDecoder =
     let
         pageDecoder : Json.Decode.Decoder (Page data included)
@@ -264,8 +344,8 @@ getPaginated config toUrl dataDecoder includedDecoder =
 
         go :
             String
-            -> List ( List data, SeqDict { id : String, type_ : String } included )
-            -> BackendTask FatalError ( List data, SeqDict { id : String, type_ : String } included )
+            -> List ( List data, SeqDict IdAndType included )
+            -> BackendTask FatalError ( List data, SeqDict IdAndType included )
         go cursor acc =
             let
                 url : String
@@ -285,64 +365,69 @@ getPaginated config toUrl dataDecoder includedDecoder =
                 target =
                     String.join "/" [ config.workDir, "internal-api", filename ]
             in
-            Do.glob target <| \existing ->
-            Do.do
-                (if not (List.isEmpty existing) then
-                    File.rawFile target
-                        |> BackendTask.allowFatal
+            Do.glob target <|
+                \existing ->
+                    Do.do
+                        (if not (List.isEmpty existing) then
+                            File.rawFile target
+                                |> BackendTask.allowFatal
 
-                 else
-                    let
-                        httpRequest : BackendTask { fatal : FatalError, recoverable : Http.Error } String
-                        httpRequest =
-                            Http.request
-                                { url = url
-                                , method = "GET"
-                                , body = Http.emptyBody
-                                , headers =
-                                    [ ( "User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0" )
-                                    , ( "Referer", "https://www.patreon.com/c/orlagartland/posts" )
-                                    , ( "Cookie", config.cookie )
-                                    ]
-                                , retries = Nothing
-                                , timeoutInMs = Nothing
-                                }
-                                Http.expectString
+                         else
+                            let
+                                httpRequest : BackendTask { fatal : FatalError, recoverable : Http.Error } String
+                                httpRequest =
+                                    Http.request
+                                        { url = url
+                                        , method = "GET"
+                                        , body = Http.emptyBody
+                                        , headers =
+                                            [ ( "User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0" )
+                                            , ( "Referer", "https://www.patreon.com/c/orlagartland/posts" )
+                                            , ( "Cookie", config.cookie )
+                                            ]
+                                        , retries = Nothing
+                                        , timeoutInMs = Nothing
+                                        }
+                                        Http.expectString
 
-                        writeFile : String -> BackendTask { fatal : FatalError, recoverable : Script.Error } ()
-                        writeFile body =
-                            Script.writeFile
-                                { path = target
-                                , body = body
-                                }
-                    in
-                    Do.allowFatal httpRequest <| \body ->
-                    Do.allowFatal (writeFile body) <| \_ ->
-                    BackendTask.succeed body
-                )
-            <| \content ->
-            Do.do (decodeContent content) <| \{ next, data, included } ->
-            let
-                nextData : List ( List data, SeqDict { id : String, type_ : String } included )
-                nextData =
-                    ( data, included ) :: acc
-            in
-            case next of
-                Just nextCursor ->
-                    go nextCursor nextData
+                                writeFile : String -> BackendTask { fatal : FatalError, recoverable : Script.Error } ()
+                                writeFile body =
+                                    Script.writeFile
+                                        { path = target
+                                        , body = body
+                                        }
+                            in
+                            Do.allowFatal httpRequest <|
+                                \body ->
+                                    Do.allowFatal (writeFile body) <|
+                                        \_ ->
+                                            BackendTask.succeed body
+                        )
+                    <|
+                        \content ->
+                            Do.do (decodeContent content) <|
+                                \{ next, data, included } ->
+                                    let
+                                        nextData : List ( List data, SeqDict IdAndType included )
+                                        nextData =
+                                            ( data, included ) :: acc
+                                    in
+                                    case next of
+                                        Just nextCursor ->
+                                            go nextCursor nextData
 
-                Nothing ->
-                    let
-                        ( finalData, finalIncluded ) =
-                            List.unzip nextData
-                    in
-                    ( finalData
-                        |> List.reverse
-                        |> List.concat
-                        |> List.reverse
-                    , List.foldl SeqDict.union SeqDict.empty finalIncluded
-                    )
-                        |> BackendTask.succeed
+                                        Nothing ->
+                                            let
+                                                ( finalData, finalIncluded ) =
+                                                    List.unzip nextData
+                                            in
+                                            ( finalData
+                                                |> List.reverse
+                                                |> List.concat
+                                                |> List.reverse
+                                            , List.foldl SeqDict.union SeqDict.empty finalIncluded
+                                            )
+                                                |> BackendTask.succeed
     in
     go "" []
 
@@ -431,12 +516,48 @@ postsUrl cursor =
         ]
 
 
-type alias RawPost =
+type alias Post =
     { attributes : Attributes
     , id : String
     , relationships : Relationships
-    , type_ : String
+    , type_ : PostType
     }
+
+
+type alias RawPost =
+    { attributes : Attributes
+    , id : String
+    , relationships : RawRelationships
+    , type_ : PostType
+    }
+
+
+rawPostDecoder : Json.Decode.Decoder RawPost
+rawPostDecoder =
+    DecodeComplete.object RawPost
+        |> DecodeComplete.required "attributes" attributesDecoder
+        |> DecodeComplete.required "id" Json.Decode.string
+        |> DecodeComplete.required "relationships" relationshipsDecoder
+        |> DecodeComplete.required "type" postTypeDecoder
+        |> DecodeComplete.complete
+
+
+type PostType
+    = PostTypePost
+
+
+postTypeDecoder : Json.Decode.Decoder PostType
+postTypeDecoder =
+    Json.Decode.string
+        |> Json.Decode.andThen
+            (\type_ ->
+                case type_ of
+                    "post" ->
+                        Json.Decode.succeed PostTypePost
+
+                    _ ->
+                        Json.Decode.fail ("Unexpected post type: " ++ type_)
+            )
 
 
 type alias Attributes =
@@ -544,6 +665,19 @@ type alias GifThumbnail =
 
 
 type alias Relationships =
+    { accessRules : List AccessRule
+    , attachmentsMedia : List Media
+    , audio : Maybe AudioRelationships
+    , audioPreview : Maybe AudioRelationships
+    , images : List Media
+    , video : List Media
+    , media : List Media
+    , userDefinedTags : List PostTag
+    , contentUnlockOptions : List {}
+    }
+
+
+type alias RawRelationships =
     { accessRules : List IdAndType
     , attachmentsMedia : List IdAndType
     , audio : Maybe AudioRelationships
@@ -587,16 +721,6 @@ type alias AverageColorsOfCorners =
     , topLeft : String
     , topRight : String
     }
-
-
-rawPostDecoder : Json.Decode.Decoder RawPost
-rawPostDecoder =
-    DecodeComplete.object RawPost
-        |> DecodeComplete.required "attributes" attributesDecoder
-        |> DecodeComplete.required "id" Json.Decode.string
-        |> DecodeComplete.required "relationships" relationshipsDecoder
-        |> DecodeComplete.required "type" Json.Decode.string
-        |> DecodeComplete.complete
 
 
 attributesDecoder : Json.Decode.Decoder Attributes
@@ -689,9 +813,9 @@ postMetadataDecoder =
         ]
 
 
-relationshipsDecoder : Json.Decode.Decoder Relationships
+relationshipsDecoder : Json.Decode.Decoder RawRelationships
 relationshipsDecoder =
-    DecodeComplete.object Relationships
+    DecodeComplete.object RawRelationships
         |> DecodeComplete.required "access_rules" listOfIdAndTypeDecoder
         |> DecodeComplete.optional "attachments_media" listOfIdAndTypeDecoder []
         |> DecodeComplete.optional "audio"
