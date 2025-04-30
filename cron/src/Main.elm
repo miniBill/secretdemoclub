@@ -155,8 +155,16 @@ task config =
         |> BackendTask.andThen (\contentAddress -> Script.log ("Index is at " ++ contentAddressToPath contentAddress))
 
 
-cachePost : Config -> Api.Post -> BackendTask FatalError (Maybe { image : ContentAddress, media : ContentAddress, post : Api.Post })
+cachePost : Config -> Api.RawPost -> BackendTask FatalError (Maybe { image : ContentAddress, media : ContentAddress, post : Api.RawPost })
 cachePost config post =
+    let
+        _ =
+            if post.id == "6184215" && False then
+                Debug.log "'change'" post
+
+            else
+                post
+    in
     case post.attributes.postType of
         "podcast" ->
             case
@@ -165,11 +173,14 @@ cachePost config post =
                     (Maybe.andThen
                         (\postFile ->
                             case postFile of
-                                Api.PostFileVideo { url } ->
+                                Api.PostFileAudioVideo { url } ->
                                     Just url
 
                                 Api.PostFileImage _ ->
                                     Debug.todo "branch 'PostFileImage _' not implemented"
+
+                                Api.PostFileSize _ ->
+                                    Debug.todo "branch 'PostFileSize _' not implemented"
                         )
                         post.attributes.postFile
                     )
@@ -213,7 +224,7 @@ cachePost config post =
             Debug.todo ("Unsupported post type: " ++ post.attributes.postType ++ " for https://www.patreon.com" ++ post.attributes.patreonUrl)
 
 
-writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Api.Post } -> BackendTask FatalError ContentAddress
+writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Api.RawPost } -> BackendTask FatalError ContentAddress
 writePost config { image, media, post } =
     let
         filename : String
