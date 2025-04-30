@@ -1,4 +1,4 @@
-module Api exposing (AccessRule, Attributes, AudioLinks, AudioRelationships, AverageColorsOfCorners, Embed, IdAndType, Image, ImageColors, ImageUrls, Media, Post, PostAudioVideo, PostFile(..), PostImage, PostMetadata, PostSize, PostTag, PostType, Relationships, Reward, Thumbnail, getPosts)
+module Api exposing (AccessRule, Attributes, AudioLinks, AudioRelationships, AverageColorsOfCorners, Embed, IdAndType, Image, ImageColors, ImageUrls, Media, Post, PostAudioVideo, PostFile(..), PostImage, PostMetadata, PostSize, PostTag, PostType(..), Relationships, Reward, Thumbnail, getPosts)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
@@ -46,7 +46,6 @@ rawPostToPost included rawPost =
             { id = rawPost.id
             , attributes = rawPost.attributes
             , relationships = relationships
-            , type_ = rawPost.type_
             }
         )
         (rawRelationshipsToRelationships included rawPost.relationships)
@@ -570,7 +569,6 @@ type alias Post =
     { attributes : Attributes
     , id : String
     , relationships : Relationships
-    , type_ : PostType
     }
 
 
@@ -578,7 +576,6 @@ type alias RawPost =
     { attributes : Attributes
     , id : String
     , relationships : RawRelationships
-    , type_ : PostType
     }
 
 
@@ -588,26 +585,8 @@ rawPostDecoder =
         |> DecodeComplete.required "attributes" attributesDecoder
         |> DecodeComplete.required "id" Json.Decode.string
         |> DecodeComplete.required "relationships" relationshipsDecoder
-        |> DecodeComplete.required "type" postTypeDecoder
+        |> DecodeComplete.discard "type"
         |> DecodeComplete.complete
-
-
-type PostType
-    = PostTypePost
-
-
-postTypeDecoder : Json.Decode.Decoder PostType
-postTypeDecoder =
-    Json.Decode.string
-        |> Json.Decode.andThen
-            (\type_ ->
-                case type_ of
-                    "post" ->
-                        Json.Decode.succeed PostTypePost
-
-                    _ ->
-                        Json.Decode.fail ("Unexpected post type: " ++ type_)
-            )
 
 
 type alias Attributes =
@@ -620,13 +599,26 @@ type alias Attributes =
     , pledgeUrl : String
     , postFile : Maybe PostFile
     , postMetadata : Maybe PostMetadata
-    , postType : String
+    , postType : PostType
     , previewAssetType : Maybe String
     , publishedAt : Time.Posix
     , thumbnail : Maybe Thumbnail
     , title : Maybe String
     , url : Url
     }
+
+
+type PostType
+    = Podcast
+    | LivestreamYoutube
+    | TextOnly
+    | ImageFile
+    | Link
+    | VideoEmbed
+    | VideoExternalFile
+    | Poll
+    | LivestreamCrowdcast
+    | AudioEmbed
 
 
 type alias Embed =
@@ -785,7 +777,7 @@ attributesDecoder =
         |> DecodeComplete.required "pledge_url" Json.Decode.string
         |> DecodeComplete.optional "post_file" (Json.Decode.map Just postFileDecoder) Nothing
         |> DecodeComplete.optional "post_metadata" (Json.Decode.map Just postMetadataDecoder) Nothing
-        |> DecodeComplete.required "post_type" Json.Decode.string
+        |> DecodeComplete.required "post_type" postTypeDecoder
         |> DecodeComplete.optional "preview_asset_type" (Json.Decode.map Just Json.Decode.string) Nothing
         |> DecodeComplete.required "published_at" rfc3339Decoder
         |> DecodeComplete.optional "thumbnail" (Json.Decode.map Just thumbnailDecoder) Nothing
@@ -794,6 +786,47 @@ attributesDecoder =
         |> DecodeComplete.discard "change_visibility_at"
         |> DecodeComplete.discard "video_preview"
         |> DecodeComplete.complete
+
+
+postTypeDecoder : Json.Decode.Decoder PostType
+postTypeDecoder =
+    Json.Decode.string
+        |> Json.Decode.andThen
+            (\type_ ->
+                case type_ of
+                    "podcast" ->
+                        Json.Decode.succeed Podcast
+
+                    "livestream_youtube" ->
+                        Json.Decode.succeed LivestreamYoutube
+
+                    "text_only" ->
+                        Json.Decode.succeed TextOnly
+
+                    "image_file" ->
+                        Json.Decode.succeed ImageFile
+
+                    "link" ->
+                        Json.Decode.succeed Link
+
+                    "video_embed" ->
+                        Json.Decode.succeed VideoEmbed
+
+                    "video_external_file" ->
+                        Json.Decode.succeed VideoExternalFile
+
+                    "poll" ->
+                        Json.Decode.succeed Poll
+
+                    "livestream_crowdcast" ->
+                        Json.Decode.succeed LivestreamCrowdcast
+
+                    "audio_embed" ->
+                        Json.Decode.succeed AudioEmbed
+
+                    _ ->
+                        Json.Decode.fail ("Unexpected post type: " ++ type_)
+            )
 
 
 rfc3339Decoder : Json.Decode.Decoder Time.Posix

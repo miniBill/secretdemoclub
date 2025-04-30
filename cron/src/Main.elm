@@ -161,7 +161,7 @@ task config =
 cachePost : Config -> Api.Post -> BackendTask FatalError (Maybe { image : ContentAddress, media : ContentAddress, post : Api.Post })
 cachePost config post =
     case post.attributes.postType of
-        "podcast" ->
+        Api.Podcast ->
             let
                 mediaUrlResult : Result String Url
                 mediaUrlResult =
@@ -193,35 +193,32 @@ cachePost config post =
             Do.do (cache config (Url.toString mediaUrl)) <| \media ->
             BackendTask.succeed (Just { image = image, media = media, post = post })
 
-        "livestream_youtube" ->
+        Api.LivestreamYoutube ->
             BackendTask.succeed Nothing
 
-        "text_only" ->
+        Api.TextOnly ->
             BackendTask.succeed Nothing
 
-        "image_file" ->
+        Api.ImageFile ->
             BackendTask.succeed Nothing
 
-        "link" ->
+        Api.Link ->
             BackendTask.succeed Nothing
 
-        "video_embed" ->
+        Api.VideoEmbed ->
             BackendTask.succeed Nothing
 
-        "video_external_file" ->
+        Api.VideoExternalFile ->
             BackendTask.succeed Nothing
 
-        "poll" ->
+        Api.Poll ->
             BackendTask.succeed Nothing
 
-        "livestream_crowdcast" ->
+        Api.LivestreamCrowdcast ->
             BackendTask.succeed Nothing
 
-        "audio_embed" ->
+        Api.AudioEmbed ->
             BackendTask.succeed Nothing
-
-        _ ->
-            BackendTask.fail (FatalError.fromString ("Unsupported post type: " ++ post.attributes.postType ++ " for https://www.patreon.com" ++ post.attributes.patreonUrl))
 
 
 taskFromResult : Result String a -> BackendTask FatalError a
