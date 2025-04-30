@@ -4,6 +4,7 @@ import Api
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
 import BackendTask.Env as Env
+import BackendTask.Http as Http
 import Cli.Option as Option
 import Cli.OptionsParser as OptionsParser
 import Cli.Program as Program
@@ -18,7 +19,7 @@ import SHA256
 import Set
 import Spinner.Reader
 import Time
-import Url
+import Url exposing (Url)
 
 
 type alias Config =
@@ -89,37 +90,38 @@ task config =
             (\env _ ->
                 Api.getPosts { workDir = config.workDir, cookie = env.cookie }
             )
-        -- |> Spinner.Reader.withFatalStep "Downloading RSS feed"
-        --     (\{ rssUrl } apiPosts ->
-        --         BackendTask.map
-        --             (Tuple.pair apiPosts)
-        --             (Http.get rssUrl Http.expectString)
-        --     )
+        |> Spinner.Reader.withFatalStep "Downloading RSS feed"
+            (\{ rssUrl } apiPosts ->
+                BackendTask.map
+                    (Tuple.pair apiPosts)
+                    (Http.get rssUrl Http.expectString)
+            )
         |> Spinner.Reader.withStep "Downloading media"
-            (\_ (apiPosts {- , xml -}) ->
-                -- case Rss.Parser.parse xml of
-                --     Err e ->
-                --         let
-                --             message : String
-                --             message =
-                --                 "Could not parse RSS: "
-                --                     ++ Rss.Parser.errorToString e.error
-                --                     ++ "\n  at "
-                --                     ++ String.join " > " e.path
-                --         in
-                --         BackendTask.fail (FatalError.fromString message)
-                --     Ok posts ->
-                apiPosts
-                    |> List.map (\post -> cachePost config post)
-                    |> List.Extra.greedyGroupsOf config.parallel
-                    |> List.map BackendTask.combine
-                    |> BackendTask.sequence
-                    |> BackendTask.map
-                        (\groups ->
-                            groups
-                                |> List.concat
-                                |> List.filterMap identity
-                        )
+            (\_ ( apiPosts, xml ) ->
+                case Rss.Parser.parse xml of
+                    Err e ->
+                        let
+                            message : String
+                            message =
+                                "Could not parse RSS: "
+                                    ++ Rss.Parser.errorToString e.error
+                                    ++ "\n  at "
+                                    ++ String.join " > " e.path
+                        in
+                        BackendTask.fail (FatalError.fromString message)
+
+                    Ok posts ->
+                        apiPosts
+                            |> List.map (\post -> cachePost config post)
+                            |> List.Extra.greedyGroupsOf config.parallel
+                            |> List.map BackendTask.combine
+                            |> BackendTask.sequence
+                            |> BackendTask.map
+                                (\groups ->
+                                    groups
+                                        |> List.concat
+                                        |> List.filterMap identity
+                                )
             )
         |> Spinner.Reader.withStep "Writing posts"
             (\_ cachedPosts ->
@@ -158,41 +160,38 @@ task config =
 
 cachePost : Config -> Api.Post -> BackendTask FatalError (Maybe { image : ContentAddress, media : ContentAddress, post : Api.Post })
 cachePost config post =
-    let
-        _ =
-            if post.id == "6184215" && False then
-                Debug.log "'change'" post
-
-            else
-                post
-    in
     case post.attributes.postType of
         "podcast" ->
-            case
-                Maybe.map2 Tuple.pair
-                    (Maybe.andThen .thumbSquareUrl post.attributes.image)
-                    (Maybe.andThen
-                        (\postFile ->
-                            case postFile of
-                                Api.PostFileAudioVideo { url } ->
-                                    Just url
+            let
+                mediaUrlResult : Result String Url
+                mediaUrlResult =
+                    case post.attributes.postFile of
+                        Just (Api.PostFileAudioVideo { url }) ->
+                            Ok url
 
-                                Api.PostFileImage _ ->
-                                    Debug.todo "branch 'PostFileImage _' not implemented"
+                        Nothing ->
+                            Err ("Post " ++ post.id ++ ", missing file")
 
-                                Api.PostFileSize _ ->
-                                    Debug.todo "branch 'PostFileSize _' not implemented"
-                        )
-                        post.attributes.postFile
-                    )
-            of
-                Nothing ->
-                    BackendTask.fail (FatalError.fromString ("Missing data for post " ++ post.id))
+                        Just (Api.PostFileImage _) ->
+                            Err ("Post " ++ post.id ++ ", expecting an audio/video file, found image")
 
-                Just ( thumbUrl, mediaUrl ) ->
-                    Do.do (cache config (Url.toString thumbUrl)) <| \image ->
-                    Do.do (cache config (Url.toString mediaUrl)) <| \media ->
-                    BackendTask.succeed (Just { image = image, media = media, post = post })
+                        Just (Api.PostFileSize _) ->
+                            Err ("Post " ++ post.id ++ ", expecting an audio/video file, found size")
+
+                thumbSquareUrlResult : Result String Url
+                thumbSquareUrlResult =
+                    case post.attributes.image |> Maybe.andThen .thumbSquareUrl of
+                        Nothing ->
+                            Err ("Post " ++ post.id ++ ", missing thumb_square_url")
+
+                        Just thumbUrl ->
+                            Ok thumbUrl
+            in
+            Do.do (taskFromResult mediaUrlResult) <| \mediaUrl ->
+            Do.do (taskFromResult thumbSquareUrlResult) <| \thumbUrl ->
+            Do.do (cache config (Url.toString thumbUrl)) <| \image ->
+            Do.do (cache config (Url.toString mediaUrl)) <| \media ->
+            BackendTask.succeed (Just { image = image, media = media, post = post })
 
         "livestream_youtube" ->
             BackendTask.succeed Nothing
@@ -225,10 +224,17 @@ cachePost config post =
             BackendTask.fail (FatalError.fromString ("Unsupported post type: " ++ post.attributes.postType ++ " for https://www.patreon.com" ++ post.attributes.patreonUrl))
 
 
+taskFromResult : Result String a -> BackendTask FatalError a
+taskFromResult result =
+    result
+        |> Result.mapError FatalError.fromString
+        |> BackendTask.fromResult
+
+
 writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Api.Post } -> BackendTask FatalError ContentAddress
 writePost config { image, media, post } =
     getTier post
-        |> BackendTask.fromResult
+        |> taskFromResult
         |> BackendTask.andThen
             (\tier ->
                 let
@@ -298,7 +304,7 @@ writePost config { image, media, post } =
             )
 
 
-getTier : Api.Post -> Result FatalError String
+getTier : Api.Post -> Result String String
 getTier post =
     case
         post.relationships.accessRules
@@ -316,7 +322,7 @@ getTier post =
                             Ok "Bronze"
 
                         title ->
-                            Err (FatalError.fromString title)
+                            Err title
                 )
             |> Result.map (Set.fromList >> Set.toList)
     of
@@ -336,7 +342,7 @@ getTier post =
             Ok "Silver"
 
         Ok tiers ->
-            Err (FatalError.fromString ("Unknown (too many access rules with a reward): " ++ String.join ", " tiers))
+            Err ("Unknown (too many access rules with a reward): " ++ String.join ", " tiers)
 
 
 titleToCategory : Rss.Title -> String
