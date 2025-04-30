@@ -1,4 +1,4 @@
-module Api exposing (AccessRule, Attributes, AudioLinks, AudioRelationships, AverageColorsOfCorners, Embed, IdAndType, Image, ImageColors, ImageUrls, Media, Post, PostAudioVideo, PostFile(..), PostImage, PostMetadata, PostSize, PostTag, PostType, Relationships, Thumbnail, getPosts)
+module Api exposing (AccessRule, Attributes, AudioLinks, AudioRelationships, AverageColorsOfCorners, Embed, IdAndType, Image, ImageColors, ImageUrls, Media, Post, PostAudioVideo, PostFile(..), PostImage, PostMetadata, PostSize, PostTag, PostType, Relationships, Reward, Thumbnail, getPosts)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
@@ -7,7 +7,6 @@ import BackendTask.Http as Http
 import DecodeComplete
 import FatalError exposing (FatalError)
 import Json.Decode
-import Json.Encode
 import Pages.Script as Script
 import Parser.Advanced
 import Result.Extra
@@ -69,11 +68,40 @@ rawRelationshipsToRelationships included rawRelationships =
         asAccessRule : RawIncluded -> Result String AccessRule
         asAccessRule value =
             case value of
-                RawIncludedPostAccessRule rule ->
-                    Ok rule
+                RawIncludedPostAccessRule raw data ->
+                    case data.tier of
+                        Nothing ->
+                            { accessRuleType = raw.accessRuleType
+                            , amountCents = raw.amountCents
+                            , currency = raw.currency
+                            , postCount = raw.postCount
+                            , reward = Nothing
+                            }
+                                |> Ok
+
+                        Just tier ->
+                            find tier asReward
+                                |> Result.map
+                                    (\reward ->
+                                        { accessRuleType = raw.accessRuleType
+                                        , amountCents = raw.amountCents
+                                        , currency = raw.currency
+                                        , postCount = raw.postCount
+                                        , reward = Just reward
+                                        }
+                                    )
 
                 _ ->
                     Err "Value is not a valid access rule"
+
+        asReward : RawIncluded -> Result String Reward
+        asReward value =
+            case value of
+                RawIncludedReward reward ->
+                    Ok reward
+
+                _ ->
+                    Err "Value is not a valid reward"
 
         asMedia : RawIncluded -> Result String Media
         asMedia value =
@@ -122,93 +150,107 @@ rawRelationshipsToRelationships included rawRelationships =
 type RawIncluded
     = RawIncludedMedia Media
     | RawIncludedPostTag PostTag
-    | RawIncludedPostAccessRule AccessRule
+    | RawIncludedPostAccessRule RawAccessRule { tier : Maybe IdAndType }
     | RawIncludedContentUnlockOption
-    | RawIncludedReward IncludedReward
+    | RawIncludedReward Reward
 
 
-rawIncludedDecoder : String -> Json.Decode.Decoder RawIncluded
+rawIncludedDecoder : String -> DecodeComplete.ObjectDecoder RawIncluded
 rawIncludedDecoder type_ =
     case type_ of
         "media" ->
-            DecodeComplete.object Media
-                |> DecodeComplete.required "display" postFileDecoder
-                |> DecodeComplete.required "download_url" Json.Decode.string
-                |> DecodeComplete.required "file_name" (Json.Decode.nullable Json.Decode.string)
-                |> DecodeComplete.required "image_urls" (Json.Decode.nullable imageUrlsDecoder)
-                |> DecodeComplete.discard "metadata"
-                |> DecodeComplete.complete
-                |> Json.Decode.map RawIncludedMedia
+            DecodeComplete.object RawIncludedMedia
+                |> DecodeComplete.required "attributes"
+                    (DecodeComplete.object Media
+                        |> DecodeComplete.required "display" postFileDecoder
+                        |> DecodeComplete.required "download_url" Json.Decode.string
+                        |> DecodeComplete.required "file_name" (Json.Decode.nullable Json.Decode.string)
+                        |> DecodeComplete.required "image_urls" (Json.Decode.nullable imageUrlsDecoder)
+                        |> DecodeComplete.discard "metadata"
+                        |> DecodeComplete.complete
+                    )
 
         "post_tag" ->
-            DecodeComplete.object identity
-                |> DecodeComplete.required "tag_type"
-                    (Json.Decode.string
-                        |> Json.Decode.andThen
-                            (\tagType ->
-                                case tagType of
-                                    "user_defined" ->
-                                        Json.Decode.succeed UserDefined
+            DecodeComplete.object RawIncludedPostTag
+                |> DecodeComplete.required "attributes"
+                    (DecodeComplete.object identity
+                        |> DecodeComplete.required "tag_type"
+                            (Json.Decode.string
+                                |> Json.Decode.andThen
+                                    (\tagType ->
+                                        case tagType of
+                                            "user_defined" ->
+                                                Json.Decode.succeed UserDefined
 
-                                    _ ->
-                                        Json.Decode.fail ("Unknown tag_type:" ++ tagType)
+                                            _ ->
+                                                Json.Decode.fail ("Unknown tag_type:" ++ tagType)
+                                    )
                             )
+                        |> DecodeComplete.required "value" Json.Decode.string
+                        |> DecodeComplete.complete
                     )
-                |> DecodeComplete.required "value" Json.Decode.string
-                |> DecodeComplete.complete
-                |> Json.Decode.map RawIncludedPostTag
 
         "access-rule" ->
-            DecodeComplete.object AccessRule
-                |> DecodeComplete.required "access_rule_type" Json.Decode.string
-                |> DecodeComplete.required "amount_cents" (Json.Decode.nullable Json.Decode.int)
-                |> DecodeComplete.required "currency" Json.Decode.string
-                |> DecodeComplete.required "post_count" Json.Decode.int
-                |> DecodeComplete.complete
-                |> Json.Decode.map RawIncludedPostAccessRule
+            DecodeComplete.object RawIncludedPostAccessRule
+                |> DecodeComplete.required "attributes"
+                    (DecodeComplete.object RawAccessRule
+                        |> DecodeComplete.required "access_rule_type" Json.Decode.string
+                        |> DecodeComplete.required "amount_cents" (Json.Decode.nullable Json.Decode.int)
+                        |> DecodeComplete.required "currency" Json.Decode.string
+                        |> DecodeComplete.required "post_count" Json.Decode.int
+                        |> DecodeComplete.complete
+                    )
+                |> DecodeComplete.required "relationships"
+                    (DecodeComplete.object (\tier -> { tier = tier })
+                        |> DecodeComplete.required "tier"
+                            (DecodeComplete.object identity
+                                |> DecodeComplete.required "data" (Json.Decode.nullable idAndTypeDecoder)
+                                |> DecodeComplete.discardOptional "links"
+                                |> DecodeComplete.complete
+                            )
+                        |> DecodeComplete.complete
+                    )
 
         "content-unlock-option" ->
-            DecodeComplete.object RawIncludedContentUnlockOption
-                |> DecodeComplete.complete
+            DecodeComplete.object (\_ -> RawIncludedContentUnlockOption)
+                |> DecodeComplete.required "attributes"
+                    (DecodeComplete.object {}
+                        |> DecodeComplete.complete
+                    )
 
         "reward" ->
-            DecodeComplete.object IncludedReward
-                |> DecodeComplete.required "amount" Json.Decode.int
-                |> DecodeComplete.required "amount_cents" Json.Decode.int
-                |> DecodeComplete.required "created_at" rfc3339Decoder
-                |> DecodeComplete.required "currency" Json.Decode.string
-                |> DecodeComplete.discard "declined_patron_count"
-                |> DecodeComplete.required "description" Json.Decode.string
-                |> DecodeComplete.required "discord_role_ids" (listOrNull Json.Decode.string)
-                |> DecodeComplete.required "edited_at" Json.Decode.string
-                |> DecodeComplete.required "image_url" (Json.Decode.nullable Json.Decode.string)
-                |> DecodeComplete.required "is_free_tier" Json.Decode.bool
-                |> DecodeComplete.required "patron_amount_cents" Json.Decode.int
-                |> DecodeComplete.required "patron_currency" Json.Decode.string
-                |> DecodeComplete.required "post_count" Json.Decode.int
-                |> DecodeComplete.required "published" Json.Decode.bool
-                |> DecodeComplete.required "published_at" rfc3339Decoder
-                |> DecodeComplete.required "remaining" (Json.Decode.nullable Json.Decode.int)
-                |> DecodeComplete.required "requires_shipping" Json.Decode.bool
-                |> DecodeComplete.required "title" Json.Decode.string
-                |> DecodeComplete.required "unpublished_at" (Json.Decode.nullable rfc3339Decoder)
-                |> DecodeComplete.required "url" Json.Decode.string
-                |> DecodeComplete.optional "welcome_message" (Json.Decode.map Just Json.Decode.string) Nothing
-                |> DecodeComplete.optional "welcome_message_unsafe" (Json.Decode.nullable Json.Decode.string) Nothing
-                |> DecodeComplete.optional "welcome_video_embed" (Json.Decode.nullable Json.Decode.string) Nothing
-                |> DecodeComplete.optional "welcome_video_url" (Json.Decode.nullable Json.Decode.string) Nothing
-                |> DecodeComplete.complete
-                |> Json.Decode.map RawIncludedReward
+            DecodeComplete.object RawIncludedReward
+                |> DecodeComplete.required "attributes"
+                    (DecodeComplete.object Reward
+                        |> DecodeComplete.required "amount" Json.Decode.int
+                        |> DecodeComplete.required "amount_cents" Json.Decode.int
+                        |> DecodeComplete.required "created_at" rfc3339Decoder
+                        |> DecodeComplete.required "currency" Json.Decode.string
+                        |> DecodeComplete.discard "declined_patron_count"
+                        |> DecodeComplete.required "description" Json.Decode.string
+                        |> DecodeComplete.required "discord_role_ids" (listOrNull Json.Decode.string)
+                        |> DecodeComplete.required "edited_at" Json.Decode.string
+                        |> DecodeComplete.required "image_url" (Json.Decode.nullable Json.Decode.string)
+                        |> DecodeComplete.required "is_free_tier" Json.Decode.bool
+                        |> DecodeComplete.required "patron_amount_cents" Json.Decode.int
+                        |> DecodeComplete.required "patron_currency" Json.Decode.string
+                        |> DecodeComplete.required "post_count" Json.Decode.int
+                        |> DecodeComplete.required "published" Json.Decode.bool
+                        |> DecodeComplete.required "published_at" rfc3339Decoder
+                        |> DecodeComplete.required "remaining" (Json.Decode.nullable Json.Decode.int)
+                        |> DecodeComplete.required "requires_shipping" Json.Decode.bool
+                        |> DecodeComplete.required "title" Json.Decode.string
+                        |> DecodeComplete.required "unpublished_at" (Json.Decode.nullable rfc3339Decoder)
+                        |> DecodeComplete.required "url" Json.Decode.string
+                        |> DecodeComplete.optional "welcome_message" (Json.Decode.map Just Json.Decode.string) Nothing
+                        |> DecodeComplete.optional "welcome_message_unsafe" (Json.Decode.nullable Json.Decode.string) Nothing
+                        |> DecodeComplete.optional "welcome_video_embed" (Json.Decode.nullable Json.Decode.string) Nothing
+                        |> DecodeComplete.optional "welcome_video_url" (Json.Decode.nullable Json.Decode.string) Nothing
+                        |> DecodeComplete.complete
+                    )
 
         _ ->
-            let
-                debug : Json.Decode.Decoder String
-                debug =
-                    Json.Decode.value
-                        |> Json.Decode.map (\raw -> Json.Encode.encode 0 raw)
-            in
-            Json.Decode.dict debug
-                |> Json.Decode.andThen (\raw -> Json.Decode.fail (type_ ++ ": " ++ Debug.toString raw))
+            DecodeComplete.fail ("Unexpected type: " ++ type_)
 
 
 type alias Media =
@@ -219,7 +261,7 @@ type alias Media =
     }
 
 
-type alias AccessRule =
+type alias RawAccessRule =
     { accessRuleType : String
     , amountCents : Maybe Int
     , currency : String
@@ -227,7 +269,16 @@ type alias AccessRule =
     }
 
 
-type alias IncludedReward =
+type alias AccessRule =
+    { accessRuleType : String
+    , amountCents : Maybe Int
+    , currency : String
+    , postCount : Int
+    , reward : Maybe Reward
+    }
+
+
+type alias Reward =
     { amount : Int
     , amountCents : Int
     , createdAt : Time.Posix
@@ -299,42 +350,46 @@ getPaginated :
     { cfg | workDir : String, cookie : String }
     -> (String -> String)
     -> Json.Decode.Decoder data
-    -> (String -> Json.Decode.Decoder included)
+    -> (String -> DecodeComplete.ObjectDecoder included)
     -> BackendTask FatalError ( List data, SeqDict IdAndType included )
 getPaginated config toUrl dataDecoder includedDecoder =
     let
         pageDecoder : Json.Decode.Decoder (Page data included)
         pageDecoder =
-            Json.Decode.map3
+            DecodeComplete.object
                 (\data included next ->
                     { data = data
                     , next = next
                     , included = SeqDict.fromList included
                     }
                 )
-                (Json.Decode.field "data" (Json.Decode.list dataDecoder))
-                (Json.Decode.field "included"
+                |> DecodeComplete.required "data" (Json.Decode.list dataDecoder)
+                |> DecodeComplete.required "included"
                     (Json.Decode.list
-                        (Json.Decode.map2
+                        (DecodeComplete.object
                             (\id type_ ->
                                 { id = id
                                 , type_ = type_
                                 }
                             )
-                            (Json.Decode.field "id" Json.Decode.string)
-                            (Json.Decode.field "type" Json.Decode.string)
-                            |> Json.Decode.andThen
+                            |> DecodeComplete.required "id" Json.Decode.string
+                            |> DecodeComplete.required "type" Json.Decode.string
+                            |> DecodeComplete.andThen
                                 (\key ->
-                                    Json.Decode.map (Tuple.pair key)
-                                        (Json.Decode.field "attributes" (includedDecoder key.type_))
+                                    includedDecoder key.type_
+                                        |> DecodeComplete.andThen
+                                            (\value -> DecodeComplete.object ( key, value ))
                                 )
+                            |> DecodeComplete.complete
                         )
                     )
-                )
-                (Json.Decode.at
-                    [ "meta", "pagination", "cursors", "next" ]
-                    (Json.Decode.nullable Json.Decode.string)
-                )
+                |> DecodeComplete.required "meta"
+                    (Json.Decode.at
+                        [ "pagination", "cursors", "next" ]
+                        (Json.Decode.nullable Json.Decode.string)
+                    )
+                |> DecodeComplete.discardOptional "links"
+                |> DecodeComplete.complete
 
         decodeContent : String -> BackendTask FatalError (Page data included)
         decodeContent content =
@@ -365,69 +420,64 @@ getPaginated config toUrl dataDecoder includedDecoder =
                 target =
                     String.join "/" [ config.workDir, "internal-api", filename ]
             in
-            Do.glob target <|
-                \existing ->
-                    Do.do
-                        (if not (List.isEmpty existing) then
-                            File.rawFile target
-                                |> BackendTask.allowFatal
+            Do.glob target <| \existing ->
+            Do.do
+                (if not (List.isEmpty existing) then
+                    File.rawFile target
+                        |> BackendTask.allowFatal
 
-                         else
-                            let
-                                httpRequest : BackendTask { fatal : FatalError, recoverable : Http.Error } String
-                                httpRequest =
-                                    Http.request
-                                        { url = url
-                                        , method = "GET"
-                                        , body = Http.emptyBody
-                                        , headers =
-                                            [ ( "User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0" )
-                                            , ( "Referer", "https://www.patreon.com/c/orlagartland/posts" )
-                                            , ( "Cookie", config.cookie )
-                                            ]
-                                        , retries = Nothing
-                                        , timeoutInMs = Nothing
-                                        }
-                                        Http.expectString
+                 else
+                    let
+                        httpRequest : BackendTask { fatal : FatalError, recoverable : Http.Error } String
+                        httpRequest =
+                            Http.request
+                                { url = url
+                                , method = "GET"
+                                , body = Http.emptyBody
+                                , headers =
+                                    [ ( "User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0" )
+                                    , ( "Referer", "https://www.patreon.com/c/orlagartland/posts" )
+                                    , ( "Cookie", config.cookie )
+                                    ]
+                                , retries = Nothing
+                                , timeoutInMs = Nothing
+                                }
+                                Http.expectString
 
-                                writeFile : String -> BackendTask { fatal : FatalError, recoverable : Script.Error } ()
-                                writeFile body =
-                                    Script.writeFile
-                                        { path = target
-                                        , body = body
-                                        }
-                            in
-                            Do.allowFatal httpRequest <|
-                                \body ->
-                                    Do.allowFatal (writeFile body) <|
-                                        \_ ->
-                                            BackendTask.succeed body
-                        )
-                    <|
-                        \content ->
-                            Do.do (decodeContent content) <|
-                                \{ next, data, included } ->
-                                    let
-                                        nextData : List ( List data, SeqDict IdAndType included )
-                                        nextData =
-                                            ( data, included ) :: acc
-                                    in
-                                    case next of
-                                        Just nextCursor ->
-                                            go nextCursor nextData
+                        writeFile : String -> BackendTask { fatal : FatalError, recoverable : Script.Error } ()
+                        writeFile body =
+                            Script.writeFile
+                                { path = target
+                                , body = body
+                                }
+                    in
+                    Do.allowFatal httpRequest <| \body ->
+                    Do.allowFatal (writeFile body) <| \_ ->
+                    BackendTask.succeed body
+                )
+            <| \content ->
+            Do.do (decodeContent content) <| \{ next, data, included } ->
+            let
+                nextData : List ( List data, SeqDict IdAndType included )
+                nextData =
+                    ( data, included ) :: acc
+            in
+            case next of
+                Just nextCursor ->
+                    go nextCursor nextData
 
-                                        Nothing ->
-                                            let
-                                                ( finalData, finalIncluded ) =
-                                                    List.unzip nextData
-                                            in
-                                            ( finalData
-                                                |> List.reverse
-                                                |> List.concat
-                                                |> List.reverse
-                                            , List.foldl SeqDict.union SeqDict.empty finalIncluded
-                                            )
-                                                |> BackendTask.succeed
+                Nothing ->
+                    let
+                        ( finalData, finalIncluded ) =
+                            List.unzip nextData
+                    in
+                    ( finalData
+                        |> List.reverse
+                        |> List.concat
+                        |> List.reverse
+                    , List.foldl SeqDict.union SeqDict.empty finalIncluded
+                    )
+                        |> BackendTask.succeed
     in
     go "" []
 
