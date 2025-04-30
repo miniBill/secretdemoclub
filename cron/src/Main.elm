@@ -96,7 +96,7 @@ task config =
                     (Tuple.pair apiPosts)
                     (Http.get rssUrl Http.expectString)
             )
-        |> Spinner.Reader.withStep "Downloading media"
+        |> Spinner.Reader.withStep "Parsing RSS feed"
             (\_ ( apiPosts, xml ) ->
                 case Rss.Parser.parse xml of
                     Err e ->
@@ -110,18 +110,22 @@ task config =
                         in
                         BackendTask.fail (FatalError.fromString message)
 
-                    Ok posts ->
-                        apiPosts
-                            |> List.map (\post -> cachePost config post)
-                            |> List.Extra.greedyGroupsOf config.parallel
-                            |> List.map BackendTask.combine
-                            |> BackendTask.sequence
-                            |> BackendTask.map
-                                (\groups ->
-                                    groups
-                                        |> List.concat
-                                        |> List.filterMap identity
-                                )
+                    Ok rssPosts ->
+                        BackendTask.succeed ( apiPosts, rssPosts )
+            )
+        |> Spinner.Reader.withStep "Downloading media"
+            (\_ ( apiPosts, rssPosts ) ->
+                apiPosts
+                    |> List.map (\post -> cachePost config post)
+                    |> List.Extra.greedyGroupsOf config.parallel
+                    |> List.map BackendTask.combine
+                    |> BackendTask.sequence
+                    |> BackendTask.map
+                        (\groups ->
+                            groups
+                                |> List.concat
+                                |> List.filterMap identity
+                        )
             )
         |> Spinner.Reader.withStep "Writing posts"
             (\_ cachedPosts ->
