@@ -187,7 +187,7 @@ cachePost config post =
                     )
             of
                 Nothing ->
-                    BackendTask.succeed Nothing
+                    BackendTask.fail (FatalError.fromString ("Missing data for post " ++ post.id))
 
                 Just ( thumbUrl, mediaUrl ) ->
                     Do.do (cache config (Url.toString thumbUrl)) <| \image ->
