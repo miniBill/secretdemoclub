@@ -11,13 +11,20 @@ use types::{AccessToken, Identity, Included};
 mod types;
 
 lazy_static! {
-    static ref client_id: String = std::env::var("clientId").unwrap();
-    static ref client_secret: String = std::env::var("clientSecret").unwrap();
-    static ref redirect_uri: String = std::env::var("redirectUri").unwrap();
-    static ref orla_campaign_id: String = std::env::var("orlaCampaignId").unwrap();
-    static ref bronze_tier: String = std::env::var("bronzeTier").unwrap();
-    static ref silver_tier: String = std::env::var("silverTier").unwrap();
-    static ref gold_tier: String = std::env::var("goldTier").unwrap();
+    static ref client_id: String =
+        std::env::var("clientId").expect("Missing env variable: clientId");
+    static ref client_secret: String =
+        std::env::var("clientSecret").expect("Missing env variable: clientSecret");
+    static ref redirect_uri: String =
+        std::env::var("redirectUri").expect("Missing env variable: redirectUri");
+    static ref orla_campaign_id: String =
+        std::env::var("orlaCampaignId").expect("Missing env variable: orlaCampaignId");
+    static ref bronze_tier: String =
+        std::env::var("bronzeTier").expect("Missing env variable: bronzeTier");
+    static ref silver_tier: String =
+        std::env::var("silverTier").expect("Missing env variable: silverTier");
+    static ref gold_tier: String =
+        std::env::var("goldTier").expect("Missing env variable: goldTier");
 }
 
 #[tokio::main]
@@ -90,7 +97,7 @@ async fn get_tier(access_token: String) -> anyhow::Result<Tier> {
     let mut headers = HeaderMap::new();
     headers.insert(
         "Authorization",
-        HeaderValue::from_str(&format!("Bearer {}", access_token)).unwrap(),
+        HeaderValue::from_str(&format!("Bearer {}", access_token))?,
     );
 
     let tier : Identity = reqwest::Client::new()
