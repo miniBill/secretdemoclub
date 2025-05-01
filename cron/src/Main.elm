@@ -177,28 +177,50 @@ task config =
             )
         |> Spinner.Reader.withStep "Writing index"
             (\_ contentAddresses ->
-                let
-                    path : String
-                    path =
-                        config.workDir ++ "/index.md"
+                [ Bronze, Silver, Gold ]
+                    |> List.map
+                        (\tier ->
+                            let
+                                path : String
+                                path =
+                                    config.workDir ++ "/index-" ++ String.toLower (tierToString tier) ++ ".md"
 
-                    body : String
-                    body =
-                        contentAddresses
-                            |> List.map contentAddressToPath
-                            |> String.join "\n"
-                in
-                Do.allowFatal
-                    (Script.writeFile
-                        { path = path
-                        , body = body
-                        }
-                    )
-                <| \_ ->
-                copyToContentAddressableStorage config { path = path, extension = "md" }
+                                body : String
+                                body =
+                                    contentAddresses
+                                        |> List.filterMap
+                                            (\( address, postTiers ) ->
+                                                if List.member tier postTiers then
+                                                    Just address
+
+                                                else
+                                                    Nothing
+                                            )
+                                        |> List.map contentAddressToPath
+                                        |> String.join "\n"
+                            in
+                            Do.allowFatal
+                                (Script.writeFile
+                                    { path = path
+                                    , body = body
+                                    }
+                                )
+                            <| \_ ->
+                            Do.do (copyToContentAddressableStorage config { path = path, extension = "md" }) <| \indexAddress ->
+                            BackendTask.succeed ( tier, indexAddress )
+                        )
+                    |> BackendTask.combine
             )
         |> Spinner.Reader.runSteps
-        |> BackendTask.andThen (\contentAddress -> Script.log ("Index is at " ++ contentAddressToPath contentAddress))
+        |> BackendTask.andThen
+            (\indexAddresses ->
+                indexAddresses
+                    |> List.map
+                        (\( tier, indexAddress ) ->
+                            Script.log (tierToString tier ++ " index is at " ++ contentAddressToPath indexAddress)
+                        )
+                    |> BackendTask.doEach
+            )
 
 
 cachePost : Config -> Api.Post -> BackendTask FatalError (Maybe { image : ContentAddress, media : ContentAddress, post : Api.Post })
@@ -271,12 +293,12 @@ taskFromResult result =
         |> BackendTask.fromResult
 
 
-writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Api.Post } -> BackendTask FatalError ContentAddress
+writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Api.Post } -> BackendTask FatalError ( ContentAddress, List Tier )
 writePost config { image, media, post } =
     getTier post
         |> taskFromResult
         |> BackendTask.andThen
-            (\tier ->
+            (\tiers ->
                 let
                     filename : String
                     filename =
@@ -322,7 +344,6 @@ writePost config { image, media, post } =
                         , Just ("Image: " ++ contentAddressToPath image)
                         , Just ("Link: https://www.patreon.com" ++ post.attributes.patreonUrl)
                         , Just ("Media: " ++ contentAddressToPath media)
-                        , Just ("Tier: " ++ tier)
                         , Maybe.map (\num -> "Number: " ++ num) (toNumber title)
                         ]
                             |> List.filterMap identity
@@ -340,11 +361,12 @@ writePost config { image, media, post } =
                             }
                     )
                 <| \_ ->
-                copyPostToContentAddressableStorage config postPath
+                Do.do (copyPostToContentAddressableStorage config postPath) <| \address ->
+                BackendTask.succeed ( address, tiers )
             )
 
 
-getTier : Api.Post -> Result String String
+getTier : Api.Post -> Result String (List Tier)
 getTier post =
     case
         post.relationships.accessRules
@@ -353,36 +375,36 @@ getTier post =
                 (\reward ->
                     case String.trim reward.title of
                         "Gold membership" ->
-                            Ok "Gold"
+                            Ok Gold
 
                         "Silver membership" ->
-                            Ok "Silver"
+                            Ok Silver
 
                         "Bronze membership" ->
-                            Ok "Bronze"
+                            Ok Bronze
 
                         title ->
                             Err title
                 )
-            |> Result.map (Set.fromList >> Set.toList)
+            |> Result.map (List.Extra.unique >> List.sortBy tierToString)
     of
         Err e ->
             Err e
 
-        Ok [ tier ] ->
-            Ok tier
-
         Ok [] ->
-            Ok "Bronze"
+            Ok [ Bronze ]
 
-        Ok [ "Bronze", "Gold", "Silver" ] ->
-            Ok "Bronze"
+        Ok [ Bronze ] ->
+            Ok [ Bronze ]
 
-        Ok [ "Gold", "Silver" ] ->
-            Ok "Silver"
+        Ok [ Bronze, Silver ] ->
+            Ok [ Bronze, Silver ]
+
+        Ok [ Bronze, Gold, Silver ] ->
+            Ok [ Bronze, Gold, Silver ]
 
         Ok tiers ->
-            Err ("Unknown (too many access rules with a reward): " ++ String.join ", " tiers)
+            Ok tiers
 
 
 titleToCategory : Rss.Title -> String
@@ -631,3 +653,22 @@ toNumber title =
 
         Other _ ->
             Nothing
+
+
+type Tier
+    = Bronze
+    | Silver
+    | Gold
+
+
+tierToString : Tier -> String
+tierToString tier =
+    case tier of
+        Bronze ->
+            "Bronze"
+
+        Silver ->
+            "Silver"
+
+        Gold ->
+            "Gold"
