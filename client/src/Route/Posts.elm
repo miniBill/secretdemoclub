@@ -233,11 +233,18 @@ isMatch needle post =
             input
                 |> String.trim
                 |> String.toLower
-
-        cleanNeedle : String
-        cleanNeedle =
-            normalize needle
     in
-    String.isEmpty cleanNeedle
-        || String.contains cleanNeedle (normalize post.title)
-        || String.contains cleanNeedle (normalize post.category)
+    needle
+        |> String.split " "
+        |> List.all
+            (\piece ->
+                let
+                    cleanPiece : String
+                    cleanPiece =
+                        normalize piece
+                in
+                String.isEmpty cleanPiece
+                    || String.contains cleanPiece (normalize post.title)
+                    || String.contains cleanPiece (normalize post.category)
+                    || String.contains cleanPiece (normalize (Maybe.withDefault "" post.number))
+            )
