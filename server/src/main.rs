@@ -5,7 +5,7 @@ use axum::{
     Router,
 };
 use lazy_static::lazy_static;
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 use types::{AccessToken, Identity, Included};
 
 mod types;
@@ -31,7 +31,8 @@ lazy_static! {
 async fn main() -> anyhow::Result<()> {
     let app: Router = Router::new()
         .route("/api", post(post_api))
-        .fallback_service(ServeDir::new("public"));
+        .fallback_service(ServeDir::new("public"))
+        .fallback_service(ServeFile::new("public/index.html"));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
     axum::serve(listener, app).await?;
