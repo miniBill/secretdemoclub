@@ -400,17 +400,18 @@ getTier post =
         Ok [] ->
             Ok [ Bronze ]
 
-        Ok [ Bronze ] ->
-            Ok [ Bronze ]
+        Ok [ Gold ] ->
+            Ok [ Gold ]
 
-        Ok [ Bronze, Silver ] ->
-            Ok [ Bronze, Silver ]
+        Ok [ Gold, Silver ] ->
+            Ok [ Gold, Silver ]
 
         Ok [ Bronze, Gold, Silver ] ->
             Ok [ Bronze, Gold, Silver ]
 
         Ok tiers ->
-            Ok tiers
+            -- Ok tiers
+            Err ("Unexpected tiers: " ++ String.join ", " (List.map tierToString tiers))
 
 
 titleToCategory : Rss.Title -> String
