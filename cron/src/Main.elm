@@ -398,7 +398,7 @@ getTier post =
             Err e
 
         Ok [] ->
-            Ok [ Bronze ]
+            Ok [ Bronze, Gold, Silver ]
 
         Ok [ Gold ] ->
             Ok [ Gold ]
@@ -410,7 +410,6 @@ getTier post =
             Ok [ Bronze, Gold, Silver ]
 
         Ok tiers ->
-            -- Ok tiers
             Err ("Unexpected tiers: " ++ String.join ", " (List.map tierToString tiers))
 
 
