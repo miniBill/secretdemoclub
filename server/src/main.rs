@@ -31,8 +31,7 @@ lazy_static! {
 async fn main() -> anyhow::Result<()> {
     let app: Router = Router::new()
         .route("/api", post(post_api))
-        .fallback_service(ServeDir::new("public"))
-        .fallback_service(ServeFile::new("public/index.html"));
+        .fallback_service(ServeDir::new("public").fallback(ServeFile::new("public/index.html")));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
     axum::serve(listener, app).await?;
