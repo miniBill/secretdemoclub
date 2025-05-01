@@ -217,7 +217,13 @@ task config =
                 indexAddresses
                     |> List.map
                         (\( tier, indexAddress ) ->
-                            Script.log (tierToString tier ++ " index is at " ++ contentAddressToPath indexAddress)
+                            Script.log
+                                ("export "
+                                    ++ String.toLower (tierToString tier)
+                                    ++ "Tier=\""
+                                    ++ contentAddressToPath indexAddress
+                                    ++ "\""
+                                )
                         )
                     |> BackendTask.doEach
             )
