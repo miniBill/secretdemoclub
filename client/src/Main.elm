@@ -189,7 +189,11 @@ loadPostsFromIndex index =
                                             Err e ->
                                                 let
                                                     _ =
-                                                        Debug.log "error parsing post" e
+                                                        Debug.log "error parsing post"
+                                                            { error = e
+                                                            , body = body
+                                                            , postUrl = postUrl
+                                                            }
                                                 in
                                                 Task.fail (Http.BadBody "Could not read posts from the server")
                                     )
