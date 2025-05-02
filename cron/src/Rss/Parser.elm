@@ -735,7 +735,6 @@ type Error
     | ExpectedNodeGotText { expected : String, text : String }
     | ExpectedNodeGotOtherNode { expected : String, actual : String }
     | MissingField { expected : String, children : List Node }
-    | UnexpectedAttribute String
     | UnexpectedText
     | ExpectedTextGotNodes
     | ExpectedAttributeNotFound { expected : String, attributes : List Attribute }
@@ -756,9 +755,6 @@ errorToString err =
 
         MissingField _ ->
             "MissingField _"
-
-        UnexpectedAttribute name ->
-            "UnexpectedAttribute " ++ name
 
         UnexpectedText ->
             "UnexpectedText"
