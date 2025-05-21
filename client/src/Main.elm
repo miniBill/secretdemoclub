@@ -14,6 +14,7 @@ import Parser exposing ((|.), (|=), Parser)
 import Parser.Workaround
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
+import Result.Extra
 import Route exposing (Route(..))
 import Route.Error
 import Route.Index
@@ -170,38 +171,30 @@ loadPostsFromIndex index =
         }
         |> Task.andThen
             (\list ->
-                list
-                    |> String.split "\n"
-                    |> List.Extra.removeWhen String.isEmpty
-                    |> List.map
-                        (\postUrl ->
-                            Http.task
-                                { method = "GET"
-                                , body = Http.emptyBody
-                                , url = "/media/" ++ postUrl
-                                , headers = []
-                                , resolver = Http.stringResolver generalResolver
-                                , timeout = Nothing
-                                }
-                                |> Task.andThen
-                                    (\body ->
-                                        case Parser.run postParser body of
-                                            Ok post ->
-                                                Task.succeed post
+                case
+                    list
+                        |> String.split "\n\n"
+                        |> Result.Extra.combineMap
+                            (\post ->
+                                Parser.run postParser post
+                                    |> Result.mapError
+                                        (\e ->
+                                            let
+                                                _ =
+                                                    Debug.log "error parsing post"
+                                                        { error = e
+                                                        , body = post
+                                                        }
+                                            in
+                                            "Could not read posts from the server"
+                                        )
+                            )
+                of
+                    Ok posts ->
+                        Task.succeed posts
 
-                                            Err e ->
-                                                let
-                                                    _ =
-                                                        Debug.log "error parsing post"
-                                                            { error = e
-                                                            , body = body
-                                                            , postUrl = postUrl
-                                                            }
-                                                in
-                                                Task.fail (Http.BadBody "Could not read posts from the server")
-                                    )
-                        )
-                    |> Task.sequence
+                    Err e ->
+                        Task.fail (Http.BadBody e)
             )
         |> Task.map
             (\posts ->
