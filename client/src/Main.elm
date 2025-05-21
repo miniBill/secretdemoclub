@@ -171,30 +171,24 @@ loadPostsFromIndex index =
         }
         |> Task.andThen
             (\list ->
-                case
-                    list
-                        |> String.split "\n\n"
-                        |> Result.Extra.combineMap
-                            (\post ->
-                                Parser.run postParser post
-                                    |> Result.mapError
-                                        (\e ->
-                                            let
-                                                _ =
-                                                    Debug.log "error parsing post"
-                                                        { error = e
-                                                        , body = post
-                                                        }
-                                            in
-                                            "Could not read posts from the server"
-                                        )
-                            )
-                of
-                    Ok posts ->
-                        Task.succeed posts
-
-                    Err e ->
-                        Task.fail (Http.BadBody e)
+                list
+                    |> String.split "\n\n"
+                    |> Result.Extra.combineMap
+                        (\post ->
+                            Parser.run postParser post
+                                |> Result.mapError
+                                    (\e ->
+                                        let
+                                            _ =
+                                                Debug.log "error parsing post"
+                                                    { error = e
+                                                    , body = post
+                                                    }
+                                        in
+                                        Http.BadBody "Could not read posts from the server"
+                                    )
+                        )
+                    |> resultToTask
             )
         |> Task.map
             (\posts ->
@@ -202,6 +196,16 @@ loadPostsFromIndex index =
                 , posts = posts
                 }
             )
+
+
+resultToTask : Result error a -> Task error a
+resultToTask result =
+    case result of
+        Ok o ->
+            Task.succeed o
+
+        Err e ->
+            Task.fail e
 
 
 postParser : Parser Post
