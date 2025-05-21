@@ -4,6 +4,7 @@ use axum::{
     routing::post,
     Router,
 };
+use clap::Parser;
 use lazy_static::lazy_static;
 use tower_http::services::{ServeDir, ServeFile};
 use types::{AccessToken, Identity, Included};
@@ -27,19 +28,33 @@ lazy_static! {
         std::env::var("goldTier").expect("Missing env variable: goldTier");
 }
 
+#[derive(Parser, Debug)]
+#[command(version, about)]
+struct Args {
+    #[arg(short, long, default_value_t = 3000)]
+    port: u16,
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+
+    println!("🚀 SDC HQ server starting");
+
     let app: Router = Router::new()
         .route("/api", post(post_api))
         .fallback_service(ServeDir::new("public").fallback(ServeFile::new("public/index.html")));
 
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
+    let listener = tokio::net::TcpListener::bind(("localhost", args.port)).await?;
+
+    println!("🚪 Listening on port {}", args.port);
+
     axum::serve(listener, app).await?;
     Ok(())
 }
 
 async fn post_api(code: String) -> (StatusCode, String) {
-    println!("POST {code}");
+    println!("POST /api");
     let access_token = match get_access_token(code).await {
         Ok(access_token) => access_token,
         Err(e) => {
