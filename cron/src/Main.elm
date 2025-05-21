@@ -4,6 +4,7 @@ import Api
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
 import BackendTask.Env as Env
+import BackendTask.File as File
 import BackendTask.Http as Http
 import Cli.Option as Option
 import Cli.OptionsParser as OptionsParser
@@ -166,17 +167,14 @@ task config =
                                 |> List.filterMap identity
                         )
             )
-        |> Spinner.Reader.withStep "Writing posts"
+        |> Spinner.Reader.withStep "Formatting posts"
             (\_ cachedPosts ->
                 cachedPosts
-                    |> List.map (writePost config)
-                    |> List.Extra.greedyGroupsOf 10
-                    |> List.map BackendTask.combine
-                    |> BackendTask.sequence
-                    |> BackendTask.map List.concat
+                    |> List.map (postToContent config)
+                    |> BackendTask.combine
             )
-        |> Spinner.Reader.withStep "Writing index"
-            (\_ contentAddresses ->
+        |> Spinner.Reader.withStep "Writing indexes"
+            (\_ formattedPosts ->
                 [ Bronze, Silver, Gold ]
                     |> List.map
                         (\tier ->
@@ -187,17 +185,16 @@ task config =
 
                                 body : String
                                 body =
-                                    contentAddresses
+                                    formattedPosts
                                         |> List.filterMap
-                                            (\( address, postTiers ) ->
+                                            (\( content, postTiers ) ->
                                                 if List.member tier postTiers then
-                                                    Just address
+                                                    Just content
 
                                                 else
                                                     Nothing
                                             )
-                                        |> List.map contentAddressToPath
-                                        |> String.join "\n"
+                                        |> String.join "\n\n"
                             in
                             Do.allowFatal
                                 (Script.writeFile
@@ -299,8 +296,8 @@ taskFromResult result =
         |> BackendTask.fromResult
 
 
-writePost : Config -> { image : ContentAddress, media : ContentAddress, post : Api.Post } -> BackendTask FatalError ( ContentAddress, List Tier )
-writePost config { image, media, post } =
+postToContent : Config -> { image : ContentAddress, media : ContentAddress, post : Api.Post } -> BackendTask FatalError ( String, List Tier )
+postToContent config { image, media, post } =
     getTier post
         |> taskFromResult
         |> BackendTask.andThen
@@ -356,19 +353,21 @@ writePost config { image, media, post } =
                             |> String.join "\n"
                 in
                 Do.glob target <| \existing ->
-                Do.allowFatal
+                Do.do
                     (if not config.force && not (List.isEmpty existing) then
-                        Do.noop
+                        File.rawFile target
+                            |> BackendTask.allowFatal
 
                      else
                         Script.writeFile
                             { path = target
                             , body = body
                             }
+                            |> BackendTask.allowFatal
+                            |> BackendTask.map (\_ -> body)
                     )
-                <| \_ ->
-                Do.do (copyPostToContentAddressableStorage config postPath) <| \address ->
-                BackendTask.succeed ( address, tiers )
+                <| \onDisk ->
+                BackendTask.succeed ( onDisk, tiers )
             )
 
 
