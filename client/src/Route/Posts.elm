@@ -10,7 +10,7 @@ import List.Extra
 import Post exposing (Post)
 import Route exposing (Route(..))
 import Time
-import Url
+import Url exposing (Url)
 import Url.Builder
 import View exposing (View)
 
@@ -25,6 +25,7 @@ view :
             , route : Route
             , search : String
             , hasServiceWorker : Bool
+            , root : Url
         }
     -> List Post
     -> View msg
@@ -99,10 +100,14 @@ view messages model posts =
                                             ++ post.title
                                             ++ "."
                                             ++ extension
+
+                                    media : String
+                                    media =
+                                        Url.Builder.crossOrigin (Url.toString model.root) [ "media", post.media ] []
                                 in
                                 Json.Encode.object
                                     [ ( "filename", Json.Encode.string filename )
-                                    , ( "media", Json.Encode.string post.media )
+                                    , ( "media", Json.Encode.string media )
                                     ]
                             )
                         |> Json.Encode.encode 0
