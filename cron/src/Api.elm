@@ -873,6 +873,7 @@ postAudioVideoDecoder =
         |> DecodeComplete.discardOptional "closed_captions_enabled"
         |> DecodeComplete.discardOptional "video_issues"
         |> DecodeComplete.discardOptional "expires_at"
+        |> DecodeComplete.discardOptional "viewer_playback_data"
         |> DecodeComplete.complete
 
 
