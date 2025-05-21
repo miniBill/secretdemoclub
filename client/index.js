@@ -17,7 +17,7 @@ for (var i = 0; i < localStorage.length; i++) {
 
 /**
  * @template T
- * @typedef {{ call: ( arg: T ) => void }} JsToElm<T>
+ * @typedef {{ send: ( arg: T ) => void }} JsToElm<T>
  */
 
 /** @typedef {{ sendToLocalStorage: ElmToJs<{key : string, value: string}>, serviceWorkerRegistrationSuccess : JsToElm<{}> }} Ports */
@@ -47,13 +47,13 @@ if ("serviceWorker" in navigator) {
             serviceWorker = registration.waiting;
         } else if (registration.active) {
             serviceWorker = registration.active;
-            app.ports.serviceWorkerRegistrationSuccess.call({});
+            app.ports.serviceWorkerRegistrationSuccess.send({});
         }
 
         if (serviceWorker) {
             serviceWorker.addEventListener("statechange", () => {
                 if (serviceWorker.state == "activated") {
-                    app.ports.serviceWorkerRegistrationSuccess.call({});
+                    app.ports.serviceWorkerRegistrationSuccess.send({});
                 }
             });
         }
