@@ -10,10 +10,15 @@ self.addEventListener("fetch", function (/** @type {FetchEvent} */ e) {
     if (e.request.method !== "GET") return;
 
     const url = new URL(e.request.url);
-    if (url.pathname !== "/download") {
-        console.log("Ignoring", url.pathname);
+    if (url.pathname !== "/download") return;
+
+    let urls;
+    try {
+        urls = JSON.parse(url.searchParams.get("urls"));
+    } catch {
         return;
     }
+    if (!urls) return;
 
     debugger;
 
@@ -22,6 +27,4 @@ self.addEventListener("fetch", function (/** @type {FetchEvent} */ e) {
             return fetch(e.request);
         })()
     );
-
-    debugger;
 });
