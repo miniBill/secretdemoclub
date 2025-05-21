@@ -35,6 +35,7 @@ type alias Model =
     , posts : RemoteData Http.Error (List Post)
     , time : Maybe ( Time.Zone, Time.Posix )
     , playing : Maybe String
+    , hasServiceWorker : Bool
     }
 
 
@@ -45,6 +46,7 @@ type Msg
     | Play String
     | OnUrlChange Url
     | OnUrlRequest Browser.UrlRequest
+    | ServiceWorkerRegistrationSuccess
 
 
 type alias Flags =
@@ -108,6 +110,7 @@ init flags url key =
             , route = route
             , search = search
             , index = decodedFlags
+            , hasServiceWorker = False
             , posts = posts
             , time = Nothing
             , playing = Nothing
@@ -388,6 +391,9 @@ update msg model =
         OnUrlRequest (Browser.External url) ->
             ( model, Browser.Navigation.load url )
 
+        ServiceWorkerRegistrationSuccess ->
+            ( { model | hasServiceWorker = True }, Cmd.none )
+
 
 changeRouteTo : Model -> ( Model, Cmd Msg )
 changeRouteTo model =
@@ -409,6 +415,9 @@ port sendToLocalStorage :
     -> Cmd msg
 
 
-subscriptions : model -> Sub msg
+port serviceWorkerRegistrationSuccess : ({} -> msg) -> Sub msg
+
+
+subscriptions : model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    serviceWorkerRegistrationSuccess (\_ -> ServiceWorkerRegistrationSuccess)

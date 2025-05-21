@@ -10,6 +10,7 @@ import Post exposing (Post)
 import Route exposing (Route(..))
 import Time
 import Url
+import Url.Builder
 import View exposing (View)
 
 
@@ -22,6 +23,7 @@ view :
             | time : Maybe ( Time.Zone, Time.Posix )
             , route : Route
             , search : String
+            , hasServiceWorker : Bool
         }
     -> List Post
     -> View msg
@@ -67,12 +69,24 @@ view messages model posts =
     in
     { title = ""
     , body =
-        [ Html.a
-            [ Html.Attributes.href "TODO"
+        [ if model.hasServiceWorker then
+            let
+                urls : List String
+                urls =
+                    List.map .media filteredPosts
+            in
+            Html.a
+                [ Html.Attributes.href
+                    (Url.Builder.absolute
+                        [ "download" ]
+                        [ Url.Builder.string "urls" (String.join "&" urls) ]
+                    )
+                , Html.Attributes.download "sdc-download.zip"
+                ]
+                [ Html.text "Download all" ]
 
-            -- , Html.Attributes.download "TODO"
-            ]
-            [ Html.text "Download all" ]
+          else
+            Html.text ""
         , filteredPosts
             |> viewList messages model
         ]
