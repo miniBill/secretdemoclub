@@ -5,6 +5,7 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Html.Keyed
+import Json.Encode
 import List.Extra
 import Post exposing (Post)
 import Route exposing (Route(..))
@@ -71,15 +72,46 @@ view messages model posts =
     , body =
         [ if model.hasServiceWorker then
             let
-                urls : List String
+                urls : String
                 urls =
-                    List.map .media filteredPosts
+                    filteredPosts
+                        |> Json.Encode.list
+                            (\post ->
+                                let
+                                    extension : String
+                                    extension =
+                                        post.media
+                                            |> String.split "."
+                                            |> List.Extra.last
+                                            |> Maybe.withDefault "mp3"
+
+                                    filename : String
+                                    filename =
+                                        post.category
+                                            ++ "/"
+                                            ++ (case post.number of
+                                                    Nothing ->
+                                                        ""
+
+                                                    Just n ->
+                                                        n ++ " - "
+                                               )
+                                            ++ post.title
+                                            ++ "."
+                                            ++ extension
+                                in
+                                Json.Encode.object
+                                    [ ( "filename", Json.Encode.string filename )
+                                    , ( "media", Json.Encode.string post.media )
+                                    ]
+                            )
+                        |> Json.Encode.encode 0
             in
             Html.a
                 [ Html.Attributes.href
                     (Url.Builder.absolute
                         [ "download" ]
-                        [ Url.Builder.string "urls" (String.join "&" urls) ]
+                        [ Url.Builder.string "urls" urls ]
                     )
                 , Html.Attributes.download "sdc-download.zip"
                 ]
