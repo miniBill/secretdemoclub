@@ -1,5 +1,7 @@
-/** @type {{ [key: string]: string }} flags */
+/** @typedef {{ [key: string]: string }} Flags */
+/** @type Flags flags */
 const flags = {};
+
 for (var i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (!key) {
@@ -9,22 +11,25 @@ for (var i = 0; i < localStorage.length; i++) {
 }
 
 /**
+ * @template T
  * @typedef {{ subscribe: ( handler: ( arg: T ) => void ) => void }} ElmToJs<T>
- * @template {type} T
+ */
+
+/**
+ * @template T
+ * @typedef {{ call: ( arg: T ) => void }} JsToElm<T>
  */
 
 /** @typedef {{ sendToLocalStorage: ElmToJs<{key : string, value: string}> }} Ports */
 /** @typedef {{ ports: Ports }} ElmApp */
+
 /** @type {ElmApp} app */
+// @ts-ignore
 const app = Elm.Main.init({
     flags: flags,
     node: document.querySelector("main"),
 });
 
-if (app.ports) {
-    if (app.ports.sendToLocalStorage) {
-        app.ports.sendToLocalStorage.subscribe(({ key, value }) => {
-            window.localStorage[key] = JSON.stringify(value);
-        });
-    }
-}
+app.ports.sendToLocalStorage.subscribe(({ key, value }) => {
+    window.localStorage[key] = JSON.stringify(value);
+});
