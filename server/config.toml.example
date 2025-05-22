@@ -1,0 +1,7 @@
+clientId = ""
+clientSecret = ""
+redirectUri = "https://uriel.tail1b193.ts.net"
+orlaCampaignId = "119662"
+bronzeTier = "SHA512.md"
+silverTier = "SHA512.md"
+goldTier = "SHA512.md"

@@ -1,7 +1,0 @@
-export clientId=""
-export clientSecret=""
-export redirectUri="https://uriel.tail1b193.ts.net"
-export orlaCampaignId="119662"
-export bronzeTier="SHA512.md"
-export silverTier="SHA512.md"
-export goldTier="SHA512.md"

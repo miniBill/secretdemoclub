@@ -7,12 +7,12 @@ edition = "2021"
 anyhow = "1.0.95"
 axum = "0.8.1"
 clap = { version = "4.5.38", features = ["derive"] }
-lazy_static = "1.5.0"
 reqwest = { version = "0.12.12", default-features = false, features = [
     "rustls-tls",
     "json",
 ] }
 serde = { version = "1.0.217", features = ["derive"] }
-tokio = { version = "1.43.1", features = ["rt-multi-thread", "fs"] }
+tokio = { version = "1.43.1", features = ["rt-multi-thread", "fs", "signal"] }
 tokio-stream = { version = "0.1.17", features = ["fs"] }
+toml = "0.8.22"
 tower-http = { version = "0.6.2", features = ["fs"] }
