@@ -70,8 +70,8 @@ async fn main() -> anyhow::Result<()> {
         .fallback_service(ServeDir::new("public").fallback(ServeFile::new("public/index.html")))
         .with_state(app_state.clone());
 
-    println!("👂 Spawning task listening for SIGHUP for config update");
-    tokio::spawn(reload_config_on_sighup(config_file, app_state));
+    println!("👂 Spawning task listening for SIGUSR1 for config update");
+    tokio::spawn(reload_config_on_sigusr1(config_file, app_state));
 
     println!("🚪 Listening on port {}", args.port);
     let listener = tokio::net::TcpListener::bind(("localhost", args.port)).await?;
@@ -79,13 +79,13 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn reload_config_on_sighup(config_file: String, app_state: AppState) -> anyhow::Result<()> {
+async fn reload_config_on_sigusr1(config_file: String, app_state: AppState) -> anyhow::Result<()> {
     let mut stream = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::user_defined1())?;
 
-    // Print whenever a HUP signal is received
+    // Print whenever a USR1 signal is received
     loop {
         stream.recv().await;
-        println!("‼️ Got SIGHUP, reloading config");
+        println!("‼️ Got SIGUSR1, reloading config");
 
         let raw_config = match tokio::fs::read_to_string(&config_file).await {
             Ok(raw_config) => raw_config,
