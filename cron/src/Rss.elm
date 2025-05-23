@@ -26,8 +26,8 @@ type Title
     | Other String
 
 
-getAlbum : Post -> String
-getAlbum { title } =
+getAlbum : Title -> String
+getAlbum title =
     case title of
         Demo _ _ ->
             "Demos"

@@ -341,7 +341,7 @@ postToContent config { image, media, post } =
                     body : String
                     body =
                         [ Just ("Title: " ++ Rss.titleToString title)
-                        , Just ("Category: " ++ titleToCategory title)
+                        , Just ("Category: " ++ Rss.getAlbum title)
                         , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.attributes.publishedAt))
                         , Just ("Image: " ++ contentAddressToPath image)
                         , Just ("Link: https://www.patreon.com" ++ post.attributes.patreonUrl)
@@ -409,37 +409,6 @@ getTier post =
 
         Ok tiers ->
             Err ("Unexpected tiers: " ++ String.join ", " (List.map tierToString tiers))
-
-
-titleToCategory : Rss.Title -> String
-titleToCategory title =
-    case title of
-        Demo _ _ ->
-            "Demo"
-
-        VoiceMemo _ ->
-            "Voice memo"
-
-        BonusDemo _ ->
-            "Bonus demo"
-
-        SongIdea _ ->
-            "Song idea"
-
-        Podcast _ _ ->
-            "Podcast"
-
-        AnIdeaADay _ _ ->
-            "An idea a day"
-
-        FirstDraftFebruary _ _ ->
-            "First draft February"
-
-        AudioDiary _ _ ->
-            "Audio diary"
-
-        Other _ ->
-            "Other"
 
 
 type ScratchPath
