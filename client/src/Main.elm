@@ -9,8 +9,10 @@ import Html.Attributes
 import Html.Events
 import Http
 import Json.Decode
+import Json.Encode
 import Parser exposing ((|.), (|=), Parser)
 import Parser.Workaround
+import Platform.Cmd as Cmd
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
 import Result.Extra
@@ -382,7 +384,7 @@ update msg model =
             ( { model | playing = Just url }, Cmd.none )
 
         LoadedPosts (Ok { index, posts }) ->
-            ( { model | index = Just index, posts = RemoteData.Success posts }, saveIndex index )
+            ( { model | index = Just index, posts = RemoteData.Success posts }, saveIndex (Just index) )
 
         LoadedPosts (Err err) ->
             ( { model | posts = RemoteData.Failure err }, Cmd.none )
@@ -402,7 +404,24 @@ update msg model =
                 newModel =
                     { model | route = route, search = search }
             in
-            if Route.toString model == Route.toString newModel then
+            if route == Logout then
+                let
+                    loggedOutModel : Model
+                    loggedOutModel =
+                        { newModel
+                            | route = Index
+                            , index = Nothing
+                            , posts = RemoteData.NotAsked
+                        }
+                in
+                ( loggedOutModel
+                , Cmd.batch
+                    [ saveIndex Nothing
+                    , Browser.Navigation.replaceUrl model.key (Route.toString loggedOutModel)
+                    ]
+                )
+
+            else if Route.toString model == Route.toString newModel then
                 ( newModel, Cmd.none )
 
             else
@@ -423,17 +442,23 @@ changeRouteTo model =
     ( model, Browser.Navigation.replaceUrl model.key (Route.toString model) )
 
 
-saveIndex : String -> Cmd msg
+saveIndex : Maybe String -> Cmd msg
 saveIndex url =
     { key = "index"
-    , value = url
+    , value =
+        case url of
+            Just u ->
+                Json.Encode.string u
+
+            Nothing ->
+                Json.Encode.null
     }
         |> sendToLocalStorage
 
 
 port sendToLocalStorage :
     { key : String
-    , value : String
+    , value : Json.Encode.Value
     }
     -> Cmd msg
 
