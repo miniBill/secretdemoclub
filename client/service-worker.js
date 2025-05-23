@@ -34,7 +34,10 @@ self.addEventListener("fetch", function (/** @type {FetchEvent} */ e) {
 
     e.respondWith(
         new Response(readable, {
-            headers: { "content-type": "application/x-tar" },
+            headers: {
+                "Content-Type": "application/x-tar",
+                "Content-Disposition": "attachment; filename=sdc-download.tar",
+            },
         })
     );
 });
