@@ -282,7 +282,7 @@ function buildCentralDirectoryHeader(
 ) {
     let filenameLength = utf8Encoder.encode(filename).length;
 
-    const header = new Uint8Array(30 + filenameLength);
+    const header = new Uint8Array(46 + filenameLength);
     const view = new DataView(
         header.buffer,
         header.byteOffset,
@@ -311,7 +311,7 @@ function buildCentralDirectoryHeader(
      */
     function writeU8(input) {
         view.setUint8(offset, input);
-        offset += 2;
+        offset++;
     }
 
     /**
@@ -375,7 +375,7 @@ function buildEndOfCentralDirectoryRecord(
     length,
     centralDirectoryOffset
 ) {
-    const header = new Uint8Array(20);
+    const header = new Uint8Array(22);
     const view = new DataView(
         header.buffer,
         header.byteOffset,
