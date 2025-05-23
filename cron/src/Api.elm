@@ -363,7 +363,7 @@ getPaginated config toUrl dataDecoder includedDecoder =
                     }
                 )
                 |> DecodeComplete.required "data" (Json.Decode.list dataDecoder)
-                |> DecodeComplete.required "included"
+                |> DecodeComplete.optional "included"
                     (Json.Decode.list
                         (DecodeComplete.object
                             (\id type_ ->
@@ -382,6 +382,7 @@ getPaginated config toUrl dataDecoder includedDecoder =
                             |> DecodeComplete.complete
                         )
                     )
+                    []
                 |> DecodeComplete.required "meta"
                     (Json.Decode.at
                         [ "pagination", "cursors", "next" ]
