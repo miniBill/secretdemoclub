@@ -57,12 +57,20 @@ async function tarResponse(e, filename, files) {
             responses.push({ header, body: response.body, length });
         }
 
+        /**
+         * @param {WritableStream<any>} writable
+         * @param {any} block
+         */
+        async function writeTo(writable, block) {
+            let writer = writable.getWriter();
+            await writer.write(block);
+            writer.releaseLock();
+        }
+
         e.waitUntil(
             (async () => {
                 for (const { header, body, length } of responses) {
-                    let writer = writable.getWriter();
-                    await writer.write(header);
-                    writer.releaseLock();
+                    await writeTo(writable, header);
 
                     await body.pipeTo(writable, {
                         preventClose: true,
@@ -71,16 +79,14 @@ async function tarResponse(e, filename, files) {
                     const lastBlockSize = length % 512;
 
                     if (lastBlockSize > 0) {
-                        writer = writable.getWriter();
-                        await writer.write(new Uint8Array(512 - lastBlockSize));
-                        writer.releaseLock();
+                        await writeTo(
+                            writable,
+                            new Uint8Array(512 - lastBlockSize)
+                        );
                     }
                 }
 
-                const end = new Uint8Array(1024);
-                let writer = writable.getWriter();
-                await writer.write(end);
-                writer.releaseLock();
+                await writeTo(writable, new Uint8Array(1024));
 
                 writable.close();
             })()
