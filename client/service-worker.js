@@ -52,7 +52,7 @@ async function tarResponse(e, filename, files) {
 
             contentSize += length;
 
-            const header = buildHeader(filename, length, mtime);
+            const header = buildFileHeader(filename, length, mtime);
 
             responses.push({ header, body: response.body, length });
         }
@@ -107,7 +107,7 @@ async function tarResponse(e, filename, files) {
  * @param {number} length
  * @param {number} mtime
  */
-function buildHeader(filename, length, mtime) {
+function buildFileHeader(filename, length, mtime) {
     const header = new Uint8Array(512);
     let offset = 0;
 
