@@ -52,7 +52,7 @@ view model =
                                 ]
                                 [ case maybeYear of
                                     Nothing ->
-                                        Html.text "All"
+                                        Html.text ("2015-" ++ String.fromInt yearOfLastPost)
 
                                     Just year ->
                                         Html.text (String.fromInt year)
@@ -65,6 +65,20 @@ view model =
                                         )
                                     ]
                                     [ Html.text "Demos" ]
+                                , case maybeYear of
+                                    Nothing ->
+                                        Html.a
+                                            [ Html.Attributes.href
+                                                (Route.toString
+                                                    { search = " "
+                                                    , route = Route.Index
+                                                    }
+                                                )
+                                            ]
+                                            [ Html.text "Everything" ]
+
+                                    Just _ ->
+                                        Html.text ""
                                 ]
                         )
                     |> Html.ul
