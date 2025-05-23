@@ -160,7 +160,7 @@ async function zipResponse(e, filename, files) {
         );
 
         let headers = {
-            "Content-Type": "application/x-tar",
+            "Content-Type": "application/zip",
             "Content-Disposition": `attachment; filename=${filename}`,
         };
 
