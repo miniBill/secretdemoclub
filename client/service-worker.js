@@ -107,7 +107,7 @@ async function zipResponse(e, filename, files) {
                 let centralDirectoryHeaders = [];
                 let offset = 0;
 
-                for (const { url, mtime } of files) {
+                for (const { filename, url, mtime } of files) {
                     const response = await fetch(url);
 
                     const localHeader = buildLocalFileHeader(filename, mtime);
