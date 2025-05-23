@@ -28,14 +28,15 @@ self.addEventListener("fetch", function (/** @type {FetchEvent} */ e) {
         return;
     }
 
-    e.respondWith(tarResponse(e, files));
+    e.respondWith(tarResponse(e, "sdc-download.tar", files));
 });
 
 /**
- * @param {{ filename: string; mtime: number; url: string; }[]} files
+ * @param {{filename: string;mtime: number;url: string;}[]} files
  * @param {FetchEvent} e
+ * @param {any} filename
  */
-async function tarResponse(e, files) {
+async function tarResponse(e, filename, files) {
     try {
         const { writable, readable } = new TransformStream();
 
@@ -88,7 +89,7 @@ async function tarResponse(e, files) {
         const contentLength = 512 * (responses.length + 2) + contentSize;
         let headers = {
             "Content-Type": "application/x-tar",
-            "Content-Disposition": "attachment; filename=sdc-download.tar",
+            "Content-Disposition": `attachment; filename=${filename}`,
             "Content-Length": contentLength.toString(),
         };
 
