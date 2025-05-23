@@ -12,19 +12,29 @@ self.addEventListener("fetch", function (/** @type {FetchEvent} */ e) {
     const url = new URL(e.request.url);
     if (url.pathname !== "/download") return;
 
-    let urls;
+    let files;
     try {
-        urls = JSON.parse(url.searchParams.get("urls"));
+        files = JSON.parse(url.searchParams.get("files"));
     } catch {
         return;
     }
-    if (!urls) return;
+    if (!files) return;
 
-    debugger;
+    const { writable, readable } = new TransformStream();
+
+    e.waitUntil(
+        (async () => {
+            for (const { filename, url } of files) {
+                const response = await fetch(url);
+                await response.body.pipeTo(writable, { preventClose: true });
+            }
+            writable.close();
+        })()
+    );
 
     e.respondWith(
-        (async () => {
-            return fetch(e.request);
-        })()
+        new Response(readable, {
+            headers: { "content-type": "application/x-tar" },
+        })
     );
 });

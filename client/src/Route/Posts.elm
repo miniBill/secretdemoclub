@@ -73,8 +73,8 @@ view messages model posts =
     , body =
         [ if model.hasServiceWorker then
             let
-                urls : String
-                urls =
+                files : String
+                files =
                     filteredPosts
                         |> Json.Encode.list
                             (\post ->
@@ -107,7 +107,7 @@ view messages model posts =
                                 in
                                 Json.Encode.object
                                     [ ( "filename", Json.Encode.string filename )
-                                    , ( "media", Json.Encode.string media )
+                                    , ( "url", Json.Encode.string media )
                                     ]
                             )
                         |> Json.Encode.encode 0
@@ -116,7 +116,7 @@ view messages model posts =
                 [ Html.Attributes.href
                     (Url.Builder.absolute
                         [ "download" ]
-                        [ Url.Builder.string "urls" urls ]
+                        [ Url.Builder.string "files" files ]
                     )
                 , Html.Attributes.download "sdc-download.zip"
                 ]
