@@ -486,14 +486,6 @@ copyMediaToContentAddressableStorage config ((MediaPath { extension }) as mediaP
         }
 
 
-copyPostToContentAddressableStorage : Config -> PostPath -> BackendTask FatalError ContentAddress
-copyPostToContentAddressableStorage config ((PostPath { extension }) as postPath) =
-    copyToContentAddressableStorage config
-        { path = postPathToPath config postPath
-        , extension = extension
-        }
-
-
 copyToContentAddressableStorage : Config -> { path : String, extension : String } -> BackendTask FatalError ContentAddress
 copyToContentAddressableStorage config { path, extension } =
     Do.command "sha512sum" [ path ] <| \output ->
