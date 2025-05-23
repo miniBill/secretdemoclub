@@ -9,6 +9,7 @@ import Url.Builder
 type Route
     = Index
     | Demos (Maybe Int)
+    | Logout
 
 
 parse : Url -> { route : Route, search : String }
@@ -25,6 +26,9 @@ parse url =
 
             [ "demos" ] ->
                 Demos Nothing
+
+            [ "logout" ] ->
+                Logout
 
             _ ->
                 Index
@@ -50,6 +54,9 @@ toString { search, route } =
 
                 Demos Nothing ->
                     [ "demos" ]
+
+                Logout ->
+                    [ "logout" ]
 
         query : List (Maybe Url.Builder.QueryParameter)
         query =

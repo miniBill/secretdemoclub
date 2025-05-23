@@ -55,10 +55,16 @@ view messages model posts =
                 Demos _ ->
                     post.category == "Demo"
 
+                Logout ->
+                    True
+
         isCorrectYear : Post -> Bool
         isCorrectYear post =
             case model.route of
                 Index ->
+                    True
+
+                Logout ->
                     True
 
                 Demos maybeYear ->

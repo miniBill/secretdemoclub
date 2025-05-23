@@ -9,7 +9,6 @@ import Html.Attributes
 import Html.Events
 import Http
 import Json.Decode
-import List.Extra
 import Parser exposing ((|.), (|=), Parser)
 import Parser.Workaround
 import Post exposing (Post)
@@ -106,20 +105,37 @@ init flags url key =
 
         model : Model
         model =
-            { key = key
-            , root = { url | path = "", query = Nothing, fragment = Nothing }
-            , route = route
-            , search = search
-            , index = decodedFlags
-            , hasServiceWorker = False
-            , posts = posts
-            , time = Nothing
-            , playing = Nothing
-            }
+            if route == Logout then
+                { key = key
+                , root = { url | path = "", query = Nothing, fragment = Nothing }
+                , route = Index
+                , search = search
+                , index = Nothing
+                , hasServiceWorker = False
+                , posts = RemoteData.NotAsked
+                , time = Nothing
+                , playing = Nothing
+                }
+
+            else
+                { key = key
+                , root = { url | path = "", query = Nothing, fragment = Nothing }
+                , route = route
+                , search = search
+                , index = decodedFlags
+                , hasServiceWorker = False
+                , posts = posts
+                , time = Nothing
+                , playing = Nothing
+                }
     in
     ( model
     , Cmd.batch
-        [ loadCmd
+        [ if route == Logout then
+            Cmd.none
+
+          else
+            loadCmd
         , Browser.Navigation.replaceUrl model.key (Route.toString model)
         , Task.map2 HereAndNow Time.here Time.now
             |> Task.perform identity
@@ -292,7 +308,10 @@ view model =
                         [ Html.Attributes.href "/" ]
                         [ Html.text "Secret Demo Club HQ" ]
                     ]
-                , Html.div []
+                , Html.div
+                    [ Html.Attributes.style "display" "flex"
+                    , Html.Attributes.style "gap" "8px"
+                    ]
                     [ Html.label []
                         [ Html.text "Search "
                         , Html.input
@@ -302,6 +321,10 @@ view model =
                             ]
                             []
                         ]
+                    , Html.text " "
+                    , Html.a
+                        [ Html.Attributes.href "/logout" ]
+                        [ Html.text "Logout" ]
                     ]
                 ]
           , Html.div [ Html.Attributes.style "padding" "0 8px" ] content.body
@@ -347,6 +370,9 @@ innerView model posts =
 
         Demos _ ->
             Route.Posts.view { play = Play } model posts
+
+        Logout ->
+            Route.Loading.view
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
