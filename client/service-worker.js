@@ -28,34 +28,69 @@ self.addEventListener("fetch", function (/** @type {FetchEvent} */ e) {
         return;
     }
 
-    e.respondWith(tarResponse(e, "sdc-download.tar", files));
+    e.respondWith(zipResponse(e, "sdc-download.zip", files));
 });
+
+const crc32Lookup = Uint32Array.from({ length: 256 }, (_, c) => {
+    for (let _ = 0; _ < 8; _++) c = ((c & 1) * 0xedb88320) ^ (c >>> 1);
+    return c;
+});
+
+/**
+ * @type {Transformer<Uint8Array, Uint8Array>}
+ */
+class Crc32Transformer {
+    constructor() {
+        this._crc = 0xdebb20e3;
+        this.length = 0;
+        // this._crc = ~0xdebb20e3;
+    }
+
+    start() {}
+
+    /**
+     * @param {Uint8Array} chunk
+     * @param {TransformStreamDefaultController<Uint8Array>} controller
+     */
+    async transform(chunk, controller) {
+        for (let i = 0; i < chunk.length; i++)
+            this._crc =
+                (this._crc >>> 8) ^ crc32Lookup[(this._crc ^ chunk[i]) & 0xff];
+        this.length += chunk.length;
+        controller.enqueue(chunk);
+    }
+
+    crc32() {
+        return ~this._crc >>> 0;
+    }
+
+    flush() {}
+}
+
+class Crc32TransformStream extends TransformStream {
+    constructor() {
+        const transformer = new Crc32Transformer();
+        super(transformer);
+        this.transformer = transformer;
+    }
+
+    crc32() {
+        return this.transformer.crc32();
+    }
+
+    length() {
+        return this.transformer.length;
+    }
+}
 
 /**
  * @param {{filename: string;mtime: number;url: string;}[]} files
  * @param {FetchEvent} e
- * @param {any} filename
+ * @param {string} filename
  */
-async function tarResponse(e, filename, files) {
+async function zipResponse(e, filename, files) {
     try {
         const { writable, readable } = new TransformStream();
-
-        let responses = [];
-        let contentSize = 0;
-        for (const { filename, mtime, url } of files) {
-            const response = await fetch(url);
-
-            let length = Number(response.headers.get("Content-Length"));
-            if (!length) {
-                throw `Missing Content-Length for ${url}`;
-            }
-
-            contentSize += length;
-
-            const header = buildFileHeader(filename, length, mtime);
-
-            responses.push({ header, body: response.body, length });
-        }
 
         /**
          * @param {WritableStream<any>} writable
@@ -69,34 +104,64 @@ async function tarResponse(e, filename, files) {
 
         e.waitUntil(
             (async () => {
-                for (const { header, body, length } of responses) {
-                    await writeTo(writable, header);
+                let centralDirectoryHeaders = [];
+                let offset = 0;
 
-                    await body.pipeTo(writable, {
-                        preventClose: true,
-                    });
+                for (const { url, mtime } of files) {
+                    const response = await fetch(url);
 
-                    const lastBlockSize = length % 512;
+                    const localHeader = buildLocalFileHeader(filename, mtime);
 
-                    if (lastBlockSize > 0) {
-                        await writeTo(
-                            writable,
-                            new Uint8Array(512 - lastBlockSize)
-                        );
-                    }
+                    await writeTo(writable, localHeader);
+
+                    let crcStream = new Crc32TransformStream();
+                    await response.body
+                        .pipeThrough(crcStream)
+                        .pipeTo(writable, {
+                            preventClose: true,
+                        });
+
+                    let length = crcStream.length();
+                    let crc32 = crcStream.crc32();
+
+                    const dataDescriptor = buildDataDescriptor(crc32, length);
+                    await writeTo(writable, dataDescriptor);
+
+                    const centralDirectoryHeader = buildCentralDirectoryHeader(
+                        filename,
+                        mtime,
+                        crc32,
+                        length,
+                        offset
+                    );
+                    centralDirectoryHeaders.push(centralDirectoryHeader);
+
+                    offset += localHeader.length;
+                    offset += length;
+                    offset += dataDescriptor.length;
                 }
 
-                await writeTo(writable, new Uint8Array(1024));
+                let centralDirectorySize = 0;
+                for (const centralDirectoryHeader of centralDirectoryHeaders) {
+                    await writeTo(writable, centralDirectoryHeader);
+                    centralDirectorySize += centralDirectoryHeader.length;
+                }
+
+                const endOfCentralDirectoryRecord =
+                    buildEndOfCentralDirectoryRecord(
+                        centralDirectoryHeaders.length,
+                        centralDirectorySize,
+                        offset
+                    );
+                await writeTo(writable, endOfCentralDirectoryRecord);
 
                 writable.close();
             })()
         );
 
-        const contentLength = 512 * (responses.length + 2) + contentSize;
         let headers = {
             "Content-Type": "application/x-tar",
             "Content-Disposition": `attachment; filename=${filename}`,
-            "Content-Length": contentLength.toString(),
         };
 
         return new Response(readable, { headers });
@@ -110,73 +175,254 @@ async function tarResponse(e, filename, files) {
 
 /**
  * @param {string} filename
- * @param {number} length
  * @param {number} mtime
  */
-function buildFileHeader(filename, length, mtime) {
-    const header = new Uint8Array(512);
+function buildLocalFileHeader(filename, mtime) {
+    let filenameLength = utf8Encoder.encode(filename).length;
+
+    const header = new Uint8Array(30 + filenameLength);
+    const view = new DataView(
+        header.buffer,
+        header.byteOffset,
+        header.byteLength
+    );
     let offset = 0;
 
     /**
      * @param {Uint8Array} bytes
-     * @param {number} length
      */
-    function writeBytes(bytes, length) {
+    function writeBytes(bytes) {
         header.set(bytes, offset);
-        offset += length;
+        offset += bytes.length;
     }
 
     /**
-     * @param {string} name
      * @param {string} input
-     * @param {number} length
      */
-    function writeString(name, input, length) {
+    function writeString(input) {
         let result = utf8Encoder.encode(input);
-        if (result.length > length) {
-            throw `${name} too long`;
-        }
-        writeBytes(result, length);
+        writeBytes(result);
     }
 
     /**
-     * @param {string} name
      * @param {number} [input]
-     * @param {number} [length]
      */
-    function writeNumber(name, input, length) {
-        let padded = input.toString(8).padStart(length - 1, "0");
-        let result = utf8Encoder.encode(padded);
-        if (result.length > length) {
-            throw `${name} too long: ${input} => \"${padded}\" [${result.length} > ${length}]`;
-        }
-        writeBytes(result, length);
+    function writeU16(input) {
+        view.setUint16(offset, input, true);
+        offset += 2;
     }
 
-    writeString("filename", filename, 100);
-    writeNumber("mode", 0o644, 8);
-    writeNumber("uid", 1000, 8);
-    writeNumber("gid", 1000, 8);
-    writeNumber("size", length, 12);
-    writeNumber("mtime", mtime, 12); // Seconds since epoch
-    writeString("chksum", "        ", 8);
-    writeNumber("typeflag", 0, 1);
-    writeString("linkname", "", 100);
-    writeString("magic", "ustar", 6);
-    writeString("version", "00", 2);
-    writeString("uname", "orla", 32);
-    writeString("gname", "gartland", 32);
-    writeNumber("devmajor", 0, 8);
-    writeNumber("devminor", 0, 8);
-    writeString("prefix", "", 155);
-
-    let checksum = 0;
-    for (let i = 0; i < header.length; i++) {
-        checksum += header[i];
+    /**
+     * @param {number} [input]
+     */
+    function writeU32(input) {
+        view.setUint32(offset, input, true);
+        offset += 4;
     }
 
-    offset = 148;
-    writeNumber("chksum", checksum, 8);
+    let mtimeDate = new Date(mtime);
+
+    writeString("PK\x03\x04"); // Signature
+    writeU16(10); // Version: 1.0
+    writeU16(1 << 3); // Flags: "data descriptor"
+    writeU16(0); // Compression: none
+    writeU16(
+        (mtimeDate.getSeconds() / 2) |
+            (mtimeDate.getMinutes() << 5) |
+            (mtimeDate.getHours() << 11)
+    ); // File modification time, in DOS format
+    writeU16(
+        mtimeDate.getDay() |
+            (mtimeDate.getMonth() << 5) |
+            ((mtimeDate.getFullYear() - 1980) << 9)
+    );
+    writeU32(0); // CRC is postponed
+    writeU32(0); // Compressed size is postponed
+    writeU32(0); // Uncompressed size is postponed
+    writeU16(filenameLength);
+    writeU16(0); // Extra field length
+    writeString(filename);
+    // No extra field
+
+    return header;
+}
+
+/**
+ * @param {number} crc32
+ * @param {number} length
+ */
+function buildDataDescriptor(crc32, length) {
+    const descriptor = new Uint8Array(12);
+    const view = new DataView(
+        descriptor.buffer,
+        descriptor.byteOffset,
+        descriptor.byteLength
+    );
+
+    view.setUint32(0, crc32, true); // CRC
+    view.setUint32(4, length, true); // Compressed size
+    view.setUint32(8, length, true); // Uncompressed size
+
+    return descriptor;
+}
+
+/**
+ * @param {string} filename
+ * @param {number} mtime
+ * @param {number} crc32
+ * @param {number} length
+ * @param {number} localHeaderOffset
+ */
+function buildCentralDirectoryHeader(
+    filename,
+    mtime,
+    crc32,
+    length,
+    localHeaderOffset
+) {
+    let filenameLength = utf8Encoder.encode(filename).length;
+
+    const header = new Uint8Array(30 + filenameLength);
+    const view = new DataView(
+        header.buffer,
+        header.byteOffset,
+        header.byteLength
+    );
+    let offset = 0;
+
+    /**
+     * @param {Uint8Array} bytes
+     */
+    function writeBytes(bytes) {
+        header.set(bytes, offset);
+        offset += bytes.length;
+    }
+
+    /**
+     * @param {string} input
+     */
+    function writeString(input) {
+        let result = utf8Encoder.encode(input);
+        writeBytes(result);
+    }
+
+    /**
+     * @param {number} [input]
+     */
+    function writeU8(input) {
+        view.setUint8(offset, input);
+        offset += 2;
+    }
+
+    /**
+     * @param {number} [input]
+     */
+    function writeU16(input) {
+        view.setUint16(offset, input, true);
+        offset += 2;
+    }
+
+    /**
+     * @param {number} [input]
+     */
+    function writeU32(input) {
+        view.setUint32(offset, input, true);
+        offset += 4;
+    }
+
+    let mtimeDate = new Date(mtime);
+
+    writeString("PK\x01\x02"); // Signature
+    writeU8(63); // Spec version. Copied from what Ark outputs 🤷
+    writeU8(3); // UNIX
+    writeU16(10); // Version: 1.0
+    writeU16(1 << 3); // Flags: "data descriptor"
+    writeU16(0); // Compression: none
+    writeU16(
+        (mtimeDate.getSeconds() / 2) |
+            (mtimeDate.getMinutes() << 5) |
+            (mtimeDate.getHours() << 11)
+    ); // File modification time, in DOS format
+    writeU16(
+        mtimeDate.getDay() |
+            (mtimeDate.getMonth() << 5) |
+            ((mtimeDate.getFullYear() - 1980) << 9)
+    );
+    writeU32(crc32);
+    writeU32(length); // Compressed size
+    writeU32(length); // Uncompressed size
+    writeU16(filenameLength);
+    writeU16(0); // Extra field length
+    writeU16(0); // File comment length
+    writeU16(0); // Disk #
+    writeU16(0); // Internal attributes: none
+    writeU32(0); // External attributes: none
+    writeU32(localHeaderOffset);
+    writeString(filename);
+    // No extra field
+    // No file comment
+
+    return header;
+}
+
+/**
+ * @param {number} entries
+ * @param {number} length
+ * @param {number} centralDirectoryOffset
+ */
+function buildEndOfCentralDirectoryRecord(
+    entries,
+    length,
+    centralDirectoryOffset
+) {
+    const header = new Uint8Array(20);
+    const view = new DataView(
+        header.buffer,
+        header.byteOffset,
+        header.byteLength
+    );
+    let offset = 0;
+
+    /**
+     * @param {Uint8Array} bytes
+     */
+    function writeBytes(bytes) {
+        header.set(bytes, offset);
+        offset += bytes.length;
+    }
+
+    /**
+     * @param {string} input
+     */
+    function writeString(input) {
+        let result = utf8Encoder.encode(input);
+        writeBytes(result);
+    }
+
+    /**
+     * @param {number} [input]
+     */
+    function writeU16(input) {
+        view.setUint16(offset, input, true);
+        offset += 2;
+    }
+
+    /**
+     * @param {number} [input]
+     */
+    function writeU32(input) {
+        view.setUint32(offset, input, true);
+        offset += 4;
+    }
+
+    writeString("PK\x05\x06"); // Signature
+    writeU16(0); // Disk #
+    writeU16(0); // Disk with central directory record
+    writeU16(entries); // Number of CD entries on this disk
+    writeU16(entries); // Number of CD entries in total
+    writeU32(length);
+    writeU32(centralDirectoryOffset);
+    writeU16(0); // Comment length
 
     return header;
 }
