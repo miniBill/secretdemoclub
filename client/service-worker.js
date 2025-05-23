@@ -1,3 +1,5 @@
+const utf8Encoder = new TextEncoder();
+
 self.addEventListener("install", function (/** @type {ExtendableEvent} */ e) {
     console.log("Service worker installed:", e);
 });
@@ -26,14 +28,14 @@ self.addEventListener("fetch", function (/** @type {FetchEvent} */ e) {
         return;
     }
 
-    e.respondWith(tarFiles(e, files));
+    e.respondWith(tarResponse(e, files));
 });
 
 /**
  * @param {{ filename: string; mtime: number; url: string; }[]} files
  * @param {FetchEvent} e
  */
-async function tarFiles(e, files) {
+async function tarResponse(e, files) {
     try {
         const { writable, readable } = new TransformStream();
 
@@ -83,13 +85,11 @@ async function tarFiles(e, files) {
             })()
         );
 
+        const contentLength = 512 * (responses.length + 2) + contentSize;
         let headers = {
             "Content-Type": "application/x-tar",
             "Content-Disposition": "attachment; filename=sdc-download.tar",
-            "Content-Length": (
-                512 * (responses.length + 2) +
-                contentSize
-            ).toString(),
+            "Content-Length": contentLength.toString(),
         };
 
         return new Response(readable, { headers });
@@ -107,8 +107,6 @@ async function tarFiles(e, files) {
  * @param {number} mtime
  */
 function buildHeader(filename, length, mtime) {
-    const utf8Encoder = new TextEncoder();
-
     const header = new Uint8Array(512);
     let offset = 0;
 
