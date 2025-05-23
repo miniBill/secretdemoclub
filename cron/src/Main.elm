@@ -215,9 +215,8 @@ task config =
                     |> List.map
                         (\( tier, indexAddress ) ->
                             Script.log
-                                ("export "
-                                    ++ String.toLower (tierToString tier)
-                                    ++ "Tier=\""
+                                (String.toLower (tierToString tier)
+                                    ++ "_tier = \""
                                     ++ contentAddressToPath indexAddress
                                     ++ "\""
                                 )
