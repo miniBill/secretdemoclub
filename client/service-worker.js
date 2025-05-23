@@ -56,19 +56,28 @@ async function tarFiles(e, files) {
 
         e.waitUntil(
             (async () => {
-                for (const { header, body } of responses) {
+                for (const { header, body, length } of responses) {
                     let writer = writable.getWriter();
-                    writer.write(header);
+                    await writer.write(header);
                     writer.releaseLock();
 
                     await body.pipeTo(writable, {
                         preventClose: true,
                     });
+
+                    const lastBlockSize = length % 512;
+
+                    if (lastBlockSize > 0) {
+                        writer = writable.getWriter();
+                        await writer.write(new Uint8Array(512 - lastBlockSize));
+                        writer.releaseLock();
+                    }
                 }
 
                 const end = new Uint8Array(1024);
                 let writer = writable.getWriter();
-                writer.write(end);
+                await writer.write(end);
+                writer.releaseLock();
 
                 writable.close();
             })()
