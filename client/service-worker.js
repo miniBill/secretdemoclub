@@ -30,7 +30,7 @@ self.addEventListener("fetch", function (/** @type {FetchEvent} */ e) {
 });
 
 /**
- * @param {{ filename: string; url: string; }[]} files
+ * @param {{ filename: string; mtime: number; url: string; }[]} files
  * @param {FetchEvent} e
  */
 async function tarFiles(e, files) {
@@ -39,7 +39,7 @@ async function tarFiles(e, files) {
 
         let responses = [];
         let contentSize = 0;
-        for (const { filename, url } of files) {
+        for (const { filename, mtime, url } of files) {
             const response = await fetch(url);
 
             let length = Number(response.headers.get("Content-Length"));
@@ -49,7 +49,7 @@ async function tarFiles(e, files) {
 
             contentSize += length;
 
-            const header = buildHeader(filename, length);
+            const header = buildHeader(filename, length, mtime);
 
             responses.push({ header, body: response.body, length });
         }
@@ -95,8 +95,9 @@ async function tarFiles(e, files) {
 /**
  * @param {string} filename
  * @param {number} length
+ * @param {number} mtime
  */
-function buildHeader(filename, length) {
+function buildHeader(filename, length, mtime) {
     const utf8Encoder = new TextEncoder();
 
     const header = new Uint8Array(512);
@@ -143,7 +144,7 @@ function buildHeader(filename, length) {
     writeNumber("uid", 1000, 8);
     writeNumber("gid", 1000, 8);
     writeNumber("size", length, 12);
-    writeNumber("mtime", 0, 12); // Seconds since epoch
+    writeNumber("mtime", mtime, 12); // Seconds since epoch
     writeString("chksum", "        ", 8);
     writeNumber("typeflag", 0, 1);
     writeString("linkname", "", 100);

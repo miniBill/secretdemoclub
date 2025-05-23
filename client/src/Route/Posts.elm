@@ -108,6 +108,7 @@ view messages model posts =
                                 Json.Encode.object
                                     [ ( "filename", Json.Encode.string filename )
                                     , ( "url", Json.Encode.string media )
+                                    , ( "mtime", Json.Encode.int (Time.posixToMillis post.date // 1000) )
                                     ]
                             )
                         |> Json.Encode.encode 0
