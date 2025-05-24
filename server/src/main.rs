@@ -85,7 +85,7 @@ async fn reload_config_on_sigusr1(config_file: String, app_state: AppState) -> a
     // Print whenever a USR1 signal is received
     loop {
         stream.recv().await;
-        println!("‼️ Got SIGUSR1, reloading config");
+        println!("❗ Got SIGUSR1, reloading config");
 
         let raw_config = match tokio::fs::read_to_string(&config_file).await {
             Ok(raw_config) => raw_config,
