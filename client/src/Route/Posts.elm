@@ -80,6 +80,11 @@ view messages model posts =
                 , HA.download "sdc-download.zip"
                 ]
                 [ Html.text "Download all" ]
+                |> List.singleton
+                |> Html.div
+                    [ HA.style "width" "100"
+                    , HA.style "text-align" "center"
+                    ]
 
           else
             Html.text ""
