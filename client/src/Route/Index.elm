@@ -80,27 +80,7 @@ viewYear here search posts maybeYear =
                     )
                 |> Set.fromList
                 |> Set.toList
-                |> List.sortBy
-                    (\c ->
-                        case c of
-                            "Bonus demos" ->
-                                ( 30, c )
-
-                            "Others" ->
-                                ( 40, c )
-
-                            "Song ideas" ->
-                                ( 70, c )
-
-                            "Voice memos" ->
-                                ( 80, c )
-
-                            "Demos" ->
-                                ( 90, c )
-
-                            _ ->
-                                ( 10, c )
-                    )
+                |> List.sortBy categoryOrder
 
         categoryLink : String -> Html msg
         categoryLink category =
@@ -144,3 +124,25 @@ viewYear here search posts maybeYear =
             ]
             (List.map categoryLink categories)
         ]
+
+
+categoryOrder : String -> ( number, String )
+categoryOrder c =
+    case c of
+        "Bonus demos" ->
+            ( 30, c )
+
+        "Others" ->
+            ( 40, c )
+
+        "Song ideas" ->
+            ( 70, c )
+
+        "Voice memos" ->
+            ( 80, c )
+
+        "Demos" ->
+            ( 90, c )
+
+        _ ->
+            ( 10, c )
