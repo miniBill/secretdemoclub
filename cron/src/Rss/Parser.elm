@@ -443,19 +443,22 @@ audioDiaryParser =
         dateParser : Parser (Maybe String)
         dateParser =
             Parser.succeed (\month day -> Just <| month ++ " " ++ String.fromInt day)
-                |= Parser.oneOf
-                    (months
-                        |> List.concatMap
-                            (\( long, short ) ->
-                                [ Parser.succeed short |. Parser.keyword long
-                                , Parser.succeed short |. Parser.keyword (String.toLower long)
-                                , Parser.succeed short |. Parser.keyword short
-                                , Parser.succeed short |. Parser.keyword (String.toLower short)
-                                ]
-                            )
-                    )
-                |. Parser.spaces
+                |= (Parser.oneOf
+                        (months
+                            |> List.concatMap
+                                (\( long, short ) ->
+                                    [ Parser.succeed short |. Parser.keyword long
+                                    , Parser.succeed short |. Parser.keyword (String.toLower long)
+                                    , Parser.succeed short |. Parser.keyword short
+                                    , Parser.succeed short |. Parser.keyword (String.toLower short)
+                                    ]
+                                )
+                        )
+                        |> Parser.backtrackable
+                   )
+                |. (Parser.spaces |> Parser.backtrackable)
                 |= Parser.int
+                |. Parser.commit ()
                 |. Parser.oneOf
                     [ Parser.symbol "th"
                     , Parser.symbol "st"
