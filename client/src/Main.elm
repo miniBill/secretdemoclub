@@ -284,11 +284,11 @@ view model =
                 "Secret Demo Club HQ - " ++ title
     , body =
         [ [ header model
-          , Html.div [ HA.style "padding" "0 8px" ] [ content.content ]
+          , Html.div [ HA.style "padding" "0 16px" ] [ content.content ]
           , playerView model
           ]
             |> Html.div
-                [ HA.style "gap" "8px"
+                [ HA.style "gap" "16px"
                 , HA.style "display" "flex"
                 , HA.style "flex-direction" "column"
                 ]
@@ -306,7 +306,7 @@ header model =
         , HA.style "right" "0"
         , HA.style "z-index" "1"
         , HA.style "background-color" "var(--red)"
-        , HA.style "padding" "8px"
+        , HA.style "padding" "8px 16px"
         , HA.style "align-items" "baseline"
         ]
         [ Html.div [ HA.style "flex" "1" ]
