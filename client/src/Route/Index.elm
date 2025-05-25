@@ -42,20 +42,27 @@ view model =
                     yearOfLastPost : Int
                     yearOfLastPost =
                         Time.toYear here lastPosted
+
+                    firstRowView : List (Html msg)
+                    firstRowView =
+                        viewYear here model.filter.search posts Nothing
+
+                    yearViews : List (Html msg)
+                    yearViews =
+                        List.range 2015 yearOfLastPost
+                            |> List.reverse
+                            |> List.concatMap (\year -> viewYear here model.filter.search posts (Just year))
                 in
-                List.range 2015 yearOfLastPost
-                    |> List.reverse
-                    |> List.map (\year -> viewYear here model.filter.search posts (Just year))
-                    |> (::) (viewYear here model.filter.search posts Nothing)
+                (firstRowView ++ yearViews)
                     |> Html.div
-                        [ HA.style "display" "flex"
-                        , HA.style "flex-direction" "column"
-                        , HA.style "gap" "24px"
+                        [ HA.style "display" "grid"
+                        , HA.style "gap" "24px 0"
+                        , HA.style "grid-template-columns" "auto 1fr"
                         ]
     }
 
 
-viewYear : Time.Zone -> String -> List Post -> Maybe Int -> Html msg
+viewYear : Time.Zone -> String -> List Post -> Maybe Int -> List (Html msg)
 viewYear here search posts maybeYear =
     let
         isCorrectYear : Post -> Bool
@@ -81,6 +88,12 @@ viewYear here search posts maybeYear =
                 |> Set.fromList
                 |> Set.toList
                 |> List.sortBy categoryOrder
+                |> (if leftie then
+                        identity
+
+                    else
+                        List.reverse
+                   )
 
         categoryLink : String -> Html msg
         categoryLink category =
@@ -94,12 +107,9 @@ viewYear here search posts maybeYear =
                 []
                 [ Html.text category ]
     in
-    Html.div
-        [ HA.style "display" "flex"
-        , HA.style "gap" "8px"
-        , HA.style "padding-bottom" "8px"
+    [ Html.div
+        [ HA.style "padding" "0 24px 8px 0"
         , HA.style "border-bottom" "1px solid var(--offwhite)"
-        , HA.style "justify-content" "space-between"
         ]
         [ Route.link
             (Route.Index
@@ -116,33 +126,45 @@ viewYear here search posts maybeYear =
                 Just year ->
                     Html.text (String.fromInt year)
             ]
-        , Html.div
-            [ HA.style "display" "flex"
-            , HA.style "gap" "8px 32px"
-            , HA.style "flex-wrap" "wrap"
-            , HA.style "justify-content" "end"
-            ]
-            (List.map categoryLink categories)
         ]
+    , Html.div
+        [ HA.style "display" "flex"
+        , HA.style "gap" "8px 32px"
+        , HA.style "padding" "0 0 8px 0"
+        , HA.style "border-bottom" "1px solid var(--offwhite)"
+        , HA.style "flex-wrap" "wrap"
+        , if leftie then
+            HA.style "justify-content" "start"
+
+          else
+            HA.style "justify-content" "end"
+        ]
+        (List.map categoryLink categories)
+    ]
+
+
+leftie : Bool
+leftie =
+    0 == 0
 
 
 categoryOrder : String -> ( number, String )
 categoryOrder c =
     case c of
-        "Bonus demos" ->
-            ( 30, c )
-
-        "Others" ->
-            ( 40, c )
-
-        "Song ideas" ->
-            ( 70, c )
+        "Demos" ->
+            ( 1, c )
 
         "Voice memos" ->
-            ( 80, c )
+            ( 2, c )
 
-        "Demos" ->
-            ( 90, c )
+        "Song ideas" ->
+            ( 3, c )
+
+        "Others" ->
+            ( 4, c )
+
+        "Bonus demos" ->
+            ( 5, c )
 
         _ ->
-            ( 10, c )
+            ( 100, c )
