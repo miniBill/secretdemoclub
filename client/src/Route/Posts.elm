@@ -153,7 +153,7 @@ viewPost { play } model post =
         , Html.Attributes.style "flex-direction" "column"
         , Html.Attributes.style "gap" "8px"
         , Html.Attributes.style "position" "relative"
-        , Html.Attributes.style "color" "var(--foreground)"
+        , Html.Attributes.style "color" "var(--offwhite)"
         , Html.Events.onClick (play post.media)
         ]
         [ Html.div
@@ -224,7 +224,6 @@ viewPost { play } model post =
             , Html.Attributes.style "bottom" "0"
             , Html.Attributes.style "left" "0"
             , Html.Attributes.style "padding" "8px"
-            , Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
             , Html.Attributes.classList
                 [ ( "show-on-parent-hover", True )
                 , ( "show-if-hover-none", True )
@@ -246,7 +245,6 @@ viewPost { play } model post =
             , Html.Attributes.style "bottom" "0"
             , Html.Attributes.style "right" "0"
             , Html.Attributes.style "padding" "8px"
-            , Html.Attributes.style "color" "oklch(70.71% 0.1512 264.05300810418345)"
             , Html.Attributes.classList
                 [ ( "show-on-parent-hover", True )
                 , ( "show-if-hover-none", True )

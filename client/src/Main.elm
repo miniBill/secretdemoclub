@@ -344,7 +344,7 @@ playerView model =
                 , HA.style "left" "0"
                 , HA.style "right" "0"
                 , HA.style "z-index" "1"
-                , HA.style "background-color" "var(--background)"
+                , HA.style "background-color" "var(--navy)"
                 , HA.style "padding" "8px"
 
                 --
