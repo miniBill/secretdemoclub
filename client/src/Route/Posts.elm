@@ -157,12 +157,14 @@ viewPost { play } model post =
     Html.div
         [ HA.style "width" "40vmin"
         , HA.style "height" "40vmin"
+        , HA.style "max-width" "300px"
+        , HA.style "max-height" "300px"
         , HA.style "display" "flex"
         , HA.style "flex-direction" "column"
         , HA.style "gap" "8px"
         , HA.style "position" "relative"
         , HA.style "color" "var(--offwhite)"
-        , HA.style "font-size" "2.2vmin"
+        , HA.style "font-size" "calc(min(2.2vmin, 17.5px))"
         , Html.Events.onClick (play post.media)
         ]
         [ Html.div
