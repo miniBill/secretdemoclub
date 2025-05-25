@@ -327,9 +327,14 @@ header model =
                     []
                 ]
             , Html.text " "
-            , Html.a
-                [ HA.href "/logout" ]
-                [ Html.text "Logout" ]
+            , case model.indexHash of
+                Just _ ->
+                    Html.a
+                        [ HA.href "/logout" ]
+                        [ Html.text "Logout" ]
+
+                Nothing ->
+                    Route.Login.loginButton model.root
             ]
         ]
 
