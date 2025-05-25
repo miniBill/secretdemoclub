@@ -116,14 +116,9 @@ viewYear here search posts maybeYear =
         ]
         [ Route.link
             (Route.Index
-                { categories = Set.empty
+                { categories = Set.singleton "all"
                 , year = maybeYear
-                , search =
-                    if maybeYear == Nothing && String.isEmpty search then
-                        " "
-
-                    else
-                        search
+                , search = search
                 }
             )
             []
