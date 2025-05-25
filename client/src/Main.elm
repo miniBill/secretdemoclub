@@ -107,27 +107,29 @@ init flags url key =
 
         model : Model
         model =
-            case route of
-                Index filter ->
+            let
+                initialModel : Model
+                initialModel =
                     { key = key
                     , root = { url | path = "", query = Nothing, fragment = Nothing }
-                    , filter = filter
+                    , filter = Route.emptyFilter
                     , indexHash = decodedFlags
                     , hasServiceWorker = False
                     , posts = posts
                     , time = Nothing
                     , playing = Nothing
                     }
+            in
+            case route of
+                Index filter ->
+                    { initialModel
+                        | filter = filter
+                    }
 
                 Logout ->
-                    { key = key
-                    , root = { url | path = "", query = Nothing, fragment = Nothing }
-                    , filter = Route.emptyFilter
-                    , indexHash = Nothing
-                    , hasServiceWorker = False
-                    , posts = RemoteData.NotAsked
-                    , time = Nothing
-                    , playing = Nothing
+                    { initialModel
+                        | indexHash = Nothing
+                        , posts = RemoteData.NotAsked
                     }
     in
     ( model
@@ -373,7 +375,7 @@ update msg model =
                 | indexHash = Just indexHash
                 , posts = RemoteData.Success posts
               }
-            , saveIndex (Just indexHash)
+            , saveIndexHash (Just indexHash)
             )
 
         LoadedPosts (Err err) ->
@@ -407,7 +409,7 @@ update msg model =
                                 , posts = RemoteData.NotAsked
                             }
                     in
-                    ( loggedOutModel, saveIndex Nothing )
+                    ( loggedOutModel, saveIndexHash Nothing )
                         |> replaceUrlWithCurrentRoute
 
                 Index newFilter ->
@@ -443,8 +445,8 @@ replaceUrlWithCurrentRoute ( model, cmd ) =
     )
 
 
-saveIndex : Maybe String -> Cmd msg
-saveIndex url =
+saveIndexHash : Maybe String -> Cmd msg
+saveIndexHash url =
     { key = "index"
     , value =
         case url of
