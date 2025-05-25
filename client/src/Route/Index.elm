@@ -83,10 +83,10 @@ viewYear here search posts maybeYear =
                 |> List.sortBy
                     (\c ->
                         case c of
-                            "Demo" ->
+                            "Others" ->
                                 ( 80, c )
 
-                            "Other" ->
+                            "Demos" ->
                                 ( 90, c )
 
                             _ ->
