@@ -195,14 +195,7 @@ loadPostsFromIndex index =
                         (\post ->
                             Parser.run postParser post
                                 |> Result.mapError
-                                    (\e ->
-                                        let
-                                            _ =
-                                                Debug.log "error parsing post"
-                                                    { error = e
-                                                    , body = post
-                                                    }
-                                        in
+                                    (\_ ->
                                         Http.BadBody "Could not read posts from the server"
                                     )
                         )
