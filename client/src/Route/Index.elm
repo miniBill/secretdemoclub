@@ -1,7 +1,7 @@
 module Route.Index exposing (view)
 
 import Html exposing (Html)
-import Html.Attributes
+import Html.Attributes as HA
 import List.Extra
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
@@ -27,10 +27,14 @@ view model =
 
             Just ( here, now ) ->
                 let
-                    lastPosted : Time.Posix
-                    lastPosted =
+                    posts : List Post
+                    posts =
                         model.posts
                             |> RemoteData.withDefault []
+
+                    lastPosted : Time.Posix
+                    lastPosted =
+                        posts
                             |> List.Extra.last
                             |> Maybe.map .date
                             |> Maybe.withDefault now
@@ -41,46 +45,83 @@ view model =
                 in
                 List.range 2015 yearOfLastPost
                     |> List.reverse
-                    |> List.map (\year -> viewYear model.filter.search (Just year))
-                    |> (::) (viewYear model.filter.search Nothing)
+                    |> List.map (\year -> viewYear here model.filter.search posts (Just year))
+                    |> (::) (viewYear here model.filter.search posts Nothing)
                     |> Html.div
-                        [ Html.Attributes.style "display" "flex"
-                        , Html.Attributes.style "flex-direction" "column"
-                        , Html.Attributes.style "gap" "8px"
+                        [ HA.style "display" "flex"
+                        , HA.style "flex-direction" "column"
+                        , HA.style "gap" "8px"
                         ]
         ]
     }
 
 
-viewYear : String -> Maybe Int -> Html msg
-viewYear search maybeYear =
-    Html.div
-        [ Html.Attributes.style "display" "flex"
-        , Html.Attributes.style "gap" "8px"
-        , Html.Attributes.style "padding" "8px"
-        , Html.Attributes.style "border" "1px solid var(--foreground)"
-        , Html.Attributes.style "border-radius" "8px"
-        ]
-        [ case maybeYear of
-            Nothing ->
-                Html.text "All"
+viewYear : Time.Zone -> String -> List Post -> Maybe Int -> Html msg
+viewYear here search posts maybeYear =
+    let
+        isCorrectYear : Post -> Bool
+        isCorrectYear post =
+            case maybeYear of
+                Nothing ->
+                    True
 
-            Just year ->
-                Html.text (String.fromInt year)
-        , Html.div
-            [ Html.Attributes.style "flex" "1"
-            ]
-            []
-        , Route.link
-            (Route.Index
-                { categories = Set.singleton "demos"
-                , year = maybeYear
-                , search = search
-                }
-            )
-            []
-            [ Html.text "Demos" ]
-        , Route.link
+                Just year ->
+                    Time.toYear here post.date == year
+
+        categories : List String
+        categories =
+            posts
+                |> List.filterMap
+                    (\post ->
+                        if isCorrectYear post then
+                            Just post.category
+
+                        else
+                            Nothing
+                    )
+                |> Set.fromList
+                |> Set.toList
+                |> List.sortBy
+                    (\c ->
+                        case c of
+                            "Demo" ->
+                                ( 80, c )
+
+                            "Other" ->
+                                ( 90, c )
+
+                            _ ->
+                                ( 10, c )
+                    )
+
+        categoryLink : String -> Html msg
+        categoryLink category =
+            Route.link
+                (Route.Index
+                    { categories = Set.singleton (String.toLower category)
+                    , year = maybeYear
+                    , search = search
+                    }
+                )
+                []
+                [ Html.text
+                    (if String.endsWith "emo" category then
+                        category ++ "s"
+
+                     else
+                        category
+                    )
+                ]
+    in
+    Html.div
+        [ HA.style "display" "flex"
+        , HA.style "gap" "8px"
+        , HA.style "padding" "8px"
+        , HA.style "border" "1px solid var(--foreground)"
+        , HA.style "border-radius" "8px"
+        , HA.style "justify-content" "space-between"
+        ]
+        [ Route.link
             (Route.Index
                 { categories = Set.empty
                 , year = maybeYear
@@ -93,5 +134,17 @@ viewYear search maybeYear =
                 }
             )
             []
-            [ Html.text "Everything" ]
+            [ case maybeYear of
+                Nothing ->
+                    Html.text "All"
+
+                Just year ->
+                    Html.text (String.fromInt year)
+            ]
+        , Html.div
+            [ HA.style "display" "flex"
+            , HA.style "gap" "8px"
+            , HA.style "flex-wrap" "wrap"
+            ]
+            (List.map categoryLink categories)
         ]
