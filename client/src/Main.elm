@@ -32,7 +32,7 @@ type alias Model =
     { key : Key
     , root : Url
     , filter : Filter
-    , index : Maybe String
+    , indexHash : Maybe String
     , posts : RemoteData Http.Error (List Post)
     , time : Maybe ( Time.Zone, Time.Posix )
     , playing : Maybe String
@@ -41,7 +41,7 @@ type alias Model =
 
 
 type Msg
-    = LoadedPosts (Result Http.Error { index : String, posts : List Post })
+    = LoadedPosts (Result Http.Error { indexHash : String, posts : List Post })
     | HereAndNow Time.Zone Time.Posix
     | Search String
     | Play String
@@ -100,7 +100,7 @@ init flags url key =
                             ( Cmd.none, RemoteData.NotAsked )
 
                 Just indexUrl ->
-                    ( loadPostsFromIndex indexUrl
+                    ( loadPostsFromIndexHash indexUrl
                         |> Task.attempt LoadedPosts
                     , RemoteData.Loading
                     )
@@ -112,7 +112,7 @@ init flags url key =
                     { key = key
                     , root = { url | path = "", query = Nothing, fragment = Nothing }
                     , filter = filter
-                    , index = decodedFlags
+                    , indexHash = decodedFlags
                     , hasServiceWorker = False
                     , posts = posts
                     , time = Nothing
@@ -123,7 +123,7 @@ init flags url key =
                     { key = key
                     , root = { url | path = "", query = Nothing, fragment = Nothing }
                     , filter = Route.emptyFilter
-                    , index = Nothing
+                    , indexHash = Nothing
                     , hasServiceWorker = False
                     , posts = RemoteData.NotAsked
                     , time = Nothing
@@ -144,7 +144,7 @@ init flags url key =
         |> replaceUrlWithCurrentRoute
 
 
-loadPostsFromCode : String -> Task Http.Error { index : String, posts : List Post }
+loadPostsFromCode : String -> Task Http.Error { indexHash : String, posts : List Post }
 loadPostsFromCode code =
     Http.task
         { method = "POST"
@@ -154,7 +154,7 @@ loadPostsFromCode code =
         , resolver = Http.stringResolver generalResolver
         , timeout = Nothing
         }
-        |> Task.andThen loadPostsFromIndex
+        |> Task.andThen loadPostsFromIndexHash
 
 
 generalResolver : Http.Response a -> Result Http.Error a
@@ -176,12 +176,12 @@ generalResolver response =
             Ok body
 
 
-loadPostsFromIndex : String -> Task Http.Error { index : String, posts : List Post }
-loadPostsFromIndex index =
+loadPostsFromIndexHash : String -> Task Http.Error { indexHash : String, posts : List Post }
+loadPostsFromIndexHash indexHash =
     Http.task
         { method = "GET"
         , body = Http.emptyBody
-        , url = "/media/" ++ index
+        , url = "/media/" ++ indexHash
         , headers = []
         , resolver = Http.stringResolver generalResolver
         , timeout = Nothing
@@ -202,7 +202,7 @@ loadPostsFromIndex index =
             )
         |> Task.map
             (\posts ->
-                { index = index
+                { indexHash = indexHash
                 , posts = posts
                 }
             )
@@ -368,8 +368,13 @@ update msg model =
         Play url ->
             ( { model | playing = Just url }, Cmd.none )
 
-        LoadedPosts (Ok { index, posts }) ->
-            ( { model | index = Just index, posts = RemoteData.Success posts }, saveIndex (Just index) )
+        LoadedPosts (Ok { indexHash, posts }) ->
+            ( { model
+                | indexHash = Just indexHash
+                , posts = RemoteData.Success posts
+              }
+            , saveIndex (Just indexHash)
+            )
 
         LoadedPosts (Err err) ->
             ( { model | posts = RemoteData.Failure err }, Cmd.none )
@@ -398,7 +403,7 @@ update msg model =
                         loggedOutModel : Model
                         loggedOutModel =
                             { model
-                                | index = Nothing
+                                | indexHash = Nothing
                                 , posts = RemoteData.NotAsked
                             }
                     in
