@@ -48,7 +48,8 @@ view messages model posts =
 
         isCorrectCategory : Post -> Bool
         isCorrectCategory post =
-            Set.member (String.toLower post.category) model.filter.categories
+            Set.isEmpty model.filter.categories
+                || Set.member (String.toLower post.category) model.filter.categories
                 || Set.member (String.toLower post.category ++ "s") model.filter.categories
 
         isCorrectYear : Post -> Bool

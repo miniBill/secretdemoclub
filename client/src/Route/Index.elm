@@ -83,7 +83,12 @@ viewYear search maybeYear =
             (Route.Index
                 { categories = Set.empty
                 , year = maybeYear
-                , search = search
+                , search =
+                    if maybeYear == Nothing && String.isEmpty search then
+                        " "
+
+                    else
+                        search
                 }
             )
             []
