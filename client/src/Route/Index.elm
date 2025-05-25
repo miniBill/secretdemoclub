@@ -1,6 +1,6 @@
 module Route.Index exposing (view)
 
-import Html
+import Html exposing (Html)
 import Html.Attributes
 import List.Extra
 import Post exposing (Post)
@@ -39,7 +39,7 @@ view model =
                 in
                 List.range 2015 yearOfLastPost
                     |> List.map viewYear
-                    |> (::) (everythingBox yearOfLastPost)
+                    |> (::) everythingBox
                     |> Html.div
                         [ Html.Attributes.style "display" "flex"
                         , Html.Attributes.style "flex-wrap" "wrap"
@@ -49,7 +49,7 @@ view model =
     }
 
 
-viewYear : Int -> Html.Html msg
+viewYear : Int -> Html msg
 viewYear year =
     yearBox
         [ Html.text (String.fromInt year)
@@ -65,10 +65,10 @@ viewYear year =
         ]
 
 
-everythingBox : Int -> Html.Html msg
-everythingBox yearOfLastPost =
+everythingBox : Html msg
+everythingBox =
     yearBox
-        [ Html.text ("2015-" ++ String.fromInt yearOfLastPost)
+        [ Html.text "All"
         , Html.a
             [ Html.Attributes.href
                 (Route.toString
@@ -90,7 +90,7 @@ everythingBox yearOfLastPost =
         ]
 
 
-yearBox : List (Html.Html msg) -> Html.Html msg
+yearBox : List (Html msg) -> Html msg
 yearBox children =
     Html.div
         [ Html.Attributes.style "display" "flex"
