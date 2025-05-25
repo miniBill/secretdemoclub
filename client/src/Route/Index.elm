@@ -88,12 +88,6 @@ viewYear here search posts maybeYear =
                 |> Set.fromList
                 |> Set.toList
                 |> List.sortBy categoryOrder
-                |> (if leftie then
-                        identity
-
-                    else
-                        List.reverse
-                   )
 
         categoryLink : String -> Html msg
         categoryLink category =
@@ -129,23 +123,13 @@ viewYear here search posts maybeYear =
         ]
     , Html.div
         [ HA.style "display" "flex"
-        , HA.style "gap" "8px 32px"
+        , HA.style "gap" "8px 24px"
         , HA.style "padding" "0 0 8px 0"
         , HA.style "border-bottom" "1px solid var(--offwhite)"
         , HA.style "flex-wrap" "wrap"
-        , if leftie then
-            HA.style "justify-content" "start"
-
-          else
-            HA.style "justify-content" "end"
         ]
         (List.map categoryLink categories)
     ]
-
-
-leftie : Bool
-leftie =
-    0 == 0
 
 
 categoryOrder : String -> ( number, String )
