@@ -506,7 +506,10 @@ audioDiaryParser =
             [ Parser.keyword "new" |. Parser.spaces
             , Parser.succeed ()
             ]
-        |. Parser.token "audio diary"
+        |. Parser.oneOf
+            [ Parser.token "audio diary"
+            , Parser.token "Audio diary"
+            ]
         |. Parser.spaces
         |. Parser.oneOf
             [ Parser.token ":"
