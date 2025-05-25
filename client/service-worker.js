@@ -108,14 +108,14 @@ async function zipResponse(e, filename, files) {
                 let offset = 0;
 
                 for (const { filename, url, mtime } of files) {
-                    const response = await fetch(url);
+                    const fetching = fetch(url);
 
                     const localHeader = buildLocalFileHeader(filename, mtime);
 
                     await writeTo(writable, localHeader);
 
                     let crcStream = new Crc32TransformStream();
-                    await response.body
+                    await (await fetching).body
                         .pipeThrough(crcStream)
                         .pipeTo(writable, {
                             preventClose: true,
