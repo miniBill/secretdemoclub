@@ -71,3 +71,7 @@ a {
 a:visited {
     color: var(--offwhite);
 }
+
+input {
+    color: var(--navy);
+}
