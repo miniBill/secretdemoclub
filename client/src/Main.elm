@@ -134,9 +134,9 @@ init flags url key =
         Logout ->
             initialModel
                 |> logout
-                |> Cmd.Extra.andThen replaceUrlWithCurrentRoute
     )
         |> Cmd.Extra.add hereAndNow
+        |> Cmd.Extra.andThen replaceUrlWithCurrentRoute
 
 
 loadPostsFromCode : String -> Task Http.Error { indexHash : String, posts : List Post }
