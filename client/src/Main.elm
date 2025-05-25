@@ -310,19 +310,21 @@ header model =
         , HA.style "gap" "8px"
         , HA.style "justify-content" "space-between"
         ]
-        [ Html.a [ HA.href "/" ] <|
-            [ Html.img
-                [ HA.style "max-width" "64px"
-                , HA.src "/favicon.ico"
-                , HA.style "align-self" "top"
+        [ Html.a [ HA.href "/" ]
+            [ Html.div
+                [ HA.style "display" "flex"
+                , HA.style "gap" "8px"
                 ]
-                []
-            , Html.span
-                [ HA.class "desktop" ]
-                [ Html.text "Secret Demo Club HQ" ]
-            , Html.span
-                [ HA.class "mobile" ]
-                [ Html.text "SDC HQ" ]
+                [ Html.img
+                    [ HA.style "max-width" "64px"
+                    , HA.src "/favicon.ico"
+                    , HA.style "align-self" "top"
+                    ]
+                    []
+                , Html.span
+                    [ HA.class "desktop" ]
+                    [ Html.text "Secret Demo Club HQ" ]
+                ]
             ]
         , Html.div
             [ HA.style "display" "flex"
@@ -330,7 +332,7 @@ header model =
             , HA.style "gap" "16px"
             ]
             [ Html.label []
-                [ Html.text "Search "
+                [ Html.span [ HA.class "desktop" ] [ Html.text "Search " ]
                 , Html.input
                     [ HA.type_ "search"
                     , HA.value model.filter.search
