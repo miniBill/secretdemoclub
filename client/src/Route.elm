@@ -1,4 +1,4 @@
-module Route exposing (Filter, Route(..), emptyFilter, index, link, parse, toString)
+module Route exposing (Filter, Route(..), emptyFilter, link, parse, toString)
 
 import AppUrl exposing (AppUrl)
 import Dict
@@ -100,8 +100,3 @@ link route attrs children =
     Html.a
         (Html.Attributes.href (toString route) :: attrs)
         children
-
-
-index : Route
-index =
-    Index emptyFilter
