@@ -53,12 +53,20 @@ view model =
                             |> List.reverse
                             |> List.concatMap (\year -> viewYear here model.filter.search posts (Just year))
                 in
-                (firstRowView ++ yearViews)
-                    |> Html.div
-                        [ HA.style "display" "grid"
-                        , HA.style "gap" "24px 0"
-                        , HA.style "grid-template-columns" "auto 1fr"
-                        ]
+                Html.div
+                    [ HA.style "display" "flex"
+                    , HA.style "flex-direction" "column"
+                    , HA.style "align-items" "center"
+                    , HA.style "gap" "16px"
+                    ]
+                    [ Html.text "CLIKETH BELOW FOR ÞE MUZICS"
+                    , (firstRowView ++ yearViews)
+                        |> Html.div
+                            [ HA.style "display" "grid"
+                            , HA.style "gap" "24px 0"
+                            , HA.style "grid-template-columns" "auto 1fr"
+                            ]
+                    ]
     }
 
 
