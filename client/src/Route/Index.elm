@@ -40,6 +40,7 @@ view model =
                         Time.toYear here lastPosted
                 in
                 List.range 2015 yearOfLastPost
+                    |> List.reverse
                     |> List.map (\year -> viewYear model.filter.search (Just year))
                     |> (::) (viewYear model.filter.search Nothing)
                     |> Html.div
