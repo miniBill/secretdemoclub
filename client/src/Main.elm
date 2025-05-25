@@ -13,7 +13,6 @@ import Json.Decode
 import Json.Encode
 import Parser exposing ((|.), (|=), Parser)
 import Parser.Workaround
-import Platform.Cmd as Cmd
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
 import Result.Extra
@@ -124,22 +123,20 @@ init flags url key =
             Task.map2 HereAndNow Time.here Time.now
                 |> Task.perform identity
     in
-    case route of
+    (case route of
         Index filter ->
             ( { initialModel
                 | filter = filter
               }
-            , Cmd.batch
-                [ loadCmd
-                , hereAndNow
-                ]
+            , loadCmd
             )
 
         Logout ->
             initialModel
                 |> logout
-                |> Cmd.Extra.add hereAndNow
-                |> replaceUrlWithCurrentRoute
+                |> Cmd.Extra.andThen replaceUrlWithCurrentRoute
+    )
+        |> Cmd.Extra.add hereAndNow
 
 
 loadPostsFromCode : String -> Task Http.Error { indexHash : String, posts : List Post }
@@ -391,7 +388,7 @@ update msg model =
             in
             { model | filter = { filter | search = search } }
                 |> Cmd.Extra.pure
-                |> replaceUrlWithCurrentRoute
+                |> Cmd.Extra.andThen replaceUrlWithCurrentRoute
 
         OnUrlChange url ->
             let
@@ -401,8 +398,9 @@ update msg model =
             in
             case route of
                 Logout ->
-                    logout model
-                        |> replaceUrlWithCurrentRoute
+                    model
+                        |> logout
+                        |> Cmd.Extra.andThen replaceUrlWithCurrentRoute
 
                 Index newFilter ->
                     let
@@ -417,7 +415,7 @@ update msg model =
                     else
                         newModel
                             |> Cmd.Extra.pure
-                            |> replaceUrlWithCurrentRoute
+                            |> Cmd.Extra.andThen replaceUrlWithCurrentRoute
 
         OnUrlRequest (Browser.Internal url) ->
             ( model, Browser.Navigation.pushUrl model.key (Url.toString url) )
@@ -440,13 +438,10 @@ logout model =
     )
 
 
-replaceUrlWithCurrentRoute : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
-replaceUrlWithCurrentRoute ( model, cmd ) =
+replaceUrlWithCurrentRoute : Model -> ( Model, Cmd Msg )
+replaceUrlWithCurrentRoute model =
     ( model
-    , Cmd.batch
-        [ Browser.Navigation.replaceUrl model.key (Route.toString (Index model.filter))
-        , cmd
-        ]
+    , Browser.Navigation.replaceUrl model.key (Route.toString (Index model.filter))
     )
 
 
