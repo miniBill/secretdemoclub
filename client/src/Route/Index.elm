@@ -20,8 +20,8 @@ view :
     -> View msg
 view model =
     { title = Nothing
-    , body =
-        [ case model.time of
+    , content =
+        case model.time of
             Nothing ->
                 Html.text "Loading time information..."
 
@@ -52,7 +52,6 @@ view model =
                         , HA.style "flex-direction" "column"
                         , HA.style "gap" "8px"
                         ]
-        ]
     }
 
 

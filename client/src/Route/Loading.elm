@@ -6,12 +6,9 @@ import View exposing (View)
 
 view : View msg
 view =
-    { body =
-        [ Html.div []
-            [ Html.p []
-                [ Html.text "Loading..."
-                ]
+    { content =
+        Html.p []
+            [ Html.text "Loading..."
             ]
-        ]
     , title = Just "Loading..."
     }

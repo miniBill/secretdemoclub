@@ -63,35 +63,41 @@ view messages model posts =
                     Time.toYear here post.date == year
     in
     { title = Nothing
-    , body =
-        [ if model.hasServiceWorker then
-            let
-                files : String
-                files =
-                    filteredPosts
-                        |> Json.Encode.list (postToDownloadData model.root)
-                        |> Json.Encode.encode 0
-            in
-            Html.a
-                [ HA.href
-                    (Url.Builder.absolute
-                        [ "download" ]
-                        [ Url.Builder.string "files" files ]
-                    )
-                , HA.download "sdc-download.zip"
-                ]
-                [ Html.text "Download all" ]
-                |> List.singleton
-                |> Html.div
-                    [ HA.style "width" "100"
-                    , HA.style "text-align" "center"
+    , content =
+        Html.div
+            [ HA.style "display" "flex"
+            , HA.style "flex-direction" "column"
+            , HA.style "gap" "8px"
+            ]
+            [ if model.hasServiceWorker then
+                let
+                    files : String
+                    files =
+                        filteredPosts
+                            |> Json.Encode.list (postToDownloadData model.root)
+                            |> Json.Encode.encode 0
+                in
+                Html.a
+                    [ HA.href
+                        (Url.Builder.absolute
+                            [ "download" ]
+                            [ Url.Builder.string "files" files ]
+                        )
+                    , HA.download "sdc-download.zip"
                     ]
+                    [ Html.text "Download all" ]
+                    |> List.singleton
+                    |> Html.div
+                        [ HA.style "width" "100"
+                        , HA.style "text-align" "center"
+                        ]
 
-          else
-            Html.text ""
-        , filteredPosts
-            |> viewList messages model
-        ]
+              else
+                Html.text ""
+            , filteredPosts
+                |> List.sortBy (\post -> Time.posixToMillis post.date |> negate)
+                |> viewList messages model
+            ]
     }
 
 

@@ -284,7 +284,7 @@ view model =
                 "Secret Demo Club HQ - " ++ title
     , body =
         [ [ header model
-          , Html.div [ HA.style "padding" "0 8px" ] content.body
+          , Html.div [ HA.style "padding" "0 8px" ] [ content.content ]
           , playerView model
           ]
             |> Html.div

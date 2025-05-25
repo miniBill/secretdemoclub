@@ -7,13 +7,10 @@ import View exposing (View)
 
 view : Http.Error -> View msg
 view error =
-    { body =
-        [ Html.div []
-            [ Html.p []
-                [ Html.text (errorToString error)
-                ]
+    { content =
+        Html.p []
+            [ Html.text (errorToString error)
             ]
-        ]
     , title = Just "=("
     }
 

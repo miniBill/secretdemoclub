@@ -10,7 +10,7 @@ import View exposing (View)
 view : { model | root : Url } -> View msg
 view { root } =
     { title = Just "Login required"
-    , body = [ loginButton root ]
+    , content = loginButton root
     }
 
 
