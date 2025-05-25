@@ -37,19 +37,19 @@ img {
 
 /* Fonts */
 @font-face {
-  font-family: Neutralface;
-  src: url("/NeutralFace.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+    font-family: Neutralface;
+    src: url("/NeutralFace.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
-  font-family: Neutralface;
-  src: url("/NeutralFace-Bold.otf") format("opentype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
+    font-family: Neutralface;
+    src: url("/NeutralFace-Bold.otf") format("opentype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
 }
 
 /* Utils */
@@ -79,6 +79,8 @@ body {
 
 a {
     color: var(--offwhite);
+    font-weight: bold;
+    text-decoration: none;
 }
 
 a:visited {

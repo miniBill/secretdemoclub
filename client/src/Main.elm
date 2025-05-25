@@ -310,11 +310,7 @@ header model =
         , HA.style "align-items" "baseline"
         ]
         [ Html.div [ HA.style "flex" "1" ]
-            [ Html.a
-                [ HA.href "/"
-                , HA.style "font-weight" "bold"
-                ]
-                [ Html.text "Secret Demo Club HQ" ]
+            [ Html.a [ HA.href "/" ] [ Html.text "Secret Demo Club HQ" ]
             ]
         , Html.div
             [ HA.style "display" "flex"
