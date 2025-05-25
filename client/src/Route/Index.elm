@@ -53,14 +53,11 @@ viewYear : Int -> Html msg
 viewYear year =
     yearBox
         [ Html.text (String.fromInt year)
-        , Html.a
-            [ Html.Attributes.href
-                (Route.toString
-                    { search = ""
-                    , route = Route.Demos (Just year)
-                    }
-                )
-            ]
+        , Route.link
+            { search = ""
+            , route = Route.Demos (Just year)
+            }
+            []
             [ Html.text "Demos" ]
         ]
 
@@ -69,23 +66,17 @@ everythingBox : Html msg
 everythingBox =
     yearBox
         [ Html.text "All"
-        , Html.a
-            [ Html.Attributes.href
-                (Route.toString
-                    { search = ""
-                    , route = Route.Demos Nothing
-                    }
-                )
-            ]
+        , Route.link
+            { search = ""
+            , route = Route.Demos Nothing
+            }
+            []
             [ Html.text "Demos" ]
-        , Html.a
-            [ Html.Attributes.href
-                (Route.toString
-                    { search = " "
-                    , route = Route.Index
-                    }
-                )
-            ]
+        , Route.link
+            { search = " "
+            , route = Route.Index
+            }
+            []
             [ Html.text "Everything" ]
         ]
 

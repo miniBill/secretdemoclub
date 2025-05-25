@@ -1,7 +1,9 @@
-module Route exposing (Route(..), parse, toString)
+module Route exposing (Route(..), link, parse, toString)
 
 import AppUrl exposing (AppUrl)
 import Dict
+import Html exposing (Html)
+import Html.Attributes
 import Url exposing (Url)
 import Url.Builder
 
@@ -68,3 +70,10 @@ toString { search, route } =
             ]
     in
     Url.Builder.absolute path (List.filterMap identity query)
+
+
+link : { search : String, route : Route } -> List (Html.Attribute msg) -> List (Html msg) -> Html msg
+link route attrs children =
+    Html.a
+        (Html.Attributes.href (toString route) :: attrs)
+        children
