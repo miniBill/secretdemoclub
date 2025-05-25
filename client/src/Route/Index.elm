@@ -104,14 +104,7 @@ viewYear here search posts maybeYear =
                     }
                 )
                 []
-                [ Html.text
-                    (if String.endsWith "emo" category then
-                        category ++ "s"
-
-                     else
-                        category
-                    )
-                ]
+                [ Html.text category ]
     in
     Html.div
         [ HA.style "display" "flex"
