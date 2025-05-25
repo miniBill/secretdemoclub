@@ -309,11 +309,13 @@ header model =
         , HA.style "padding" "8px 16px"
         , HA.style "gap" "8px"
         , HA.style "justify-content" "space-between"
+        , HA.style "align-items" "center"
         ]
         [ Html.a [ HA.href "/" ]
             [ Html.div
                 [ HA.style "display" "flex"
                 , HA.style "gap" "8px"
+                , HA.style "align-items" "center"
                 ]
                 [ Html.img
                     [ HA.style "max-width" "64px"
