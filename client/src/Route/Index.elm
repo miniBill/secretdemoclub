@@ -50,7 +50,7 @@ view model =
                     |> Html.div
                         [ HA.style "display" "flex"
                         , HA.style "flex-direction" "column"
-                        , HA.style "gap" "16px"
+                        , HA.style "gap" "24px"
                         ]
     }
 
@@ -108,9 +108,8 @@ viewYear here search posts maybeYear =
     Html.div
         [ HA.style "display" "flex"
         , HA.style "gap" "8px"
-        , HA.style "padding" "8px"
+        , HA.style "padding-bottom" "8px"
         , HA.style "border-bottom" "1px solid var(--offwhite)"
-        , HA.style "border-radius" "8px"
         , HA.style "justify-content" "space-between"
         ]
         [ Route.link
