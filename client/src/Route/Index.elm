@@ -144,11 +144,11 @@ categoryOrder c =
         "Song ideas" ->
             ( 3, c )
 
-        "Others" ->
-            ( 4, c )
-
         "Bonus demos" ->
             ( 5, c )
 
+        "Others" ->
+            ( 6, c )
+
         _ ->
-            ( 100, c )
+            ( 10, c )
