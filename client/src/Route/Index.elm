@@ -136,7 +136,7 @@ viewYear here search posts maybeYear =
             ]
         , Html.div
             [ HA.style "display" "flex"
-            , HA.style "gap" "8px"
+            , HA.style "gap" "32px"
             , HA.style "flex-wrap" "wrap"
             ]
             (List.map categoryLink categories)
