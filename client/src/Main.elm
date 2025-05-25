@@ -3,6 +3,7 @@ port module Main exposing (Flags, Model, Msg, main)
 import AppUrl
 import Browser
 import Browser.Navigation exposing (Key)
+import Cmd.Extra
 import Dict
 import Html
 import Html.Attributes
@@ -82,7 +83,7 @@ init flags url key =
         route =
             Route.parse url
 
-        ( loadCmd, posts ) =
+        ( posts, loadCmd ) =
             case decodedFlags of
                 Nothing ->
                     case
@@ -91,59 +92,54 @@ init flags url key =
                             |> Dict.get "code"
                     of
                         Just [ code ] ->
-                            ( loadPostsFromCode code
+                            ( RemoteData.Loading
+                            , loadPostsFromCode code
                                 |> Task.attempt LoadedPosts
-                            , RemoteData.Loading
                             )
 
                         _ ->
-                            ( Cmd.none, RemoteData.NotAsked )
+                            RemoteData.NotAsked
+                                |> Cmd.Extra.pure
 
                 Just indexUrl ->
-                    ( loadPostsFromIndexHash indexUrl
+                    ( RemoteData.Loading
+                    , loadPostsFromIndexHash indexUrl
                         |> Task.attempt LoadedPosts
-                    , RemoteData.Loading
                     )
 
-        model : Model
-        model =
-            let
-                initialModel : Model
-                initialModel =
-                    { key = key
-                    , root = { url | path = "", query = Nothing, fragment = Nothing }
-                    , filter = Route.emptyFilter
-                    , indexHash = decodedFlags
-                    , hasServiceWorker = False
-                    , posts = posts
-                    , time = Nothing
-                    , playing = Nothing
-                    }
-            in
-            case route of
-                Index filter ->
-                    { initialModel
-                        | filter = filter
-                    }
+        initialModel : Model
+        initialModel =
+            { key = key
+            , root = { url | path = "", query = Nothing, fragment = Nothing }
+            , filter = Route.emptyFilter
+            , indexHash = decodedFlags
+            , hasServiceWorker = False
+            , posts = posts
+            , time = Nothing
+            , playing = Nothing
+            }
 
-                Logout ->
-                    { initialModel
-                        | indexHash = Nothing
-                        , posts = RemoteData.NotAsked
-                    }
+        hereAndNow : Cmd Msg
+        hereAndNow =
+            Task.map2 HereAndNow Time.here Time.now
+                |> Task.perform identity
     in
-    ( model
-    , Cmd.batch
-        [ if route == Logout then
-            Cmd.none
+    case route of
+        Index filter ->
+            ( { initialModel
+                | filter = filter
+              }
+            , Cmd.batch
+                [ loadCmd
+                , hereAndNow
+                ]
+            )
 
-          else
-            loadCmd
-        , Task.map2 HereAndNow Time.here Time.now
-            |> Task.perform identity
-        ]
-    )
-        |> replaceUrlWithCurrentRoute
+        Logout ->
+            initialModel
+                |> logout
+                |> Cmd.Extra.add hereAndNow
+                |> replaceUrlWithCurrentRoute
 
 
 loadPostsFromCode : String -> Task Http.Error { indexHash : String, posts : List Post }
@@ -368,7 +364,8 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Play url ->
-            ( { model | playing = Just url }, Cmd.none )
+            { model | playing = Just url }
+                |> Cmd.Extra.pure
 
         LoadedPosts (Ok { indexHash, posts }) ->
             ( { model
@@ -379,10 +376,12 @@ update msg model =
             )
 
         LoadedPosts (Err err) ->
-            ( { model | posts = RemoteData.Failure err }, Cmd.none )
+            { model | posts = RemoteData.Failure err }
+                |> Cmd.Extra.pure
 
         HereAndNow here now ->
-            ( { model | time = Just ( here, now ) }, Cmd.none )
+            { model | time = Just ( here, now ) }
+                |> Cmd.Extra.pure
 
         Search search ->
             let
@@ -390,7 +389,8 @@ update msg model =
                 filter =
                     model.filter
             in
-            ( { model | filter = { filter | search = search } }, Cmd.none )
+            { model | filter = { filter | search = search } }
+                |> Cmd.Extra.pure
                 |> replaceUrlWithCurrentRoute
 
         OnUrlChange url ->
@@ -401,15 +401,7 @@ update msg model =
             in
             case route of
                 Logout ->
-                    let
-                        loggedOutModel : Model
-                        loggedOutModel =
-                            { model
-                                | indexHash = Nothing
-                                , posts = RemoteData.NotAsked
-                            }
-                    in
-                    ( loggedOutModel, saveIndexHash Nothing )
+                    logout model
                         |> replaceUrlWithCurrentRoute
 
                 Index newFilter ->
@@ -419,10 +411,12 @@ update msg model =
                             { model | filter = newFilter }
                     in
                     if Route.toString route == Route.toString (Index model.filter) then
-                        ( newModel, Cmd.none )
+                        newModel
+                            |> Cmd.Extra.pure
 
                     else
-                        ( newModel, Cmd.none )
+                        newModel
+                            |> Cmd.Extra.pure
                             |> replaceUrlWithCurrentRoute
 
         OnUrlRequest (Browser.Internal url) ->
@@ -432,7 +426,18 @@ update msg model =
             ( model, Browser.Navigation.load url )
 
         ServiceWorkerRegistrationSuccess ->
-            ( { model | hasServiceWorker = True }, Cmd.none )
+            { model | hasServiceWorker = True }
+                |> Cmd.Extra.pure
+
+
+logout : Model -> ( Model, Cmd msg )
+logout model =
+    ( { model
+        | indexHash = Nothing
+        , posts = RemoteData.NotAsked
+      }
+    , saveIndexHash Nothing
+    )
 
 
 replaceUrlWithCurrentRoute : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
