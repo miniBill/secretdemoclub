@@ -477,6 +477,10 @@ audioDiaryParser =
                     ]
                 |. Parser.spaces
                 |. Parser.oneOf
+                    [ Parser.symbol "'"
+                    , Parser.succeed ()
+                    ]
+                |. Parser.oneOf
                     [ Parser.int
                     , Parser.succeed -1
                     ]
