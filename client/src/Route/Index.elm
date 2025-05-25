@@ -50,7 +50,7 @@ view model =
                     |> Html.div
                         [ HA.style "display" "flex"
                         , HA.style "flex-direction" "column"
-                        , HA.style "gap" "8px"
+                        , HA.style "gap" "16px"
                         ]
     }
 
@@ -132,6 +132,7 @@ viewYear here search posts maybeYear =
             [ HA.style "display" "flex"
             , HA.style "gap" "8px 32px"
             , HA.style "flex-wrap" "wrap"
+            , HA.style "justify-content" "end"
             ]
             (List.map categoryLink categories)
         ]
