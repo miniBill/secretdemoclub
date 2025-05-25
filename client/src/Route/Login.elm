@@ -9,7 +9,7 @@ import View exposing (View)
 
 view : { model | root : Url } -> View msg
 view { root } =
-    { title = "Login required"
+    { title = Just "Login required"
     , body =
         [ Html.a
             [ Html.Attributes.href

@@ -16,7 +16,7 @@ import Platform.Cmd as Cmd
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
 import Result.Extra
-import Route exposing (Route(..))
+import Route exposing (Filter, Route(..))
 import Route.Error
 import Route.Index
 import Route.Loading
@@ -31,8 +31,7 @@ import View exposing (View)
 type alias Model =
     { key : Key
     , root : Url
-    , search : String
-    , route : Route
+    , filter : Filter
     , index : Maybe String
     , posts : RemoteData Http.Error (List Post)
     , time : Maybe ( Time.Zone, Time.Posix )
@@ -79,7 +78,8 @@ init flags url key =
             Json.Decode.decodeValue flagsDecoder flags
                 |> Result.toMaybe
 
-        { search, route } =
+        route : Route
+        route =
             Route.parse url
 
         ( loadCmd, posts ) =
@@ -107,29 +107,28 @@ init flags url key =
 
         model : Model
         model =
-            if route == Logout then
-                { key = key
-                , root = { url | path = "", query = Nothing, fragment = Nothing }
-                , route = Index
-                , search = search
-                , index = Nothing
-                , hasServiceWorker = False
-                , posts = RemoteData.NotAsked
-                , time = Nothing
-                , playing = Nothing
-                }
+            case route of
+                Index filter ->
+                    { key = key
+                    , root = { url | path = "", query = Nothing, fragment = Nothing }
+                    , filter = filter
+                    , index = decodedFlags
+                    , hasServiceWorker = False
+                    , posts = posts
+                    , time = Nothing
+                    , playing = Nothing
+                    }
 
-            else
-                { key = key
-                , root = { url | path = "", query = Nothing, fragment = Nothing }
-                , route = route
-                , search = search
-                , index = decodedFlags
-                , hasServiceWorker = False
-                , posts = posts
-                , time = Nothing
-                , playing = Nothing
-                }
+                Logout ->
+                    { key = key
+                    , root = { url | path = "", query = Nothing, fragment = Nothing }
+                    , filter = Route.emptyFilter
+                    , index = Nothing
+                    , hasServiceWorker = False
+                    , posts = RemoteData.NotAsked
+                    , time = Nothing
+                    , playing = Nothing
+                    }
     in
     ( model
     , Cmd.batch
@@ -138,11 +137,11 @@ init flags url key =
 
           else
             loadCmd
-        , Browser.Navigation.replaceUrl model.key (Route.toString model)
         , Task.map2 HereAndNow Time.here Time.now
             |> Task.perform identity
         ]
     )
+        |> replaceUrlWithCurrentRoute
 
 
 loadPostsFromCode : String -> Task Http.Error { index : String, posts : List Post }
@@ -272,7 +271,7 @@ view model =
                     Route.Loading.view
 
                 RemoteData.NotAsked ->
-                    if model.route == Index && String.isEmpty model.search then
+                    if model.filter == Route.emptyFilter then
                         Route.Index.view model
 
                     else
@@ -282,11 +281,12 @@ view model =
                     innerView model posts
     in
     { title =
-        if String.isEmpty content.title then
-            "Secret Demo Club HQ"
+        case content.title of
+            Nothing ->
+                "Secret Demo Club HQ"
 
-        else
-            "Secret Demo Club HQ - " ++ content.title
+            Just title ->
+                "Secret Demo Club HQ - " ++ title
     , body =
         [ [ Html.div
                 [ Html.Attributes.style "display" "flex"
@@ -311,7 +311,7 @@ view model =
                         [ Html.text "Search "
                         , Html.input
                             [ Html.Attributes.type_ "search"
-                            , Html.Attributes.value model.search
+                            , Html.Attributes.value model.filter.search
                             , Html.Events.onInput Search
                             ]
                             []
@@ -355,19 +355,11 @@ view model =
 
 innerView : Model -> List Post -> View Msg
 innerView model posts =
-    case model.route of
-        Index ->
-            if String.isEmpty model.search then
-                Route.Index.view model
+    if model.filter == Route.emptyFilter then
+        Route.Index.view model
 
-            else
-                Route.Posts.view { play = Play } model posts
-
-        Demos _ ->
-            Route.Posts.view { play = Play } model posts
-
-        Logout ->
-            Route.Loading.view
+    else
+        Route.Posts.view { play = Play } model posts
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -386,39 +378,45 @@ update msg model =
             ( { model | time = Just ( here, now ) }, Cmd.none )
 
         Search search ->
-            changeRouteTo { model | search = search }
+            let
+                filter : Filter
+                filter =
+                    model.filter
+            in
+            ( { model | filter = { filter | search = search } }, Cmd.none )
+                |> replaceUrlWithCurrentRoute
 
         OnUrlChange url ->
             let
-                { route, search } =
+                route : Route
+                route =
                     Route.parse url
-
-                newModel : Model
-                newModel =
-                    { model | route = route, search = search }
             in
-            if route == Logout then
-                let
-                    loggedOutModel : Model
-                    loggedOutModel =
-                        { newModel
-                            | route = Index
-                            , index = Nothing
-                            , posts = RemoteData.NotAsked
-                        }
-                in
-                ( loggedOutModel
-                , Cmd.batch
-                    [ saveIndex Nothing
-                    , Browser.Navigation.replaceUrl model.key (Route.toString loggedOutModel)
-                    ]
-                )
+            case route of
+                Logout ->
+                    let
+                        loggedOutModel : Model
+                        loggedOutModel =
+                            { model
+                                | index = Nothing
+                                , posts = RemoteData.NotAsked
+                            }
+                    in
+                    ( loggedOutModel, saveIndex Nothing )
+                        |> replaceUrlWithCurrentRoute
 
-            else if Route.toString model == Route.toString newModel then
-                ( newModel, Cmd.none )
+                Index newFilter ->
+                    let
+                        newModel : Model
+                        newModel =
+                            { model | filter = newFilter }
+                    in
+                    if Route.toString route == Route.toString (Index model.filter) then
+                        ( newModel, Cmd.none )
 
-            else
-                changeRouteTo newModel
+                    else
+                        ( newModel, Cmd.none )
+                            |> replaceUrlWithCurrentRoute
 
         OnUrlRequest (Browser.Internal url) ->
             ( model, Browser.Navigation.pushUrl model.key (Url.toString url) )
@@ -430,9 +428,14 @@ update msg model =
             ( { model | hasServiceWorker = True }, Cmd.none )
 
 
-changeRouteTo : Model -> ( Model, Cmd Msg )
-changeRouteTo model =
-    ( model, Browser.Navigation.replaceUrl model.key (Route.toString model) )
+replaceUrlWithCurrentRoute : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+replaceUrlWithCurrentRoute ( model, cmd ) =
+    ( model
+    , Cmd.batch
+        [ Browser.Navigation.replaceUrl model.key (Route.toString (Index model.filter))
+        , cmd
+        ]
+    )
 
 
 saveIndex : Maybe String -> Cmd msg

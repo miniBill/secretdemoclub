@@ -8,7 +8,8 @@ import Html.Keyed
 import Json.Encode
 import List.Extra
 import Post exposing (Post)
-import Route exposing (Route(..))
+import Route exposing (Filter)
+import Set
 import Time
 import Url exposing (Url)
 import Url.Builder
@@ -22,8 +23,7 @@ view :
     ->
         { model
             | time : Maybe ( Time.Zone, Time.Posix )
-            , route : Route
-            , search : String
+            , filter : Filter
             , hasServiceWorker : Bool
             , root : Url
         }
@@ -42,81 +42,32 @@ view messages model posts =
                 (\post ->
                     isCorrectCategory post
                         && isCorrectYear post
-                        && isMatch model.search post
+                        && isMatch model.filter.search post
                 )
                 posts
 
         isCorrectCategory : Post -> Bool
         isCorrectCategory post =
-            case model.route of
-                Index ->
-                    True
-
-                Demos _ ->
-                    post.category == "Demo"
-
-                Logout ->
-                    True
+            Set.member (String.toLower post.category) model.filter.categories
+                || Set.member (String.toLower post.category ++ "s") model.filter.categories
 
         isCorrectYear : Post -> Bool
         isCorrectYear post =
-            case model.route of
-                Index ->
+            case model.filter.year of
+                Nothing ->
                     True
 
-                Logout ->
-                    True
-
-                Demos maybeYear ->
-                    case maybeYear of
-                        Nothing ->
-                            True
-
-                        Just year ->
-                            Time.toYear here post.date == year
+                Just year ->
+                    Time.toYear here post.date == year
     in
-    { title = ""
+    { title = Nothing
     , body =
         [ if model.hasServiceWorker then
             let
                 files : String
                 files =
                     filteredPosts
-                        |> Json.Encode.list
-                            (\post ->
-                                let
-                                    extension : String
-                                    extension =
-                                        post.media
-                                            |> String.split "."
-                                            |> List.Extra.last
-                                            |> Maybe.withDefault "mp3"
-
-                                    filename : String
-                                    filename =
-                                        post.category
-                                            ++ "/"
-                                            ++ (case post.number of
-                                                    Nothing ->
-                                                        ""
-
-                                                    Just n ->
-                                                        n ++ " - "
-                                               )
-                                            ++ post.title
-                                            ++ "."
-                                            ++ extension
-
-                                    media : String
-                                    media =
-                                        Url.Builder.crossOrigin (Url.toString model.root) [ "media", post.media ] []
-                                in
-                                Json.Encode.object
-                                    [ ( "filename", Json.Encode.string filename )
-                                    , ( "url", Json.Encode.string media )
-                                    , ( "mtime", Json.Encode.int (Time.posixToMillis post.date) )
-                                    ]
-                            )
+                        |> Json.Encode.list (postToDownloadData model.root)
                         |> Json.Encode.encode 0
             in
             Html.a
@@ -135,6 +86,42 @@ view messages model posts =
             |> viewList messages model
         ]
     }
+
+
+postToDownloadData : Url -> Post -> Json.Encode.Value
+postToDownloadData root post =
+    let
+        extension : String
+        extension =
+            post.media
+                |> String.split "."
+                |> List.Extra.last
+                |> Maybe.withDefault "mp3"
+
+        filename : String
+        filename =
+            post.category
+                ++ "/"
+                ++ (case post.number of
+                        Nothing ->
+                            ""
+
+                        Just n ->
+                            String.replace "/" "_" n ++ " - "
+                   )
+                ++ String.replace "/" "_" post.title
+                ++ "."
+                ++ extension
+
+        media : String
+        media =
+            Url.Builder.crossOrigin (Url.toString root) [ "media", post.media ] []
+    in
+    Json.Encode.object
+        [ ( "filename", Json.Encode.string filename )
+        , ( "url", Json.Encode.string media )
+        , ( "mtime", Json.Encode.int (Time.posixToMillis post.date) )
+        ]
 
 
 viewList :

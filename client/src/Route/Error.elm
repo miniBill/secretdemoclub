@@ -14,7 +14,7 @@ view error =
                 ]
             ]
         ]
-    , title = "=("
+    , title = Just "=("
     }
 
 

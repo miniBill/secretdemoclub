@@ -1,79 +1,107 @@
-module Route exposing (Route(..), link, parse, toString)
+module Route exposing (Filter, Route(..), emptyFilter, index, link, parse, toString)
 
 import AppUrl exposing (AppUrl)
 import Dict
 import Html exposing (Html)
 import Html.Attributes
+import Set exposing (Set)
 import Url exposing (Url)
 import Url.Builder
 
 
 type Route
-    = Index
-    | Demos (Maybe Int)
+    = Index Filter
     | Logout
 
 
-parse : Url -> { route : Route, search : String }
+type alias Filter =
+    { year : Maybe Int
+    , categories : Set String
+    , search : String
+    }
+
+
+emptyFilter : Filter
+emptyFilter =
+    { year = Nothing
+    , categories = Set.empty
+    , search = ""
+    }
+
+
+parse : Url -> Route
 parse url =
     let
         appUrl : AppUrl
         appUrl =
             AppUrl.fromUrl url
     in
-    { route =
-        case appUrl.path of
-            [ "demos", year ] ->
-                Demos (String.toInt year)
+    case appUrl.path of
+        [ "logout" ] ->
+            Logout
 
-            [ "demos" ] ->
-                Demos Nothing
+        _ ->
+            List.foldl
+                (\piece filter ->
+                    case String.toInt piece of
+                        Just year ->
+                            { filter | year = Just year }
 
-            [ "logout" ] ->
-                Logout
+                        Nothing ->
+                            { filter | categories = Set.insert piece filter.categories }
+                )
+                { emptyFilter
+                    | search =
+                        appUrl.queryParameters
+                            |> Dict.get "search"
+                            |> Maybe.withDefault []
+                            |> String.join " "
+                }
+                appUrl.path
+                |> Index
 
-            _ ->
-                Index
-    , search =
-        appUrl.queryParameters
-            |> Dict.get "search"
-            |> Maybe.withDefault []
-            |> String.join " "
-    }
 
-
-toString : { a | search : String, route : Route } -> String
-toString { search, route } =
+toString : Route -> String
+toString route =
     let
         path : List String
         path =
             case route of
-                Index ->
-                    []
+                Index filter ->
+                    case filter.year of
+                        Just year ->
+                            (filter.categories |> Set.toList) ++ [ String.fromInt year ]
 
-                Demos (Just year) ->
-                    [ "demos", String.fromInt year ]
-
-                Demos Nothing ->
-                    [ "demos" ]
+                        Nothing ->
+                            filter.categories |> Set.toList
 
                 Logout ->
                     [ "logout" ]
 
         query : List (Maybe Url.Builder.QueryParameter)
         query =
-            [ if String.isEmpty search then
-                Nothing
+            [ case route of
+                Index { search } ->
+                    if String.isEmpty search then
+                        Nothing
 
-              else
-                Just (Url.Builder.string "search" search)
+                    else
+                        Just (Url.Builder.string "search" search)
+
+                Logout ->
+                    Nothing
             ]
     in
     Url.Builder.absolute path (List.filterMap identity query)
 
 
-link : { search : String, route : Route } -> List (Html.Attribute msg) -> List (Html msg) -> Html msg
+link : Route -> List (Html.Attribute msg) -> List (Html msg) -> Html msg
 link route attrs children =
     Html.a
         (Html.Attributes.href (toString route) :: attrs)
         children
+
+
+index : Route
+index =
+    Index emptyFilter

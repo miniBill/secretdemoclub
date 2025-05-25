@@ -5,7 +5,8 @@ import Html.Attributes
 import List.Extra
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
-import Route
+import Route exposing (Filter)
+import Set
 import Time
 import View exposing (View)
 
@@ -13,15 +14,16 @@ import View exposing (View)
 view :
     { model
         | posts : RemoteData err (List Post)
+        , filter : Filter
         , time : Maybe ( Time.Zone, Time.Posix )
     }
     -> View msg
 view model =
-    { title = ""
+    { title = Nothing
     , body =
         [ case model.time of
             Nothing ->
-                Html.text "Loading..."
+                Html.text "Loading time information..."
 
             Just ( here, now ) ->
                 let
@@ -38,57 +40,48 @@ view model =
                         Time.toYear here lastPosted
                 in
                 List.range 2015 yearOfLastPost
-                    |> List.map viewYear
-                    |> (::) everythingBox
+                    |> List.map (\year -> viewYear model.filter.search (Just year))
+                    |> (::) (viewYear model.filter.search Nothing)
                     |> Html.div
                         [ Html.Attributes.style "display" "flex"
-                        , Html.Attributes.style "flex-wrap" "wrap"
+                        , Html.Attributes.style "flex-direction" "column"
                         , Html.Attributes.style "gap" "8px"
                         ]
         ]
     }
 
 
-viewYear : Int -> Html msg
-viewYear year =
-    yearBox
-        [ Html.text (String.fromInt year)
-        , Route.link
-            { search = ""
-            , route = Route.Demos (Just year)
-            }
-            []
-            [ Html.text "Demos" ]
-        ]
-
-
-everythingBox : Html msg
-everythingBox =
-    yearBox
-        [ Html.text "All"
-        , Route.link
-            { search = ""
-            , route = Route.Demos Nothing
-            }
-            []
-            [ Html.text "Demos" ]
-        , Route.link
-            { search = " "
-            , route = Route.Index
-            }
-            []
-            [ Html.text "Everything" ]
-        ]
-
-
-yearBox : List (Html msg) -> Html msg
-yearBox children =
+viewYear : String -> Maybe Int -> Html msg
+viewYear search maybeYear =
     Html.div
         [ Html.Attributes.style "display" "flex"
-        , Html.Attributes.style "flex-direction" "column"
         , Html.Attributes.style "gap" "8px"
         , Html.Attributes.style "padding" "8px"
         , Html.Attributes.style "border" "1px solid var(--foreground)"
         , Html.Attributes.style "border-radius" "8px"
         ]
-        children
+        [ case maybeYear of
+            Nothing ->
+                Html.text "All"
+
+            Just year ->
+                Html.text (String.fromInt year)
+        , Route.link
+            (Route.Index
+                { categories = Set.singleton "demos"
+                , year = maybeYear
+                , search = search
+                }
+            )
+            []
+            [ Html.text "Demos" ]
+        , Route.link
+            (Route.Index
+                { categories = Set.empty
+                , year = maybeYear
+                , search = search
+                }
+            )
+            []
+            [ Html.text "Demos" ]
+        ]

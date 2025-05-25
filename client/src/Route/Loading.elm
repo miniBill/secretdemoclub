@@ -13,5 +13,5 @@ view =
                 ]
             ]
         ]
-    , title = "Loading..."
+    , title = Just "Loading..."
     }
