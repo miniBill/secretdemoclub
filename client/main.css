@@ -47,6 +47,18 @@ img {
     opacity: 1;
 }
 
+@media (max-width: 600px) {
+    .desktop {
+        display: none;
+    }
+}
+
+@media (width > 600px) {
+    .mobile {
+        display: none;
+    }
+}
+
 @media (hover: none) {
     .show-if-hover-none {
         opacity: 1;

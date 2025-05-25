@@ -307,15 +307,27 @@ header model =
         , HA.style "z-index" "1"
         , HA.style "background-color" "var(--red)"
         , HA.style "padding" "8px 16px"
-        , HA.style "align-items" "baseline"
+        , HA.style "gap" "8px"
+        , HA.style "justify-content" "space-between"
         ]
-        [ Html.div [ HA.style "flex" "1" ]
-            [ Html.a [ HA.href "/" ] [ Html.text "Secret Demo Club HQ" ]
+        [ Html.a [ HA.href "/" ] <|
+            [ Html.img
+                [ HA.style "max-width" "64px"
+                , HA.src "/favicon.ico"
+                , HA.style "align-self" "top"
+                ]
+                []
+            , Html.span
+                [ HA.class "desktop" ]
+                [ Html.text "Secret Demo Club HQ" ]
+            , Html.span
+                [ HA.class "mobile" ]
+                [ Html.text "SDC HQ" ]
             ]
         , Html.div
             [ HA.style "display" "flex"
             , HA.style "align-items" "baseline"
-            , HA.style "gap" "8px"
+            , HA.style "gap" "16px"
             ]
             [ Html.label []
                 [ Html.text "Search "
