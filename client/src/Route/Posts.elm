@@ -148,12 +148,13 @@ viewPost :
     -> Html msg
 viewPost { play } model post =
     Html.div
-        [ Html.Attributes.style "max-width" "300px"
+        [ Html.Attributes.style "width" "40vmin"
         , Html.Attributes.style "display" "flex"
         , Html.Attributes.style "flex-direction" "column"
         , Html.Attributes.style "gap" "8px"
         , Html.Attributes.style "position" "relative"
         , Html.Attributes.style "color" "var(--offwhite)"
+        , Html.Attributes.style "font-size" "2.2vmin"
         , Html.Events.onClick (play post.media)
         ]
         [ Html.div
@@ -171,7 +172,7 @@ viewPost { play } model post =
             , Html.Attributes.style "left" "0"
             , Html.Attributes.style "padding" "8px 8px 24px 8px"
             , Html.Attributes.style "width" "100%"
-            , Html.Attributes.style "font-size" "1.2rem"
+            , Html.Attributes.style "font-size" "1.2em"
             , Html.Attributes.style "font-weight" "semibold"
             , Html.Attributes.style "text-align" "center"
             , Html.Attributes.style "flex" "1"
@@ -213,7 +214,7 @@ viewPost { play } model post =
             , Html.Attributes.style "transform" "translate(-50%,-50%)"
             , Html.Attributes.style "padding" "8px"
             , Html.Attributes.style "width" "100%"
-            , Html.Attributes.style "font-size" "2rem"
+            , Html.Attributes.style "font-size" "2em"
             , Html.Attributes.style "font-weight" "semibold"
             , Html.Attributes.style "text-align" "center"
             ]
