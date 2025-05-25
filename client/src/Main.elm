@@ -5,8 +5,8 @@ import Browser
 import Browser.Navigation exposing (Key)
 import Cmd.Extra
 import Dict
-import Html
-import Html.Attributes
+import Html exposing (Html)
+import Html.Attributes as HA
 import Html.Events
 import Http
 import Json.Decode
@@ -283,69 +283,83 @@ view model =
             Just title ->
                 "Secret Demo Club HQ - " ++ title
     , body =
-        [ [ Html.div
-                [ Html.Attributes.style "display" "flex"
-                , Html.Attributes.style "position" "sticky"
-                , Html.Attributes.style "top" "0"
-                , Html.Attributes.style "left" "0"
-                , Html.Attributes.style "right" "0"
-                , Html.Attributes.style "z-index" "1"
-                , Html.Attributes.style "background-color" "var(--background)"
-                , Html.Attributes.style "padding" "8px"
-                ]
-                [ Html.div [ Html.Attributes.style "flex" "1" ]
-                    [ Html.a
-                        [ Html.Attributes.href "/" ]
-                        [ Html.text "Secret Demo Club HQ" ]
-                    ]
-                , Html.div
-                    [ Html.Attributes.style "display" "flex"
-                    , Html.Attributes.style "gap" "8px"
-                    ]
-                    [ Html.label []
-                        [ Html.text "Search "
-                        , Html.input
-                            [ Html.Attributes.type_ "search"
-                            , Html.Attributes.value model.filter.search
-                            , Html.Events.onInput Search
-                            ]
-                            []
-                        ]
-                    , Html.text " "
-                    , Html.a
-                        [ Html.Attributes.href "/logout" ]
-                        [ Html.text "Logout" ]
-                    ]
-                ]
-          , Html.div [ Html.Attributes.style "padding" "0 8px" ] content.body
-          , case model.playing of
-                Just url ->
-                    Html.audio
-                        [ Html.Attributes.style "position" "sticky"
-                        , Html.Attributes.style "bottom" "0"
-                        , Html.Attributes.style "left" "0"
-                        , Html.Attributes.style "right" "0"
-                        , Html.Attributes.style "z-index" "1"
-                        , Html.Attributes.style "background-color" "var(--background)"
-                        , Html.Attributes.style "padding" "8px"
-
-                        --
-                        , Html.Attributes.controls True
-                        , Html.Attributes.autoplay True
-                        , Html.Attributes.src ("/media/" ++ url)
-                        ]
-                        []
-
-                Nothing ->
-                    Html.text ""
+        [ [ header model
+          , Html.div [ HA.style "padding" "0 8px" ] content.body
+          , playerView model
           ]
             |> Html.div
-                [ Html.Attributes.style "gap" "8px"
-                , Html.Attributes.style "display" "flex"
-                , Html.Attributes.style "flex-direction" "column"
+                [ HA.style "gap" "8px"
+                , HA.style "display" "flex"
+                , HA.style "flex-direction" "column"
                 ]
         ]
     }
+
+
+header : Model -> Html Msg
+header model =
+    Html.div
+        [ HA.style "display" "flex"
+        , HA.style "position" "sticky"
+        , HA.style "top" "0"
+        , HA.style "left" "0"
+        , HA.style "right" "0"
+        , HA.style "z-index" "1"
+        , HA.style "background-color" "var(--red)"
+        , HA.style "padding" "8px"
+        , HA.style "align-items" "baseline"
+        ]
+        [ Html.div [ HA.style "flex" "1" ]
+            [ Html.a
+                [ HA.href "/"
+                , HA.style "font-weight" "bold"
+                ]
+                [ Html.text "Secret Demo Club HQ" ]
+            ]
+        , Html.div
+            [ HA.style "display" "flex"
+            , HA.style "align-items" "baseline"
+            , HA.style "gap" "8px"
+            ]
+            [ Html.label []
+                [ Html.text "Search "
+                , Html.input
+                    [ HA.type_ "search"
+                    , HA.value model.filter.search
+                    , Html.Events.onInput Search
+                    ]
+                    []
+                ]
+            , Html.text " "
+            , Html.a
+                [ HA.href "/logout" ]
+                [ Html.text "Logout" ]
+            ]
+        ]
+
+
+playerView : Model -> Html Msg
+playerView model =
+    case model.playing of
+        Just url ->
+            Html.audio
+                [ HA.style "position" "sticky"
+                , HA.style "bottom" "0"
+                , HA.style "left" "0"
+                , HA.style "right" "0"
+                , HA.style "z-index" "1"
+                , HA.style "background-color" "var(--background)"
+                , HA.style "padding" "8px"
+
+                --
+                , HA.controls True
+                , HA.autoplay True
+                , HA.src ("/media/" ++ url)
+                ]
+                []
+
+        Nothing ->
+            Html.text ""
 
 
 innerView : Model -> List Post -> View Msg

@@ -35,6 +35,23 @@ img {
     height: auto;
 }
 
+/* Fonts */
+@font-face {
+  font-family: Neutralface;
+  src: url("/NeutralFace.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Neutralface;
+  src: url("/NeutralFace-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Utils */
 .show-on-parent-hover {
     opacity: 0;
@@ -52,16 +69,18 @@ img {
 }
 
 body {
-    --background: oklch(0.05 0.0311 281.27);
-    --foreground: oklch(0.94 0.0267 281.27);
-    background-color: var(--background);
-    color: var(--foreground);
+    --red: #bd0000;
+    --offwhite: #e6e6e8;
+    --navy: #1e2344;
+    background-color: var(--navy);
+    color: var(--offwhite);
+    font-family: Neutralface, sans-serif;
 }
 
 a {
-    color: oklch(70.71% 0.1512 281.27);
+    color: var(--offwhite);
 }
 
 a:visited {
-    color: oklch(70.71% 0.1512 281.27);
+    color: var(--offwhite);
 }
