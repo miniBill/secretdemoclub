@@ -38,10 +38,9 @@ view model =
                         Time.toYear here lastPosted
                 in
                 List.range 2015 yearOfLastPost
-                    |> List.map Just
-                    |> (::) Nothing
-                    |> List.map (\maybeYear -> viewYear yearOfLastPost maybeYear)
-                    |> Html.ul
+                    |> List.map viewYear
+                    |> (::) (everythingBox yearOfLastPost)
+                    |> Html.div
                         [ Html.Attributes.style "display" "flex"
                         , Html.Attributes.style "flex-wrap" "wrap"
                         , Html.Attributes.style "gap" "8px"
@@ -50,9 +49,50 @@ view model =
     }
 
 
-viewYear : Int -> Maybe Int -> Html.Html msg
-viewYear yearOfLastPost maybeYear =
-    Html.li
+viewYear : Int -> Html.Html msg
+viewYear year =
+    yearBox
+        [ Html.text (String.fromInt year)
+        , Html.a
+            [ Html.Attributes.href
+                (Route.toString
+                    { search = ""
+                    , route = Route.Demos (Just year)
+                    }
+                )
+            ]
+            [ Html.text "Demos" ]
+        ]
+
+
+everythingBox : Int -> Html.Html msg
+everythingBox yearOfLastPost =
+    yearBox
+        [ Html.text ("2015-" ++ String.fromInt yearOfLastPost)
+        , Html.a
+            [ Html.Attributes.href
+                (Route.toString
+                    { search = ""
+                    , route = Route.Demos Nothing
+                    }
+                )
+            ]
+            [ Html.text "Demos" ]
+        , Html.a
+            [ Html.Attributes.href
+                (Route.toString
+                    { search = " "
+                    , route = Route.Index
+                    }
+                )
+            ]
+            [ Html.text "Everything" ]
+        ]
+
+
+yearBox : List (Html.Html msg) -> Html.Html msg
+yearBox children =
+    Html.div
         [ Html.Attributes.style "display" "flex"
         , Html.Attributes.style "flex-direction" "column"
         , Html.Attributes.style "gap" "8px"
@@ -60,33 +100,4 @@ viewYear yearOfLastPost maybeYear =
         , Html.Attributes.style "border" "1px solid var(--foreground)"
         , Html.Attributes.style "border-radius" "8px"
         ]
-        [ case maybeYear of
-            Nothing ->
-                Html.text ("2015-" ++ String.fromInt yearOfLastPost)
-
-            Just year ->
-                Html.text (String.fromInt year)
-        , Html.a
-            [ Html.Attributes.href
-                (Route.toString
-                    { search = ""
-                    , route = Route.Demos maybeYear
-                    }
-                )
-            ]
-            [ Html.text "Demos" ]
-        , case maybeYear of
-            Nothing ->
-                Html.a
-                    [ Html.Attributes.href
-                        (Route.toString
-                            { search = " "
-                            , route = Route.Index
-                            }
-                        )
-                    ]
-                    [ Html.text "Everything" ]
-
-            Just _ ->
-                Html.text ""
-        ]
+        children
