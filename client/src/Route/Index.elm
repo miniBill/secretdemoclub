@@ -66,6 +66,10 @@ viewYear search maybeYear =
 
             Just year ->
                 Html.text (String.fromInt year)
+        , Html.div
+            [ Html.Attributes.style "flex" "1"
+            ]
+            []
         , Route.link
             (Route.Index
                 { categories = Set.singleton "demos"
@@ -83,5 +87,5 @@ viewYear search maybeYear =
                 }
             )
             []
-            [ Html.text "Demos" ]
+            [ Html.text "Everything" ]
         ]
