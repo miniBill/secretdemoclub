@@ -10,9 +10,28 @@ view error =
     { body =
         [ Html.div []
             [ Html.p []
-                [ Html.text (Debug.toString error)
+                [ Html.text (errorToString error)
                 ]
             ]
         ]
     , title = "=("
     }
+
+
+errorToString : Http.Error -> String
+errorToString error =
+    case error of
+        Http.BadBody _ ->
+            "Unexpected answer from the server - content"
+
+        Http.BadUrl _ ->
+            "Internal error - url"
+
+        Http.Timeout ->
+            "Timeout"
+
+        Http.NetworkError ->
+            "Network error"
+
+        Http.BadStatus _ ->
+            "Unexpected answer from the server - status"
