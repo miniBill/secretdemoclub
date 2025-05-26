@@ -19,6 +19,7 @@ import Rss.Parser
 import SHA256
 import Set exposing (Set)
 import Spinner.Reader
+import String.Multiline
 import Time
 import Url exposing (Url)
 
@@ -167,6 +168,46 @@ task config =
                                 |> List.filterMap identity
                         )
             )
+        |> Spinner.Reader.withStep "Writing dump"
+            (\_ cachedPosts ->
+                let
+                    body : String
+                    body =
+                        cachedPosts
+                            |> List.map postToDumpFragment
+                            |> String.join "\n"
+
+                    header : String
+                    header =
+                        String.Multiline.here
+                            """
+                            <!DOCTYPE html>
+                            <html lang="en">
+                            <head>
+                                <meta charset="UTF-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                <title>Patreon Dump</title>
+                            </head>
+                            <body>
+                            """
+
+                    footer : String
+                    footer =
+                        String.Multiline.here
+                            """
+                            </body>
+                            </html>
+                            """
+                in
+                Do.allowFatal
+                    (Script.writeFile
+                        { path = "work/dump.html"
+                        , body = header ++ body ++ footer
+                        }
+                    )
+                <| \_ ->
+                BackendTask.succeed cachedPosts
+            )
         |> Spinner.Reader.withStep "Formatting posts"
             (\_ cachedPosts ->
                 cachedPosts
@@ -223,6 +264,17 @@ task config =
                         )
                     |> BackendTask.doEach
             )
+
+
+postToDumpFragment : { a | post : Api.Post } -> String
+postToDumpFragment { post } =
+    "<a href=\"https://www.patreon.com"
+        ++ post.attributes.patreonUrl
+        ++ "\"><h2>"
+        ++ Maybe.withDefault "???" post.attributes.title
+        ++ "</h2></a><p>"
+        ++ Maybe.withDefault "" post.attributes.content
+        ++ "</p>"
 
 
 cachePost : Config -> Api.Post -> BackendTask FatalError (Maybe { image : ContentAddress, media : ContentAddress, post : Api.Post })
