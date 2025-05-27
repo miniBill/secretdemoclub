@@ -59,7 +59,7 @@ view model =
                     , HA.style "align-items" "center"
                     , HA.style "gap" "16px"
                     ]
-                    [ Html.text "CLIKETH BELOW FOR ÞE MUZICS"
+                    [ Html.text "Click on a link below to see the content"
                     , (firstRowView ++ yearViews)
                         |> Html.div
                             [ HA.style "display" "grid"
@@ -138,7 +138,7 @@ viewYear here search posts maybeYear =
         ]
         (List.map categoryLink
             (if List.isEmpty categories then
-                [ "Demos", "Others" ]
+                [ "Demos", "Voice memos", "Song ideas", "Bonus demos", "Others" ]
 
              else
                 categories
