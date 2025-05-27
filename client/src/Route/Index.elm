@@ -136,7 +136,14 @@ viewYear here search posts maybeYear =
         , HA.style "border-bottom" "1px solid var(--offwhite)"
         , HA.style "flex-wrap" "wrap"
         ]
-        (List.map categoryLink categories)
+        (List.map categoryLink
+            (if List.isEmpty categories then
+                [ "Demos", "Others" ]
+
+             else
+                categories
+            )
+        )
     ]
 
 
