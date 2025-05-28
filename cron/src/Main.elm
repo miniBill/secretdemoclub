@@ -249,6 +249,11 @@ task config =
                         )
                     |> BackendTask.combine
             )
+        |> Spinner.Reader.withStep "Cleaning up"
+            (\_ indexAddresses ->
+                Do.command "rmdir" [ "work/media-scratch" ] <| \_ ->
+                BackendTask.succeed indexAddresses
+            )
         |> Spinner.Reader.runSteps
         |> BackendTask.andThen
             (\indexAddresses ->
