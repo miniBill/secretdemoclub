@@ -9,7 +9,6 @@ import Json.Encode
 import List.Extra
 import Post exposing (Post)
 import Route exposing (Filter)
-import Set
 import Time
 import Url exposing (Url)
 import Url.Builder
@@ -38,29 +37,7 @@ view messages model posts =
 
         filteredPosts : List Post
         filteredPosts =
-            List.filter
-                (\post ->
-                    isCorrectCategory post
-                        && isCorrectYear post
-                        && isMatch model.filter.search post
-                )
-                posts
-
-        isCorrectCategory : Post -> Bool
-        isCorrectCategory post =
-            Set.isEmpty model.filter.categories
-                || Set.member "all" model.filter.categories
-                || Set.member (String.toLower post.category) model.filter.categories
-                || Set.member (String.toLower post.category ++ "s") model.filter.categories
-
-        isCorrectYear : Post -> Bool
-        isCorrectYear post =
-            case model.filter.year of
-                Nothing ->
-                    True
-
-                Just year ->
-                    Time.toYear here post.date == year
+            List.filter (Post.isMatch model.filter here) posts
     in
     { title = Nothing
     , content =
@@ -287,28 +264,3 @@ viewPost { play } model post =
             ]
             []
         ]
-
-
-isMatch : String -> Post -> Bool
-isMatch needle post =
-    let
-        normalize : String -> String
-        normalize input =
-            input
-                |> String.trim
-                |> String.toLower
-    in
-    needle
-        |> String.split " "
-        |> List.all
-            (\piece ->
-                let
-                    cleanPiece : String
-                    cleanPiece =
-                        normalize piece
-                in
-                String.isEmpty cleanPiece
-                    || String.contains cleanPiece (normalize post.title)
-                    || String.contains cleanPiece (normalize post.category)
-                    || String.contains cleanPiece (normalize (Maybe.withDefault "" post.number))
-            )
