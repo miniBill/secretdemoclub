@@ -13,6 +13,7 @@ import Json.Decode
 import Json.Encode
 import Parser exposing ((|.), (|=), Parser)
 import Parser.Workaround
+import Phosphor
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
 import Result.Extra
@@ -330,17 +331,23 @@ header model =
             ]
         , Html.div
             [ HA.style "display" "flex"
-            , HA.style "align-items" "baseline"
+            , HA.style "align-items" "center"
             , HA.style "gap" "16px"
             ]
-            [ Html.label []
-                [ Html.span [ HA.class "desktop" ] [ Html.text "Search " ]
-                , Html.input
+            [ Html.label
+                [ HA.style "display" "flex"
+                , HA.style "align-items" "center"
+                , HA.style "gap" "8px"
+                ]
+                [ Html.input
                     [ HA.type_ "search"
                     , HA.value model.filter.search
                     , Html.Events.onInput Search
                     ]
                     []
+                , Phosphor.magnifyingGlass Phosphor.Fill
+                    |> Phosphor.withSize 1.4
+                    |> Phosphor.toHtml []
                 ]
             , Html.text " "
             , case model.indexHash of
