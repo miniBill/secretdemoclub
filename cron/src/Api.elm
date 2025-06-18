@@ -1,4 +1,4 @@
-module Api exposing (AccessRule, Attributes, AudioLinks, AudioRelationships, AverageColorsOfCorners, Embed, IdAndType, Image, ImageColors, ImageUrls, Media, Post, PostAudioVideo, PostFile(..), PostImage, PostMetadata, PostSize, PostTag, PostType(..), Relationships, Reward, Thumbnail, getPosts)
+module Api exposing (AccessRule, Attributes, AudioLinks, AudioRelationships, AverageColorsOfCorners, Embed, GifThumbnail, IdAndType, Image, ImageColors, ImageUrls, Media, Post, PostAudioVideo, PostFile(..), PostImage, PostMetadata, PostSize, PostTag, PostType(..), Relationships, Reward, SquareThumbnail, Thumbnail(..), getPosts)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
@@ -603,7 +603,7 @@ type alias Attributes =
     , postType : PostType
     , previewAssetType : Maybe String
     , publishedAt : Time.Posix
-    , thumbnail : Maybe Thumbnail
+    , thumbnail : Thumbnail
     , title : Maybe String
     , url : Url
     }
@@ -692,10 +692,18 @@ type Thumbnail
 
 
 type alias SquareThumbnail =
-    { large : String
-    , large2 : String
-    , square : String
+    { original : Url
+    , default : Url
+    , default_blurred : Url
+    , default_small : Url
+    , default_large : Url
+    , default_blurred_small : Url
+    , thumbnail : Url
+    , thumbnail_large : Url
+    , thumbnail_small : Url
     , url : Url
+    , height : Maybe Int
+    , width : Maybe Int
     }
 
 
@@ -781,7 +789,7 @@ attributesDecoder =
         |> DecodeComplete.required "post_type" postTypeDecoder
         |> DecodeComplete.optional "preview_asset_type" (Json.Decode.map Just Json.Decode.string) Nothing
         |> DecodeComplete.required "published_at" rfc3339Decoder
-        |> DecodeComplete.optional "thumbnail" (Json.Decode.map Just thumbnailDecoder) Nothing
+        |> DecodeComplete.required "thumbnail" thumbnailDecoder
         |> DecodeComplete.required "title" (Json.Decode.nullable Json.Decode.string)
         |> DecodeComplete.required "url" urlDecoder
         |> DecodeComplete.discard "change_visibility_at"
@@ -1005,11 +1013,33 @@ thumbnailDecoder =
 squareThumbnailDecoder : Json.Decode.Decoder SquareThumbnail
 squareThumbnailDecoder =
     DecodeComplete.object SquareThumbnail
-        |> DecodeComplete.required "large" Json.Decode.string
-        |> DecodeComplete.required "large_2" Json.Decode.string
-        |> DecodeComplete.required "square" Json.Decode.string
+        |> DecodeComplete.required "original" urlDecoder
+        |> DecodeComplete.required "default" urlDecoder
+        |> DecodeComplete.required "default_blurred" urlDecoder
+        |> DecodeComplete.required "default_small" urlDecoder
+        |> DecodeComplete.required "default_large" urlDecoder
+        |> DecodeComplete.required "default_blurred_small" urlDecoder
+        |> DecodeComplete.required "thumbnail" urlDecoder
+        |> DecodeComplete.required "thumbnail_large" urlDecoder
+        |> DecodeComplete.required "thumbnail_small" urlDecoder
         |> DecodeComplete.required "url" urlDecoder
+        |> DecodeComplete.optional "height" (Json.Decode.map Just numberAsStringDecoder) Nothing
+        |> DecodeComplete.optional "width" (Json.Decode.map Just numberAsStringDecoder) Nothing
         |> DecodeComplete.complete
+
+
+numberAsStringDecoder : Json.Decode.Decoder Int
+numberAsStringDecoder =
+    Json.Decode.string
+        |> Json.Decode.andThen
+            (\raw ->
+                case String.toInt raw of
+                    Nothing ->
+                        Json.Decode.fail (raw ++ " is not a valid number")
+
+                    Just i ->
+                        Json.Decode.succeed i
+            )
 
 
 gifThumbnailDecoder : Json.Decode.Decoder GifThumbnail
