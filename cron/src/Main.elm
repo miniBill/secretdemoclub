@@ -100,9 +100,7 @@ task config =
             (\{ rssUrl } apiPosts ->
                 BackendTask.map
                     (Tuple.pair apiPosts)
-                    (Http.get rssUrl Http.expectString
-                        |> BackendTask.quiet
-                    )
+                    (Http.get rssUrl Http.expectString)
             )
         |> Spinner.Reader.withStep "Parsing RSS feed"
             (\_ ( apiPosts, xml ) ->
@@ -634,7 +632,7 @@ cache config post urlString =
                         opts =
                             [ urlString, "-s", "-o", scratchTarget ]
                     in
-                    -- Do.log (String.join " " ("curl" :: opts)) <| \_ ->
+                    Do.log (String.join " " ("curl" :: opts)) <| \_ ->
                     Do.exec "mkdir" [ "-p", scratchDir ] <| \_ ->
                     Do.exec "mkdir" [ "-p", mediaDir ] <| \_ ->
                     Do.exec "curl" opts <| \_ ->
