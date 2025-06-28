@@ -9,6 +9,7 @@ import BackendTask.Http as Http
 import Cli.Option as Option
 import Cli.OptionsParser as OptionsParser
 import Cli.Program as Program
+import Date exposing (Date)
 import FatalError exposing (FatalError)
 import List.Extra
 import Pages.Script as Script exposing (Script)
@@ -16,7 +17,6 @@ import Parser
 import Result.Extra
 import Rss exposing (Title(..))
 import Rss.Parser
-import SHA256
 import Set exposing (Set)
 import Spinner.Reader
 import String.Multiline
@@ -82,11 +82,15 @@ task config =
         )
         |> Spinner.Reader.withStep "Creating output folder"
             (\_ _ ->
-                Do.exec "mkdir" [ "-p", config.workDir ++ "/media" ] <| \_ ->
                 Do.exec "rm" [ "-rf", config.workDir ++ "/media-scratch" ] <| \_ ->
-                Do.exec "mkdir" [ config.workDir ++ "/media-scratch" ] <| \_ ->
+                Do.exec "mkdir" [ "-p", config.workDir ++ "/media-scratch" ] <| \_ ->
+                Do.exec "mkdir" [ "-p", config.workDir ++ "/posts" ] <| \_ ->
                 Do.exec "mkdir" [ "-p", config.outputDir ] <| \_ ->
                 Do.noop
+            )
+        |> Spinner.Reader.withStep "Applying overrides"
+            (\_ _ ->
+                Script.command "cp" [ "-r", "overrides/posts", config.workDir ]
             )
         |> Spinner.Reader.withStep "Getting posts from the Patreon API"
             (\env _ ->
@@ -96,7 +100,9 @@ task config =
             (\{ rssUrl } apiPosts ->
                 BackendTask.map
                     (Tuple.pair apiPosts)
-                    (Http.get rssUrl Http.expectString)
+                    (Http.get rssUrl Http.expectString
+                        |> BackendTask.quiet
+                    )
             )
         |> Spinner.Reader.withStep "Parsing RSS feed"
             (\_ ( apiPosts, xml ) ->
@@ -313,8 +319,8 @@ cachePost config post =
             in
             Do.do (taskFromResult mediaUrlResult) <| \mediaUrl ->
             Do.do (taskFromResult thumbSquareUrlResult) <| \thumbUrl ->
-            Do.do (cache config (Url.toString thumbUrl)) <| \image ->
-            Do.do (cache config (Url.toString mediaUrl)) <| \media ->
+            Do.do (cache config post (Url.toString thumbUrl)) <| \image ->
+            Do.do (cache config post (Url.toString mediaUrl)) <| \media ->
             BackendTask.succeed (Just { image = image, media = media, post = post })
 
         Api.LivestreamYoutube ->
@@ -354,77 +360,61 @@ taskFromResult result =
 
 postToContent : Config -> { image : ContentAddress, media : ContentAddress, post : Api.Post } -> BackendTask FatalError ( String, List Tier )
 postToContent config { image, media, post } =
-    getTier post
-        |> taskFromResult
-        |> BackendTask.andThen
-            (\tiers ->
-                let
-                    filename : String
-                    filename =
-                        [ Time.toYear Time.utc post.attributes.publishedAt
-                            |> String.fromInt
-                        , Time.toMonth Time.utc post.attributes.publishedAt
-                            |> monthToNumber
-                            |> String.fromInt
-                            |> String.padLeft 2 '0'
-                        , Time.toDay Time.utc post.attributes.publishedAt
-                            |> String.fromInt
-                            |> String.padLeft 2 '0'
-                        , " - "
-                        , post.attributes.title
-                            |> Maybe.withDefault ""
-                            |> String.replace "/" "_"
-                        ]
-                            |> String.concat
+    let
+        postPath : PostPath
+        postPath =
+            PostPath
+                { date = Date.fromPosix Time.utc post.attributes.publishedAt
+                , filename =
+                    post.attributes.title
+                        |> Maybe.withDefault "unnamed"
+                , extension = "md"
+                }
 
-                    postPath : PostPath
-                    postPath =
-                        PostPath { filename = filename, extension = "md" }
+        target : String
+        target =
+            postPathToPath config postPath
 
-                    target : String
-                    target =
-                        postPathToPath config postPath
+        title : Rss.Title
+        title =
+            case post.attributes.title of
+                Nothing ->
+                    Other ""
 
-                    title : Rss.Title
-                    title =
-                        case post.attributes.title of
-                            Nothing ->
-                                Other ""
+                Just t ->
+                    Parser.run Rss.Parser.titleParser t
+                        |> Result.withDefault (Other t)
 
-                            Just t ->
-                                Parser.run Rss.Parser.titleParser t
-                                    |> Result.withDefault (Other t)
+        body : String
+        body =
+            [ Just ("Title: " ++ Rss.titleToString title)
+            , Just ("Category: " ++ Rss.getAlbum title)
+            , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.attributes.publishedAt))
+            , Just ("Image: " ++ contentAddressToPath image)
+            , Just ("Link: https://www.patreon.com" ++ post.attributes.patreonUrl)
+            , Just ("Media: " ++ contentAddressToPath media)
+            , Maybe.map (\num -> "Number: " ++ num) (toNumber title)
+            ]
+                |> List.filterMap identity
+                |> String.join "\n"
+    in
+    Do.do (taskFromResult (getTier post)) <| \tiers ->
+    Do.glob target <| \existing ->
+    Do.do
+        (if not config.force && not (List.isEmpty existing) then
+            File.rawFile target
+                |> BackendTask.allowFatal
 
-                    body : String
-                    body =
-                        [ Just ("Title: " ++ Rss.titleToString title)
-                        , Just ("Category: " ++ Rss.getAlbum title)
-                        , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.attributes.publishedAt))
-                        , Just ("Image: " ++ contentAddressToPath image)
-                        , Just ("Link: https://www.patreon.com" ++ post.attributes.patreonUrl)
-                        , Just ("Media: " ++ contentAddressToPath media)
-                        , Maybe.map (\num -> "Number: " ++ num) (toNumber title)
-                        ]
-                            |> List.filterMap identity
-                            |> String.join "\n"
-                in
-                Do.glob target <| \existing ->
-                Do.do
-                    (if not config.force && not (List.isEmpty existing) then
-                        File.rawFile target
-                            |> BackendTask.allowFatal
-
-                     else
-                        Script.writeFile
-                            { path = target
-                            , body = body
-                            }
-                            |> BackendTask.allowFatal
-                            |> BackendTask.map (\_ -> body)
-                    )
-                <| \onDisk ->
-                BackendTask.succeed ( onDisk, tiers )
-            )
+         else
+            Script.writeFile
+                { path = target
+                , body = body
+                }
+                |> BackendTask.allowFatal
+                |> BackendTask.map (\_ -> body)
+        )
+    <| \onDisk ->
+    BackendTask.succeed ( onDisk, tiers )
 
 
 getTier : Api.Post -> Result String (List Tier)
@@ -469,30 +459,75 @@ getTier post =
 
 
 type ScratchPath
-    = ScratchPath { filename : String, extension : String }
+    = ScratchPath { date : Date, filename : String, extension : String }
 
 
 scratchPathToPath : Config -> ScratchPath -> String
-scratchPathToPath config (ScratchPath { filename, extension }) =
-    String.join "/" [ config.workDir, "media-scratch", filename ++ "." ++ extension ]
+scratchPathToPath config ((ScratchPath inner) as path) =
+    String.join "/"
+        [ scratchPathToDir config path
+        , pathToFilename inner
+        ]
+
+
+pathToFilename : { a | filename : String, extension : String } -> String
+pathToFilename { filename, extension } =
+    (filename ++ "." ++ extension)
+        |> String.replace "/" "_"
+
+
+scratchPathToDir : Config -> ScratchPath -> String
+scratchPathToDir config (ScratchPath { date }) =
+    String.join "/"
+        [ config.workDir
+        , "media-scratch"
+        , String.fromInt (Date.year date)
+        , Date.toIsoString date
+        ]
 
 
 type MediaPath
-    = MediaPath { filename : String, extension : String }
+    = MediaPath { date : Date, filename : String, extension : String }
 
 
 mediaPathToPath : Config -> MediaPath -> String
-mediaPathToPath config (MediaPath { filename, extension }) =
-    String.join "/" [ config.workDir, "media", filename ++ "." ++ extension ]
+mediaPathToPath config ((MediaPath inner) as path) =
+    String.join "/"
+        [ mediaPathToDir config path
+        , pathToFilename inner
+        ]
+
+
+mediaPathToDir : Config -> MediaPath -> String
+mediaPathToDir config (MediaPath { date }) =
+    String.join "/"
+        [ config.workDir
+        , "posts"
+        , String.fromInt (Date.year date)
+        , Date.toIsoString date
+        ]
 
 
 type PostPath
-    = PostPath { filename : String, extension : String }
+    = PostPath { date : Date, filename : String, extension : String }
 
 
 postPathToPath : Config -> PostPath -> String
-postPathToPath config (PostPath { filename, extension }) =
-    String.join "/" [ config.workDir, "posts", filename ++ "." ++ extension ]
+postPathToPath config ((PostPath inner) as path) =
+    String.join "/"
+        [ postPathToDir config path
+        , pathToFilename inner
+        ]
+
+
+postPathToDir : Config -> PostPath -> String
+postPathToDir config (PostPath { date }) =
+    String.join "/"
+        [ config.workDir
+        , "posts"
+        , String.fromInt (Date.year date)
+        , Date.toIsoString date
+        ]
 
 
 type ContentAddress
@@ -531,21 +566,14 @@ copyToContentAddressableStorage config { path, extension } =
     BackendTask.succeed (ContentAddress { filename = sum, extension = extension })
 
 
-cache : Config -> String -> BackendTask FatalError ContentAddress
-cache config urlString =
+cache : Config -> Api.Post -> String -> BackendTask FatalError ContentAddress
+cache config post urlString =
     case Url.fromString urlString of
         Nothing ->
             BackendTask.fail (FatalError.fromString ("Invalid URL: " ++ urlString))
 
         Just url ->
             let
-                clean : String
-                clean =
-                    Url.toString
-                        { url
-                            | query = Nothing
-                        }
-
                 extension : String
                 extension =
                     url.path
@@ -554,15 +582,20 @@ cache config urlString =
                         |> List.head
                         |> Maybe.withDefault "???"
 
-                hash : String
-                hash =
-                    SHA256.fromString clean
-                        |> SHA256.toHex
+                date : Date
+                date =
+                    Date.fromPosix Time.utc post.attributes.publishedAt
+
+                filename : String
+                filename =
+                    post.attributes.title
+                        |> Maybe.withDefault "unnamed"
 
                 scratchPath : ScratchPath
                 scratchPath =
                     ScratchPath
-                        { filename = hash
+                        { date = date
+                        , filename = filename
                         , extension = extension
                         }
 
@@ -570,16 +603,25 @@ cache config urlString =
                 scratchTarget =
                     scratchPathToPath config scratchPath
 
+                scratchDir : String
+                scratchDir =
+                    scratchPathToDir config scratchPath
+
                 mediaPath : MediaPath
                 mediaPath =
                     MediaPath
-                        { filename = hash
+                        { date = date
+                        , filename = filename
                         , extension = extension
                         }
 
                 mediaTarget : String
                 mediaTarget =
                     mediaPathToPath config mediaPath
+
+                mediaDir : String
+                mediaDir =
+                    mediaPathToDir config mediaPath
             in
             Do.glob mediaTarget <| \existing ->
             Do.do
@@ -592,53 +634,15 @@ cache config urlString =
                         opts =
                             [ urlString, "-s", "-o", scratchTarget ]
                     in
-                    Do.log (String.join " " ("curl" :: opts)) <| \_ ->
+                    -- Do.log (String.join " " ("curl" :: opts)) <| \_ ->
+                    Do.exec "mkdir" [ "-p", scratchDir ] <| \_ ->
+                    Do.exec "mkdir" [ "-p", mediaDir ] <| \_ ->
                     Do.exec "curl" opts <| \_ ->
                     Do.exec "mv" [ scratchTarget, mediaTarget ] <| \_ ->
                     Do.noop
                 )
             <| \_ ->
             copyMediaToContentAddressableStorage config mediaPath
-
-
-monthToNumber : Time.Month -> Int
-monthToNumber month =
-    case month of
-        Time.Jan ->
-            1
-
-        Time.Feb ->
-            2
-
-        Time.Mar ->
-            3
-
-        Time.Apr ->
-            4
-
-        Time.May ->
-            5
-
-        Time.Jun ->
-            6
-
-        Time.Jul ->
-            7
-
-        Time.Aug ->
-            8
-
-        Time.Sep ->
-            9
-
-        Time.Oct ->
-            10
-
-        Time.Nov ->
-            11
-
-        Time.Dec ->
-            12
 
 
 toNumber : Title -> Maybe String

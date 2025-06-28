@@ -443,6 +443,7 @@ getPaginated config toUrl dataDecoder includedDecoder =
                                 , timeoutInMs = Nothing
                                 }
                                 Http.expectString
+                                |> BackendTask.quiet
 
                         writeFile : String -> BackendTask { fatal : FatalError, recoverable : Script.Error } ()
                         writeFile body =
