@@ -2,6 +2,7 @@ module Main exposing (run)
 
 import Api
 import BackendTask exposing (BackendTask)
+import BackendTask.Custom as Custom
 import BackendTask.Do as Do
 import BackendTask.Env as Env
 import BackendTask.File as File
@@ -11,6 +12,8 @@ import Cli.OptionsParser as OptionsParser
 import Cli.Program as Program
 import Date exposing (Date)
 import FatalError exposing (FatalError)
+import Json.Decode
+import Json.Encode
 import List.Extra
 import Pages.Script as Script exposing (Script)
 import Parser
@@ -255,7 +258,7 @@ task config =
             )
         |> Spinner.Reader.withStep "Cleaning up"
             (\_ indexAddresses ->
-                Do.command "rmdir" [ "work/media-scratch" ] <| \_ ->
+                Do.command "rm" [ "-r", "work/media-scratch" ] <| \_ ->
                 BackendTask.succeed indexAddresses
             )
         |> Spinner.Reader.runSteps
@@ -621,9 +624,9 @@ cache config post urlString =
                 mediaDir =
                     mediaPathToDir config mediaPath
             in
-            Do.glob mediaTarget <| \existing ->
+            Do.allowFatal (fileExists mediaTarget) <| \exists ->
             Do.do
-                (if not (List.isEmpty existing) then
+                (if exists then
                     Do.noop
 
                  else
@@ -641,6 +644,14 @@ cache config post urlString =
                 )
             <| \_ ->
             copyMediaToContentAddressableStorage config mediaPath
+
+
+fileExists :
+    String
+    -> BackendTask { fatal : FatalError, recoverable : Custom.Error } Bool
+fileExists path =
+    Custom.run "fileExists" (Json.Encode.string path) Json.Decode.bool
+        |> BackendTask.quiet
 
 
 toNumber : Title -> Maybe String

@@ -4,3 +4,4 @@ output
 elm-stuff
 yarn.lock
 overrides
+.elm-pages
