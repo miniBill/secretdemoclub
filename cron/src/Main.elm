@@ -576,7 +576,6 @@ parsedPostToFinalString { post, image, media } =
     , Just ("Image: " ++ contentAddressToPath image)
     , Just ("Link: " ++ post.link)
     , Just ("Media: " ++ contentAddressToPath media)
-    , Just ("Tiers: " ++ String.join ", " (List.map tierToString post.tiers))
     , Maybe.map (\num -> "Number: " ++ num) post.number
     ]
         |> List.filterMap identity
