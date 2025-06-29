@@ -15,8 +15,11 @@ import FatalError exposing (FatalError)
 import Json.Decode
 import Json.Encode
 import List.Extra
+import Maybe.Extra
 import Pages.Script as Script exposing (Script)
-import Parser
+import Parser exposing ((|.), (|=), Parser, symbol)
+import Parser.Extra
+import Parser.Workaround
 import Result.Extra
 import Rss exposing (Title(..))
 import Rss.Parser
@@ -175,6 +178,12 @@ task config =
                                 |> List.filterMap identity
                         )
             )
+        |> Spinner.Reader.withStep "Formatting posts"
+            (\_ cachedPosts ->
+                cachedPosts
+                    |> List.map (postToContent config)
+                    |> BackendTask.combine
+            )
         |> Spinner.Reader.withStep "Writing dump"
             (\_ cachedPosts ->
                 let
@@ -215,14 +224,30 @@ task config =
                 <| \_ ->
                 BackendTask.succeed cachedPosts
             )
-        |> Spinner.Reader.withStep "Formatting posts"
-            (\_ cachedPosts ->
-                cachedPosts
-                    |> List.map (postToContent config)
+        |> Spinner.Reader.withStep "Re-reading the posts from disk to apply overrides"
+            (\_ _ ->
+                Do.glob (config.workDir ++ "/posts/*/*/*.md") <| \filenames ->
+                Do.each filenames parsePost <| \parsed ->
+                BackendTask.succeed parsed
+            )
+        |> Spinner.Reader.withStep "Copying media to content storage"
+            (\_ parsedPosts ->
+                parsedPosts
+                    |> List.map
+                        (\post ->
+                            Do.do (copyMediaToContentAddressableStorage config post.media) <| \media ->
+                            Do.do (copyMediaToContentAddressableStorage config post.image) <| \image ->
+                            { post = post
+                            , media = media
+                            , image = image
+                            }
+                                |> BackendTask.succeed
+                        )
                     |> BackendTask.combine
+                    |> BackendTask.map (\posts -> List.sortBy (\{ post } -> Time.posixToMillis post.date) posts)
             )
         |> Spinner.Reader.withStep "Writing indexes"
-            (\_ formattedPosts ->
+            (\_ finalPosts ->
                 [ Bronze, Silver, Gold ]
                     |> List.map
                         (\tier ->
@@ -230,24 +255,20 @@ task config =
                                 path : String
                                 path =
                                     config.workDir ++ "/index-" ++ String.toLower (tierToString tier) ++ ".md"
-
-                                body : String
-                                body =
-                                    formattedPosts
-                                        |> List.filterMap
-                                            (\( content, postTiers ) ->
-                                                if List.member tier postTiers then
-                                                    Just content
-
-                                                else
-                                                    Nothing
-                                            )
-                                        |> String.join "\n\n"
                             in
+                            Do.each
+                                (finalPosts
+                                    |> List.filter (\{ post } -> List.member tier post.tiers)
+                                )
+                                (\post ->
+                                    parsedPostToFinalString post
+                                        |> BackendTask.succeed
+                                )
+                            <| \formattedPosts ->
                             Do.allowFatal
                                 (Script.writeFile
                                     { path = path
-                                    , body = body
+                                    , body = String.join "\n\n" formattedPosts
                                     }
                                 )
                             <| \_ ->
@@ -278,18 +299,131 @@ task config =
             )
 
 
-postToDumpFragment : { a | post : Api.Post } -> String
-postToDumpFragment { post } =
-    "<a href=\"https://www.patreon.com"
-        ++ post.attributes.patreonUrl
+type alias ParsedPost =
+    { title : String
+    , category : String
+    , date : Time.Posix
+    , image : MediaPath
+    , link : String
+    , media : MediaPath
+    , tiers : List Tier
+    , number : Maybe String
+    , content : Maybe String
+    }
+
+
+parsePost : String -> BackendTask FatalError ParsedPost
+parsePost path =
+    Do.allowFatal (File.rawFile path) <| \raw ->
+    Parser.run postFileParser raw
+        |> Result.mapError (\e -> FatalError.fromString (Parser.Extra.errorsToString raw e))
+        |> BackendTask.fromResult
+
+
+postFileParser : Parser ParsedPost
+postFileParser =
+    let
+        row : String -> (String -> Result String a) -> Parser a
+        row key postChomp =
+            Parser.succeed identity
+                |. Parser.keyword key
+                |. Parser.symbol ":"
+                |= (Parser.Workaround.chompUntilEndOrBefore "\n"
+                        |> Parser.getChompedString
+                        |> Parser.andThen
+                            (\chomped ->
+                                case postChomp (String.trim chomped) of
+                                    Ok r ->
+                                        Parser.succeed r
+
+                                    Err e ->
+                                        Parser.problem e
+                            )
+                   )
+                |. Parser.spaces
+
+        mediaRow : String -> Parser (Time.Posix -> MediaPath)
+        mediaRow key =
+            row key
+                (\raw ->
+                    case
+                        raw
+                            |> String.split "."
+                            |> List.reverse
+                    of
+                        extension :: rest ->
+                            Ok
+                                (\date ->
+                                    MediaPath
+                                        { date = Date.fromPosix Time.utc date
+                                        , extension = extension
+                                        , filename = String.join "." (List.reverse rest)
+                                        }
+                                )
+
+                        [] ->
+                            Err "Invalid empty path"
+                )
+    in
+    Parser.succeed
+        (\title category date image link media tiers number content ->
+            { title = title
+            , category = category
+            , date = date
+            , image = image date
+            , link = link
+            , media = media date
+            , tiers = tiers
+            , number = number
+            , content = content
+            }
+        )
+        |= row "Title" Ok
+        |= row "Category" Ok
+        |= row "Date"
+            (\raw ->
+                case String.toInt raw of
+                    Just millis ->
+                        Ok (Time.millisToPosix millis)
+
+                    Nothing ->
+                        Err ("Invalid int: " ++ raw)
+            )
+        |= mediaRow "Image"
+        |= row "Link" Ok
+        |= mediaRow "Media"
+        |= row "Tiers"
+            (\raw ->
+                raw
+                    |> String.split ","
+                    |> List.map String.trim
+                    |> Maybe.Extra.combineMap tierFromString
+                    |> Result.fromMaybe ("Invalid tiers: " ++ raw)
+            )
+        |= Parser.oneOf
+            [ Parser.map Just (row "Number" Ok)
+            , Parser.succeed Nothing
+            ]
+        |= Parser.oneOf
+            [ Parser.succeed (\raw -> Just (String.trim raw))
+                |. symbol "Content: "
+                |= Parser.getChompedString (Parser.chompWhile (\_ -> True))
+            , Parser.succeed Nothing
+            ]
+
+
+postToDumpFragment : ParsedPost -> String
+postToDumpFragment post =
+    "<a href=\""
+        ++ post.link
         ++ "\"><h2>"
-        ++ Maybe.withDefault "???" post.attributes.title
+        ++ post.title
         ++ "</h2></a><p>"
-        ++ Maybe.withDefault "" post.attributes.content
+        ++ Maybe.withDefault "" post.content
         ++ "</p>"
 
 
-cachePost : Config -> Api.Post -> BackendTask FatalError (Maybe { image : ContentAddress, media : ContentAddress, post : Api.Post })
+cachePost : Config -> Api.Post -> BackendTask FatalError (Maybe { image : MediaPath, media : MediaPath, post : Api.Post })
 cachePost config post =
     case post.attributes.postType of
         Api.Podcast ->
@@ -359,7 +493,7 @@ taskFromResult result =
         |> BackendTask.fromResult
 
 
-postToContent : Config -> { image : ContentAddress, media : ContentAddress, post : Api.Post } -> BackendTask FatalError ( String, List Tier )
+postToContent : Config -> { image : MediaPath, media : MediaPath, post : Api.Post } -> BackendTask FatalError ParsedPost
 postToContent config { image, media, post } =
     let
         postPath : PostPath
@@ -385,37 +519,68 @@ postToContent config { image, media, post } =
                 Just t ->
                     Parser.run Rss.Parser.titleParser t
                         |> Result.withDefault (Other t)
-
-        body : String
-        body =
-            [ Just ("Title: " ++ Rss.titleToString title)
-            , Just ("Category: " ++ Rss.getAlbum title)
-            , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.attributes.publishedAt))
-            , Just ("Image: " ++ contentAddressToPath image)
-            , Just ("Link: https://www.patreon.com" ++ post.attributes.patreonUrl)
-            , Just ("Media: " ++ contentAddressToPath media)
-            , Maybe.map (\num -> "Number: " ++ num) (toNumber title)
-            ]
-                |> List.filterMap identity
-                |> String.join "\n"
     in
     Do.do (taskFromResult (getTier post)) <| \tiers ->
-    Do.glob target <| \existing ->
-    Do.do
-        (if not config.force && not (List.isEmpty existing) then
-            File.rawFile target
-                |> BackendTask.allowFatal
+    Do.allowFatal (fileExists target) <| \exists ->
+    if exists && not config.force then
+        parsePost target
 
-         else
-            Script.writeFile
-                { path = target
-                , body = body
+    else
+        let
+            parsedPost : ParsedPost
+            parsedPost =
+                { title = Rss.titleToString title
+                , category = Rss.getAlbum title
+                , date = post.attributes.publishedAt
+                , image = image
+                , link = "https://www.patreon.com" ++ post.attributes.patreonUrl
+                , media = media
+                , tiers = tiers
+                , number = toNumber title
+                , content = post.attributes.content
                 }
-                |> BackendTask.allowFatal
-                |> BackendTask.map (\_ -> body)
-        )
-    <| \onDisk ->
-    BackendTask.succeed ( onDisk, tiers )
+
+            body : String
+            body =
+                parsedPostToString parsedPost
+        in
+        Script.writeFile
+            { path = target
+            , body = body
+            }
+            |> BackendTask.allowFatal
+            |> BackendTask.map (\_ -> parsedPost)
+
+
+parsedPostToString : ParsedPost -> String
+parsedPostToString post =
+    [ Just ("Title: " ++ post.title)
+    , Just ("Category: " ++ post.category)
+    , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.date))
+    , Just ("Image: " ++ mediaPathToFilename post.image)
+    , Just ("Link: " ++ post.link)
+    , Just ("Media: " ++ mediaPathToFilename post.media)
+    , Just ("Tiers: " ++ String.join ", " (List.map tierToString post.tiers))
+    , Maybe.map (\num -> "Number: " ++ num) post.number
+    , Maybe.map (\content -> "Content: " ++ content) post.content
+    ]
+        |> List.filterMap identity
+        |> String.join "\n"
+
+
+parsedPostToFinalString : { post : ParsedPost, image : ContentAddress, media : ContentAddress } -> String
+parsedPostToFinalString { post, image, media } =
+    [ Just ("Title: " ++ post.title)
+    , Just ("Category: " ++ post.category)
+    , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.date))
+    , Just ("Image: " ++ contentAddressToPath image)
+    , Just ("Link: " ++ post.link)
+    , Just ("Media: " ++ contentAddressToPath media)
+    , Just ("Tiers: " ++ String.join ", " (List.map tierToString post.tiers))
+    , Maybe.map (\num -> "Number: " ++ num) post.number
+    ]
+        |> List.filterMap identity
+        |> String.join "\n"
 
 
 getTier : Api.Post -> Result String (List Tier)
@@ -492,10 +657,10 @@ type MediaPath
 
 
 mediaPathToPath : Config -> MediaPath -> String
-mediaPathToPath config ((MediaPath inner) as path) =
+mediaPathToPath config path =
     String.join "/"
         [ mediaPathToDir config path
-        , pathToFilename inner
+        , mediaPathToFilename path
         ]
 
 
@@ -507,6 +672,11 @@ mediaPathToDir config (MediaPath { date }) =
         , String.fromInt (Date.year date)
         , Date.toIsoString date
         ]
+
+
+mediaPathToFilename : MediaPath -> String
+mediaPathToFilename (MediaPath inner) =
+    pathToFilename inner
 
 
 type PostPath
@@ -567,7 +737,7 @@ copyToContentAddressableStorage config { path, extension } =
     BackendTask.succeed (ContentAddress { filename = sum, extension = extension })
 
 
-cache : Config -> Api.Post -> String -> BackendTask FatalError ContentAddress
+cache : Config -> Api.Post -> String -> BackendTask FatalError MediaPath
 cache config post urlString =
     case Url.fromString urlString of
         Nothing ->
@@ -643,7 +813,7 @@ cache config post urlString =
                     Do.noop
                 )
             <| \_ ->
-            copyMediaToContentAddressableStorage config mediaPath
+            BackendTask.succeed mediaPath
 
 
 fileExists :
@@ -707,3 +877,19 @@ tierToString tier =
 
         Gold ->
             "Gold"
+
+
+tierFromString : String -> Maybe Tier
+tierFromString tier =
+    case tier of
+        "Bronze" ->
+            Just Bronze
+
+        "Silver" ->
+            Just Silver
+
+        "Gold" ->
+            Just Gold
+
+        _ ->
+            Nothing
