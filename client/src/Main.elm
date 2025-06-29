@@ -394,22 +394,26 @@ playerView : Model -> Html Msg
 playerView model =
     case model.playing of
         Just url ->
-            Html.audio
+            Html.div
                 [ HA.style "position" "fixed"
                 , HA.style "bottom" "0"
                 , HA.style "left" "0"
-                , HA.style "right" "0"
+                
                 , HA.style "z-index" "1"
                 , HA.style "background-color" "var(--navy)"
                 , HA.style "padding" "8px"
-                , HA.style "display" "block"
-
-                --
-                , HA.controls True
-                , HA.autoplay True
-                , HA.src ("/media/" ++ url)
+                , HA.style "border-top-right-radius" "8px"
                 ]
-                []
+                [ Html.audio
+                    [ HA.style "display" "block"
+
+                    --
+                    , HA.controls True
+                    , HA.autoplay True
+                    , HA.src ("/media/" ++ url)
+                    ]
+                    []
+                ]
 
         Nothing ->
             Html.text ""
