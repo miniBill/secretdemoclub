@@ -12,6 +12,7 @@ import Http
 import Json.Decode
 import Json.Encode
 import Parser exposing ((|.), (|=), Parser)
+import Parser.Extra
 import Parser.Workaround
 import Phosphor
 import Post exposing (Post)
@@ -190,8 +191,8 @@ loadPostsFromIndexHash indexHash =
                         (\post ->
                             Parser.run postParser post
                                 |> Result.mapError
-                                    (\_ ->
-                                        Http.BadBody "Could not read posts from the server"
+                                    (\e ->
+                                        Http.BadBody ("Could not read posts from the server:\n" ++ Parser.Extra.errorsToString post e)
                                     )
                         )
                     |> resultToTask

@@ -1,6 +1,7 @@
 module Route.Error exposing (view)
 
-import Html
+import Html exposing (Html)
+import Html.Attributes
 import Http
 import View exposing (View)
 
@@ -9,26 +10,27 @@ view : Http.Error -> View msg
 view error =
     { content =
         Html.p []
-            [ Html.text (errorToString error)
-            ]
+            (errorToParagraph error)
     , title = Just "=("
     }
 
 
-errorToString : Http.Error -> String
-errorToString error =
+errorToParagraph : Http.Error -> List (Html msg)
+errorToParagraph error =
     case error of
-        Http.BadBody _ ->
-            "Unexpected answer from the server - content"
+        Http.BadBody body ->
+            [ Html.text "Unexpected answer from the server - content"
+            , Html.pre [ Html.Attributes.style "display" "none" ] [ Html.text body ]
+            ]
 
         Http.BadUrl _ ->
-            "Internal error - url"
+            [ Html.text "Internal error - url" ]
 
         Http.Timeout ->
-            "Timeout"
+            [ Html.text "Timeout" ]
 
         Http.NetworkError ->
-            "Network error"
+            [ Html.text "Network error" ]
 
         Http.BadStatus _ ->
-            "Unexpected answer from the server - status"
+            [ Html.text "Unexpected answer from the server - status" ]
