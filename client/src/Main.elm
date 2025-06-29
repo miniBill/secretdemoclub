@@ -288,11 +288,13 @@ view model =
         [ [ header model
           , Html.div [ HA.style "padding" "0 16px" ] [ content.content ]
           , playerView model
+          , hiddenPlayerView model
           ]
             |> Html.div
                 [ HA.style "gap" "16px"
                 , HA.style "display" "flex"
                 , HA.style "flex-direction" "column"
+                , HA.style "min-height" "100dvh"
                 ]
         ]
     }
@@ -363,8 +365,8 @@ header model =
         ]
 
 
-playerView : Model -> Html Msg
-playerView model =
+hiddenPlayerView : Model -> Html Msg
+hiddenPlayerView model =
     case model.playing of
         Just url ->
             Html.audio
@@ -375,6 +377,32 @@ playerView model =
                 , HA.style "z-index" "1"
                 , HA.style "background-color" "var(--navy)"
                 , HA.style "padding" "8px"
+                , HA.style "display" "block"
+                , HA.style "visibility" "hidden"
+
+                --
+                , HA.controls True
+                , HA.src ("/media/" ++ url)
+                ]
+                []
+
+        Nothing ->
+            Html.text ""
+
+
+playerView : Model -> Html Msg
+playerView model =
+    case model.playing of
+        Just url ->
+            Html.audio
+                [ HA.style "position" "fixed"
+                , HA.style "bottom" "0"
+                , HA.style "left" "0"
+                , HA.style "right" "0"
+                , HA.style "z-index" "1"
+                , HA.style "background-color" "var(--navy)"
+                , HA.style "padding" "8px"
+                , HA.style "display" "block"
 
                 --
                 , HA.controls True
