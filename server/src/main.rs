@@ -17,6 +17,7 @@ mod types;
 #[derive(Clone)]
 struct AppState {
     config: Arc<RwLock<AppConfig>>,
+    tiers: Arc<RwLock<Tiers>>,
 }
 
 #[derive(Deserialize, Clone)]
@@ -25,6 +26,10 @@ struct AppConfig {
     client_secret: String,
     redirect_uri: String,
     orla_campaign_id: String,
+}
+
+#[derive(Clone)]
+struct Tiers {
     bronze_tier: String,
     silver_tier: String,
     gold_tier: String,
@@ -33,6 +38,12 @@ struct AppConfig {
 impl FromRef<AppState> for AppConfig {
     fn from_ref(state: &AppState) -> Self {
         (*state.config.read().unwrap()).clone()
+    }
+}
+
+impl FromRef<AppState> for Tiers {
+    fn from_ref(state: &AppState) -> Self {
+        (*state.tiers.read().unwrap()).clone()
     }
 }
 
@@ -60,9 +71,11 @@ async fn main() -> anyhow::Result<()> {
         .expect("Failed to open config file");
     let parsed_config: AppConfig =
         toml::from_str(&raw_config).expect("Failed to parse config file");
+    let tiers: Tiers = load_tiers().await.expect("Failed to load tiers");
 
     let app_state = AppState {
         config: Arc::new(RwLock::new(parsed_config)),
+        tiers: Arc::new(RwLock::new(tiers)),
     };
 
     let app: Router = Router::new()
@@ -77,6 +90,58 @@ async fn main() -> anyhow::Result<()> {
     let listener = tokio::net::TcpListener::bind(("localhost", args.port)).await?;
     axum::serve(listener, app).await?;
     Ok(())
+}
+
+async fn load_tiers() -> anyhow::Result<Tiers> {
+    let mut paths: tokio::fs::ReadDir = tokio::fs::read_dir("public/media").await?;
+    let mut bronze_candidate: Option<(String, std::time::SystemTime)> = None;
+    let mut silver_candidate: Option<(String, std::time::SystemTime)> = None;
+    let mut gold_candidate: Option<(String, std::time::SystemTime)> = None;
+
+    while let Some(path) = paths.next_entry().await? {
+        let filename: std::ffi::OsString = path.file_name();
+        let filename: &str = match filename.to_str() {
+            Some(filename) => filename,
+            None => return Err(anyhow!("Invalid filename: {:?}", filename)),
+        };
+
+        async fn maybe_update(
+            path: &tokio::fs::DirEntry,
+            filename: String,
+            candidate: &mut Option<(String, std::time::SystemTime)>,
+        ) -> anyhow::Result<()> {
+            let metadata: std::fs::Metadata = path.metadata().await?;
+            let modified: std::time::SystemTime = metadata.modified()?;
+            match *candidate {
+                None => *candidate = Some((filename, modified)),
+                Some((_, previous_time)) => {
+                    if modified > previous_time {
+                        *candidate = Some((filename, modified))
+                    }
+                }
+            };
+
+            Ok(())
+        }
+
+        if filename.starts_with("bronze-") {
+            maybe_update(&path, filename.to_string(), &mut bronze_candidate).await?;
+        } else if filename.starts_with("silver-") {
+            maybe_update(&path, filename.to_string(), &mut silver_candidate).await?;
+        } else if filename.starts_with("gold-") {
+            maybe_update(&path, filename.to_string(), &mut gold_candidate).await?;
+        }
+    }
+    return match (bronze_candidate, silver_candidate, gold_candidate) {
+        (None, _, _) => Err(anyhow!("Could not find bronze tier")),
+        (_, None, _) => Err(anyhow!("Could not find silver tier")),
+        (_, _, None) => Err(anyhow!("Could not find gold tier")),
+        (Some((bronze_tier, _)), Some((silver_tier, _)), Some((gold_tier, _))) => Ok(Tiers {
+            bronze_tier,
+            silver_tier,
+            gold_tier,
+        }),
+    };
 }
 
 async fn reload_config_on_sigusr1(config_file: String, app_state: AppState) -> anyhow::Result<()> {
@@ -103,11 +168,24 @@ async fn reload_config_on_sigusr1(config_file: String, app_state: AppState) -> a
             }
         };
 
+        let tiers: Tiers = match load_tiers().await {
+            Ok(tiers) => tiers,
+            Err(e) => {
+                println!("Failed to load tiers: {}", e);
+                continue;
+            }
+        };
+
         *app_state.config.write().unwrap() = parsed_config;
+        *app_state.tiers.write().unwrap() = tiers;
     }
 }
 
-async fn post_api(State(app_config): State<AppConfig>, code: String) -> (StatusCode, String) {
+async fn post_api(
+    State(app_config): State<AppConfig>,
+    State(tiers): State<Tiers>,
+    code: String,
+) -> (StatusCode, String) {
     println!("POST /api");
     let access_token = match get_access_token(&app_config, code).await {
         Ok(access_token) => access_token,
@@ -129,9 +207,9 @@ async fn post_api(State(app_config): State<AppConfig>, code: String) -> (StatusC
     };
 
     match tier {
-        Tier::Bronze => (StatusCode::OK, app_config.bronze_tier.clone()),
-        Tier::Silver => (StatusCode::OK, app_config.silver_tier.clone()),
-        Tier::Gold => (StatusCode::OK, app_config.gold_tier.clone()),
+        Tier::Bronze => (StatusCode::OK, tiers.bronze_tier.clone()),
+        Tier::Silver => (StatusCode::OK, tiers.silver_tier.clone()),
+        Tier::Gold => (StatusCode::OK, tiers.gold_tier.clone()),
     }
 }
 
