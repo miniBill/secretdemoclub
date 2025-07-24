@@ -26,6 +26,7 @@ struct AppConfig {
     client_secret: String,
     redirect_uri: String,
     orla_campaign_id: String,
+    media_directory: String,
 }
 
 #[derive(Clone)]
@@ -71,7 +72,9 @@ async fn main() -> anyhow::Result<()> {
         .expect("Failed to open config file");
     let parsed_config: AppConfig =
         toml::from_str(&raw_config).expect("Failed to parse config file");
-    let tiers: Tiers = load_tiers().await.expect("Failed to load tiers");
+    let tiers: Tiers = load_tiers(&parsed_config)
+        .await
+        .expect("Failed to load tiers");
 
     let app_state = AppState {
         config: Arc::new(RwLock::new(parsed_config)),
@@ -92,8 +95,8 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn load_tiers() -> anyhow::Result<Tiers> {
-    let mut paths: tokio::fs::ReadDir = tokio::fs::read_dir("public/media").await?;
+async fn load_tiers(app_config: &AppConfig) -> anyhow::Result<Tiers> {
+    let mut paths: tokio::fs::ReadDir = tokio::fs::read_dir(&app_config.media_directory).await?;
     let mut bronze_candidate: Option<(String, std::time::SystemTime)> = None;
     let mut silver_candidate: Option<(String, std::time::SystemTime)> = None;
     let mut gold_candidate: Option<(String, std::time::SystemTime)> = None;
@@ -168,7 +171,7 @@ async fn reload_config_on_sigusr1(config_file: String, app_state: AppState) -> a
             }
         };
 
-        let tiers: Tiers = match load_tiers().await {
+        let tiers: Tiers = match load_tiers(&parsed_config).await {
             Ok(tiers) => tiers,
             Err(e) => {
                 println!("Failed to load tiers: {}", e);
