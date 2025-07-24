@@ -248,41 +248,43 @@ task config =
             )
         |> Spinner.Reader.withStep "Writing indexes"
             (\_ finalPosts ->
+                let
+                    writeTierIndex : Tier -> BackendTask FatalError ()
+                    writeTierIndex tier =
+                        let
+                            path : String
+                            path =
+                                config.workDir ++ "/index-" ++ String.toLower (tierToString tier) ++ ".md"
+                        in
+                        Do.each
+                            (finalPosts
+                                |> List.filter (\{ post } -> List.member tier post.tiers)
+                            )
+                            (\post ->
+                                parsedPostToFinalString post
+                                    |> BackendTask.succeed
+                            )
+                        <| \formattedPosts ->
+                        Do.allowFatal
+                            (Script.writeFile
+                                { path = path
+                                , body = String.join "\n\n" formattedPosts
+                                }
+                            )
+                        <| \_ ->
+                        Do.do
+                            (copyToContentAddressableStorage config
+                                { prefix = String.toLower (tierToString tier)
+                                , path = path
+                                , extension = "md"
+                                }
+                            )
+                        <| \_ ->
+                        Do.noop
+                in
                 [ Bronze, Silver, Gold ]
-                    |> List.map
-                        (\tier ->
-                            let
-                                path : String
-                                path =
-                                    config.workDir ++ "/index-" ++ String.toLower (tierToString tier) ++ ".md"
-                            in
-                            Do.each
-                                (finalPosts
-                                    |> List.filter (\{ post } -> List.member tier post.tiers)
-                                )
-                                (\post ->
-                                    parsedPostToFinalString post
-                                        |> BackendTask.succeed
-                                )
-                            <| \formattedPosts ->
-                            Do.allowFatal
-                                (Script.writeFile
-                                    { path = path
-                                    , body = String.join "\n\n" formattedPosts
-                                    }
-                                )
-                            <| \_ ->
-                            Do.do
-                                (copyToContentAddressableStorage config
-                                    { prefix = String.toLower (tierToString tier)
-                                    , path = path
-                                    , extension = "md"
-                                    }
-                                )
-                            <| \indexAddress ->
-                            BackendTask.succeed ( tier, indexAddress )
-                        )
-                    |> BackendTask.combine
+                    |> List.map writeTierIndex
+                    |> BackendTask.doEach
             )
         |> Spinner.Reader.withStep "Cleaning up"
             (\_ indexAddresses ->
@@ -290,20 +292,6 @@ task config =
                 BackendTask.succeed indexAddresses
             )
         |> Spinner.Reader.runSteps
-        |> BackendTask.andThen
-            (\indexAddresses ->
-                indexAddresses
-                    |> List.map
-                        (\( tier, indexAddress ) ->
-                            Script.log
-                                (String.toLower (tierToString tier)
-                                    ++ "_tier = \""
-                                    ++ contentAddressToPath indexAddress
-                                    ++ "\""
-                                )
-                        )
-                    |> BackendTask.doEach
-            )
 
 
 type alias ParsedPost =
