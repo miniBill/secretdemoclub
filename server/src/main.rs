@@ -26,7 +26,7 @@ struct AppConfig {
     client_secret: String,
     redirect_uri: String,
     orla_campaign_id: String,
-    media_directory: String,
+    public_root: String,
 }
 
 #[derive(Clone)]
@@ -76,6 +76,8 @@ async fn main() -> anyhow::Result<()> {
         .await
         .expect("Failed to load tiers");
 
+    let public_root = parsed_config.public_root.clone();
+
     let app_state = AppState {
         config: Arc::new(RwLock::new(parsed_config)),
         tiers: Arc::new(RwLock::new(tiers)),
@@ -83,7 +85,9 @@ async fn main() -> anyhow::Result<()> {
 
     let app: Router = Router::new()
         .route("/api", post(post_api))
-        .fallback_service(ServeDir::new("public").fallback(ServeFile::new("public/index.html")))
+        .fallback_service(
+            ServeDir::new(&public_root).fallback(ServeFile::new(public_root + "/index.html")),
+        )
         .with_state(app_state.clone());
 
     println!("👂 Spawning task listening for SIGUSR1 for config update");
@@ -96,7 +100,8 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn load_tiers(app_config: &AppConfig) -> anyhow::Result<Tiers> {
-    let mut paths: tokio::fs::ReadDir = tokio::fs::read_dir(&app_config.media_directory).await?;
+    let mut paths: tokio::fs::ReadDir =
+        tokio::fs::read_dir(app_config.public_root.clone() + "/media").await?;
     let mut bronze_candidate: Option<(String, std::time::SystemTime)> = None;
     let mut silver_candidate: Option<(String, std::time::SystemTime)> = None;
     let mut gold_candidate: Option<(String, std::time::SystemTime)> = None;
