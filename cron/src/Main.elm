@@ -272,7 +272,14 @@ task config =
                                     }
                                 )
                             <| \_ ->
-                            Do.do (copyToContentAddressableStorage config { path = path, extension = "md" }) <| \indexAddress ->
+                            Do.do
+                                (copyToContentAddressableStorage config
+                                    { prefix = String.toLower (tierToString tier)
+                                    , path = path
+                                    , extension = "md"
+                                    }
+                                )
+                            <| \indexAddress ->
                             BackendTask.succeed ( tier, indexAddress )
                         )
                     |> BackendTask.combine
@@ -714,11 +721,12 @@ copyMediaToContentAddressableStorage config ((MediaPath { extension }) as mediaP
     copyToContentAddressableStorage config
         { path = mediaPathToPath config mediaPath
         , extension = extension
+        , prefix = "media"
         }
 
 
-copyToContentAddressableStorage : Config -> { path : String, extension : String } -> BackendTask FatalError ContentAddress
-copyToContentAddressableStorage config { path, extension } =
+copyToContentAddressableStorage : Config -> { prefix : String, path : String, extension : String } -> BackendTask FatalError ContentAddress
+copyToContentAddressableStorage config { prefix, path, extension } =
     Do.command "sha512sum" [ path ] <| \output ->
     let
         sum : String
@@ -728,12 +736,16 @@ copyToContentAddressableStorage config { path, extension } =
                 |> List.take 1
                 |> String.concat
 
+        filename : String
+        filename =
+            prefix ++ "-" ++ sum
+
         target : String
         target =
-            config.outputDir ++ "/" ++ sum ++ "." ++ extension
+            config.outputDir ++ "/" ++ filename ++ "." ++ extension
     in
     Do.exec "cp" [ "-n", path, target ] <| \_ ->
-    BackendTask.succeed (ContentAddress { filename = sum, extension = extension })
+    BackendTask.succeed (ContentAddress { filename = filename, extension = extension })
 
 
 cache : Config -> Api.Post -> String -> BackendTask FatalError MediaPath
