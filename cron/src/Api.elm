@@ -603,7 +603,7 @@ type alias Attributes =
     , postType : PostType
     , previewAssetType : Maybe String
     , publishedAt : Time.Posix
-    , thumbnail : Thumbnail
+    , thumbnail : Maybe Thumbnail
     , title : Maybe String
     , url : Url
     }
@@ -789,7 +789,7 @@ attributesDecoder =
         |> DecodeComplete.required "post_type" postTypeDecoder
         |> DecodeComplete.optional "preview_asset_type" (Json.Decode.map Just Json.Decode.string) Nothing
         |> DecodeComplete.required "published_at" rfc3339Decoder
-        |> DecodeComplete.required "thumbnail" thumbnailDecoder
+        |> DecodeComplete.optional "thumbnail" (Json.Decode.map Just thumbnailDecoder) Nothing
         |> DecodeComplete.required "title" (Json.Decode.nullable Json.Decode.string)
         |> DecodeComplete.required "url" urlDecoder
         |> DecodeComplete.discard "change_visibility_at"

@@ -441,11 +441,14 @@ cachePost config post =
                 thumbSquareUrlResult : Result String Url
                 thumbSquareUrlResult =
                     case post.attributes.thumbnail of
-                        Api.Thumbnail_Square square ->
+                        Just (Api.Thumbnail_Square square) ->
                             Ok square.thumbnail
 
-                        Api.Thumbnail_Gif _ ->
+                        Just (Api.Thumbnail_Gif _) ->
                             Err ("Post " ++ post.id ++ " has a GIF thumbnail")
+
+                        Nothing ->
+                            Err ("Post " ++ post.id ++ " does not have a thumbnail")
             in
             Do.do (taskFromResult mediaUrlResult) <| \mediaUrl ->
             Do.do (taskFromResult thumbSquareUrlResult) <| \thumbUrl ->
