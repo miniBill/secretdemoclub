@@ -24,11 +24,15 @@
 
         naersk' = pkgs.callPackage naersk { };
 
+        secretdemoclub = naersk'.buildPackage {
+          src = ./.;
+        };
       in
       rec {
         # For `nix build` & `nix run`:
-        defaultPackage = naersk'.buildPackage {
-          src = ./.;
+        packages = {
+          inherit secretdemoclub;
+          default = secretdemoclub;
         };
 
         # For `nix develop` (optional, can be skipped):
