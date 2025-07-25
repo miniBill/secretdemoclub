@@ -398,7 +398,6 @@ playerView model =
                 [ HA.style "position" "fixed"
                 , HA.style "bottom" "0"
                 , HA.style "left" "0"
-                
                 , HA.style "z-index" "1"
                 , HA.style "background-color" "var(--navy)"
                 , HA.style "padding" "8px"
