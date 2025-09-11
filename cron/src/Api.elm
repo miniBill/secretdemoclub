@@ -59,7 +59,12 @@ rawRelationshipsToRelationships included rawRelationships =
         find key unpacker =
             case SeqDict.get key included of
                 Nothing ->
-                    Err "Could not find"
+                    let
+                        keyToString : IdAndType -> String
+                        keyToString k =
+                            k.id ++ ":" ++ k.type_
+                    in
+                    Err ("Could not find " ++ keyToString key ++ " in the included relationships")
 
                 Just value ->
                     unpacker value
