@@ -234,12 +234,10 @@ async fn get_access_token(app_config: &AppConfig, code: String) -> Result<String
         .form(&params)
         .send()
         .await?;
-
     // dbg!(response.text().await?);
     // Ok("TODO".to_string())
 
     let access_token = response.json::<AccessToken>().await?.access_token;
-
     Ok(access_token)
 }
 
