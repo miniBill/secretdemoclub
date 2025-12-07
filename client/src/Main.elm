@@ -420,7 +420,12 @@ playerView model =
                 , HA.style "bottom" "0"
                 , HA.style "left" "0"
                 , HA.style "z-index" "1"
-                , HA.style "background-color" "var(--navy)"
+                , case model.theme of
+                    Dark ->
+                        HA.style "background-color" "var(--navy)"
+
+                    Light ->
+                        HA.style "background-color" "var(--offwhite)"
                 , HA.style "padding" "8px"
                 , HA.style "border-top-right-radius" "8px"
                 ]
