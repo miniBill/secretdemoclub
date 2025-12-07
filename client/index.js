@@ -1,5 +1,9 @@
 /** @type Flags flags */
-const flags = {};
+const flags = {
+    theme: window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light",
+};
 
 for (var i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);

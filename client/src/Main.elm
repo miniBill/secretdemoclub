@@ -26,6 +26,7 @@ import Route.Login
 import Route.Posts
 import Task exposing (Task)
 import Time
+import Types exposing (Theme(..))
 import Url exposing (Url)
 import View exposing (View)
 
@@ -39,6 +40,7 @@ type alias Model =
     , time : Maybe ( Time.Zone, Time.Posix )
     , playing : Maybe String
     , hasServiceWorker : Bool
+    , theme : Theme
     }
 
 
@@ -71,21 +73,38 @@ main =
 init : Flags -> Url -> Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        flagsDecoder : Json.Decode.Decoder String
+        flagsDecoder :
+            Json.Decode.Decoder
+                { index : Maybe String
+                , theme : Theme
+                }
         flagsDecoder =
-            Json.Decode.field "index" Json.Decode.string
+            Json.Decode.map2
+                (\index theme ->
+                    { index = index
+                    , theme = theme
+                    }
+                )
+                (Json.Decode.maybe (Json.Decode.field "index" Json.Decode.string))
+                (Json.Decode.field "theme" Types.themeDecoder)
 
-        decodedFlags : Maybe String
+        decodedFlags :
+            { index : Maybe String
+            , theme : Theme
+            }
         decodedFlags =
             Json.Decode.decodeValue flagsDecoder flags
-                |> Result.toMaybe
+                |> Result.withDefault
+                    { index = Nothing
+                    , theme = Light
+                    }
 
         route : Route
         route =
             Route.parse url
 
         ( posts, loadCmd ) =
-            case decodedFlags of
+            case decodedFlags.index of
                 Nothing ->
                     case
                         AppUrl.fromUrl url
@@ -113,11 +132,12 @@ init flags url key =
             { key = key
             , root = { url | path = "", query = Nothing, fragment = Nothing }
             , filter = Route.emptyFilter
-            , indexHash = decodedFlags
+            , indexHash = decodedFlags.index
             , hasServiceWorker = False
             , posts = posts
             , time = Nothing
             , playing = Nothing
+            , theme = decodedFlags.theme
             }
 
         hereAndNow : Cmd Msg
