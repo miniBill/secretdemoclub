@@ -73,6 +73,7 @@ view messages model posts =
 
                             Light ->
                                 HA.style "background" "var(--navy)"
+                        , HA.style "color" "var(--offwhite)"
                         , HA.style "border-radius" "999px"
                         ]
                         [ Html.text "Download all"
