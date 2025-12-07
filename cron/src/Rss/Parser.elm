@@ -207,6 +207,7 @@ titleParser =
         , voiceMemoParser
         , bonusDemoParser
         , anIdeaADayParser
+        , writingSomethingEveryDayParser
         , firstDraftFebruaryParser
         , podcastParser
         , audioDiaryParser
@@ -530,6 +531,20 @@ audioDiaryParser =
             ]
         |. Parser.spaces
         |= Parser.map cleanParens chompToEndAndClean
+
+
+writingSomethingEveryDayParser : Parser Title
+writingSomethingEveryDayParser =
+    Parser.succeed WritingSomethingEveryDay
+        |. Parser.token "[writing something every day]"
+        |. Parser.spaces
+        |. Parser.token "day"
+        |. Parser.spaces
+        |= Parser.int
+        |. Parser.spaces
+        |. Parser.token ":"
+        |. Parser.spaces
+        |= chompToEndAndClean
 
 
 anIdeaADayParser : Parser Title

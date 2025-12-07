@@ -852,6 +852,9 @@ toNumber title =
                 Err e ->
                     Just e
 
+        WritingSomethingEveryDay number _ ->
+            Just (String.fromInt number)
+
         FirstDraftFebruary number _ ->
             Maybe.map String.fromInt number
 

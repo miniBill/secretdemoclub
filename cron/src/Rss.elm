@@ -24,6 +24,7 @@ type Title
     | FirstDraftFebruary (Maybe Int) String
     | AudioDiary (Maybe String) String
     | Other String
+    | WritingSomethingEveryDay Int String
 
 
 getAlbum : Title -> String
@@ -37,6 +38,9 @@ getAlbum title =
 
         AnIdeaADay _ _ ->
             "An idea a day"
+
+        WritingSomethingEveryDay _ _ ->
+            "Writing something every day"
 
         FirstDraftFebruary _ _ ->
             "First draft february"
@@ -77,6 +81,9 @@ titleToString title =
 
         AnIdeaADay _ ideaTitle ->
             firstUpperWithQuotes ideaTitle
+
+        WritingSomethingEveryDay _ somethingTitle ->
+            firstUpperWithQuotes somethingTitle
 
         FirstDraftFebruary _ draftTitle ->
             firstUpperWithQuotes draftTitle
