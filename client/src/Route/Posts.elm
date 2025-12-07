@@ -10,6 +10,7 @@ import List.Extra
 import Post exposing (Post)
 import Route exposing (Filter)
 import Time
+import Types exposing (Theme(..))
 import Url exposing (Url)
 import Url.Builder
 import View exposing (View)
@@ -25,6 +26,7 @@ view :
             , filter : Filter
             , hasServiceWorker : Bool
             , root : Url
+            , theme : Theme
         }
     -> List Post
     -> View msg
@@ -65,7 +67,12 @@ view messages model posts =
                     ]
                     [ Html.div
                         [ HA.style "padding" "8px"
-                        , HA.style "background" "var(--red)"
+                        , case model.theme of
+                            Dark ->
+                                HA.style "background" "var(--red)"
+
+                            Light ->
+                                HA.style "background" "var(--navy)"
                         , HA.style "border-radius" "999px"
                         ]
                         [ Html.text "Download all"

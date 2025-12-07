@@ -70,9 +70,15 @@ body {
     --red: #bd0000;
     --offwhite: #e6e6e8;
     --navy: #1e2344;
-    background-color: var(--navy);
+    background-color: var(--off-white);
     color: var(--offwhite);
     font-family: Neutralface, sans-serif;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    body {
+        background-color: var(--navy);
+    }
 }
 
 a {
