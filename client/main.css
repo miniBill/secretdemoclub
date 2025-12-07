@@ -70,25 +70,30 @@ body {
     --red: #bd0000;
     --offwhite: #e6e6e8;
     --navy: #1e2344;
-    background-color: var(--off-white);
-    color: var(--offwhite);
+    background-color: var(--offwhite);
+    color: var(--red);
     font-family: Neutralface, sans-serif;
+}
+
+nav {
+    color: var(--offwhite);
 }
 
 @media screen and (prefers-color-scheme: dark) {
     body {
         background-color: var(--navy);
+        color: var(--offwhite);
     }
 }
 
 a {
-    color: var(--offwhite);
+    color: inherit;
     font-weight: bold;
     text-decoration: none;
 }
 
 a:visited {
-    color: var(--offwhite);
+    color: inherit;
 }
 
 input {

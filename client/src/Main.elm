@@ -323,7 +323,7 @@ view model =
 
 header : Model -> Html Msg
 header model =
-    Html.div
+    Html.nav
         [ HA.style "display" "flex"
         , HA.style "position" "sticky"
         , HA.style "top" "0"
