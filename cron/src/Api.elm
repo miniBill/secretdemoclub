@@ -18,24 +18,6 @@ import Url exposing (Url)
 import Url.Builder
 
 
-getPosts :
-    { a | workDir : String, cookie : String }
-    -> BackendTask FatalError (List Post)
-getPosts cookie =
-    let
-        rawPosts : BackendTask FatalError ( List RawPost, SeqDict IdAndType RawIncluded )
-        rawPosts =
-            getPaginated cookie postsUrl rawPostDecoder rawIncludedDecoder
-    in
-    rawPosts
-        |> BackendTask.andThen
-            (\( posts, included ) ->
-                posts
-                    |> Result.Extra.combineMap (\rawPost -> rawPostToPost included rawPost)
-                    |> BackendTask.fromResult
-            )
-
-
 rawPostToPost :
     SeqDict IdAndType RawIncluded
     -> RawPost
@@ -49,7 +31,7 @@ rawPostToPost included rawPost =
             }
         )
         (rawRelationshipsToRelationships included rawPost.relationships)
-        |> Result.mapError FatalError.fromString
+        |> Result.mapError (\str -> FatalError.fromString ("While converting post " ++ rawPost.id ++ ", " ++ str))
 
 
 rawRelationshipsToRelationships : SeqDict IdAndType RawIncluded -> RawRelationships -> Result String Relationships
@@ -62,9 +44,9 @@ rawRelationshipsToRelationships included rawRelationships =
                     let
                         keyToString : IdAndType -> String
                         keyToString k =
-                            k.id ++ ":" ++ k.type_
+                            k.type_ ++ ":" ++ k.id
                     in
-                    Err ("Could not find " ++ keyToString key ++ " in the included relationships")
+                    Err ("Could not find " ++ keyToString key ++ " in the included relationships, available keys:\n - " ++ String.join "\n - " (List.map keyToString (SeqDict.keys included)))
 
                 Just value ->
                     unpacker value
@@ -157,6 +139,7 @@ type RawIncluded
     | RawIncludedPostAccessRule RawAccessRule { tier : Maybe IdAndType }
     | RawIncludedContentUnlockOption
     | RawIncludedReward Reward
+    | RawIncludedProductVariant
 
 
 rawIncludedDecoder : String -> DecodeComplete.ObjectDecoder RawIncluded
@@ -216,7 +199,25 @@ rawIncludedDecoder type_ =
                     )
 
         "content-unlock-option" ->
-            DecodeComplete.object (\_ -> RawIncludedContentUnlockOption)
+            DecodeComplete.object (\_ _ -> RawIncludedContentUnlockOption)
+                |> DecodeComplete.required "attributes"
+                    (DecodeComplete.object {}
+                        |> DecodeComplete.complete
+                    )
+                |> DecodeComplete.omissible "relationships"
+                    (DecodeComplete.object (\_ -> {})
+                        |> DecodeComplete.required "product_variant"
+                            (DecodeComplete.object (\_ -> {})
+                                |> DecodeComplete.discard "data"
+                                |> DecodeComplete.discard "links"
+                                |> DecodeComplete.complete
+                            )
+                        |> DecodeComplete.complete
+                    )
+                    {}
+
+        "product-variant" ->
+            DecodeComplete.object (\_ -> RawIncludedProductVariant)
                 |> DecodeComplete.required "attributes"
                     (DecodeComplete.object {}
                         |> DecodeComplete.complete
@@ -343,22 +344,19 @@ imageUrlsDecoder =
         |> DecodeComplete.complete
 
 
-type alias Page data included =
-    { data : List data
+type alias Page =
+    { data : List RawPost
     , next : Maybe String
-    , included : SeqDict IdAndType included
+    , included : SeqDict IdAndType RawIncluded
     }
 
 
-getPaginated :
+getPosts :
     { cfg | workDir : String, cookie : String }
-    -> (String -> String)
-    -> Json.Decode.Decoder data
-    -> (String -> DecodeComplete.ObjectDecoder included)
-    -> BackendTask FatalError ( List data, SeqDict IdAndType included )
-getPaginated config toUrl dataDecoder includedDecoder =
+    -> BackendTask FatalError (List Post)
+getPosts config =
     let
-        pageDecoder : Json.Decode.Decoder (Page data included)
+        pageDecoder : Json.Decode.Decoder Page
         pageDecoder =
             DecodeComplete.object
                 (\data included next ->
@@ -367,8 +365,8 @@ getPaginated config toUrl dataDecoder includedDecoder =
                     , included = SeqDict.fromList included
                     }
                 )
-                |> DecodeComplete.required "data" (Json.Decode.list dataDecoder)
-                |> DecodeComplete.optional "included"
+                |> DecodeComplete.required "data" (Json.Decode.list rawPostDecoder)
+                |> DecodeComplete.omissible "included"
                     (Json.Decode.list
                         (DecodeComplete.object
                             (\id type_ ->
@@ -380,7 +378,7 @@ getPaginated config toUrl dataDecoder includedDecoder =
                             |> DecodeComplete.required "type" Json.Decode.string
                             |> DecodeComplete.andThen
                                 (\key ->
-                                    includedDecoder key.type_
+                                    rawIncludedDecoder key.type_
                                         |> DecodeComplete.andThen
                                             (\value -> DecodeComplete.object ( key, value ))
                                 )
@@ -396,7 +394,7 @@ getPaginated config toUrl dataDecoder includedDecoder =
                 |> DecodeComplete.discardOptional "links"
                 |> DecodeComplete.complete
 
-        decodeContent : String -> BackendTask FatalError (Page data included)
+        decodeContent : String -> BackendTask FatalError Page
         decodeContent content =
             Json.Decode.decodeString pageDecoder content
                 |> Result.mapError (Json.Decode.errorToString >> FatalError.fromString)
@@ -404,13 +402,13 @@ getPaginated config toUrl dataDecoder includedDecoder =
 
         go :
             String
-            -> List ( List data, SeqDict IdAndType included )
-            -> BackendTask FatalError ( List data, SeqDict IdAndType included )
+            -> List (List Post)
+            -> BackendTask FatalError (List Post)
         go cursor acc =
             let
                 url : String
                 url =
-                    toUrl cursor
+                    postsUrl cursor
 
                 hash : String
                 hash =
@@ -462,27 +460,27 @@ getPaginated config toUrl dataDecoder includedDecoder =
                 )
             <| \content ->
             Do.do (decodeContent content) <| \{ next, data, included } ->
-            let
-                nextData : List ( List data, SeqDict IdAndType included )
-                nextData =
-                    ( data, included ) :: acc
-            in
-            case next of
-                Just nextCursor ->
-                    go nextCursor nextData
+            case Result.Extra.combineMap (rawPostToPost included) data of
+                Err e ->
+                    BackendTask.fail e
 
-                Nothing ->
+                Ok nextData ->
                     let
-                        ( finalData, finalIncluded ) =
-                            List.unzip nextData
+                        finalData : List (List Post)
+                        finalData =
+                            nextData :: acc
                     in
-                    ( finalData
-                        |> List.reverse
-                        |> List.concat
-                        |> List.reverse
-                    , List.foldl SeqDict.union SeqDict.empty finalIncluded
-                    )
-                        |> BackendTask.succeed
+                    case next of
+                        Just nextCursor ->
+                            go nextCursor finalData
+
+                        Nothing ->
+                            (finalData
+                                |> List.reverse
+                                |> List.concat
+                                |> List.reverse
+                            )
+                                |> BackendTask.succeed
     in
     go "" []
 
@@ -888,6 +886,8 @@ postAudioVideoDecoder =
         |> DecodeComplete.discardOptional "video_issues"
         |> DecodeComplete.discardOptional "expires_at"
         |> DecodeComplete.discardOptional "viewer_playback_data"
+        |> DecodeComplete.discardOptional "storyboard"
+        |> DecodeComplete.discardOptional "transcript_url"
         |> DecodeComplete.complete
 
 
