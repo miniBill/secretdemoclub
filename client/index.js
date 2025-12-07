@@ -1,8 +1,7 @@
+const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)");
 /** @type Flags flags */
 const flags = {
-    theme: window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light",
+    theme: darkModePreference.matches ? "dark" : "light",
 };
 
 for (var i = 0; i < localStorage.length; i++) {
@@ -21,6 +20,10 @@ const app = Elm.Main.init({
 app.ports.sendToLocalStorage.subscribe(({ key, value }) => {
     localStorage[key] = JSON.stringify(value);
 });
+
+darkModePreference.addEventListener("change", (e) =>
+    app.ports.prefersColorSchemeDark.send(e.matches)
+);
 
 if ("serviceWorker" in navigator) {
     try {

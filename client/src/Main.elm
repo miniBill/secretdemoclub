@@ -52,6 +52,7 @@ type Msg
     | OnUrlChange Url
     | OnUrlRequest Browser.UrlRequest
     | ServiceWorkerRegistrationSuccess
+    | PrefersColorSchemeDark Bool
 
 
 type alias Flags =
@@ -517,6 +518,17 @@ update msg model =
             { model | hasServiceWorker = True }
                 |> Cmd.Extra.pure
 
+        PrefersColorSchemeDark dark ->
+            { model
+                | theme =
+                    if dark then
+                        Dark
+
+                    else
+                        Light
+            }
+                |> Cmd.Extra.pure
+
 
 logout : Model -> ( Model, Cmd msg )
 logout model =
@@ -559,6 +571,12 @@ port sendToLocalStorage :
 port serviceWorkerRegistrationSuccess : ({} -> msg) -> Sub msg
 
 
+port prefersColorSchemeDark : (Bool -> msg) -> Sub msg
+
+
 subscriptions : model -> Sub Msg
 subscriptions _ =
-    serviceWorkerRegistrationSuccess (\_ -> ServiceWorkerRegistrationSuccess)
+    Sub.batch
+        [ serviceWorkerRegistrationSuccess (\_ -> ServiceWorkerRegistrationSuccess)
+        , prefersColorSchemeDark PrefersColorSchemeDark
+        ]

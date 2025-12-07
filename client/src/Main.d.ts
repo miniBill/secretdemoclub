@@ -14,6 +14,7 @@ interface ElmApp {
     ports: {
         sendToLocalStorage: ElmToJs<{ key: string; value: string }>;
         serviceWorkerRegistrationSuccess: JsToElm<{}>;
+        prefersColorSchemeDark: JsToElm<boolean>;
     };
 }
 
