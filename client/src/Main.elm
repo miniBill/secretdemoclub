@@ -346,55 +346,49 @@ header model =
         , HA.style "justify-content" "space-between"
         , HA.style "align-items" "center"
         ]
-        [ Html.a [ HA.href "/" ]
-            [ Html.div
-                [ HA.style "display" "flex"
-                , HA.style "gap" "8px"
-                , HA.style "align-items" "center"
-                ]
-                [ Html.img
-                    [ HA.style "max-width" "64px"
-                    , HA.src "/favicon.ico"
-                    , HA.style "align-self" "top"
-                    ]
-                    []
-                , Html.span
-                    [ HA.class "desktop" ]
-                    [ Html.text "Secret Demo Club HQ" ]
-                ]
+        [ Html.a
+            [ HA.href "/"
+            , HA.style "flex" "1 0"
+            , HA.style "display" "flex"
+            , HA.style "gap" "8px"
+            , HA.style "align-items" "center"
             ]
-        , Html.div
+            [ Html.img
+                [ HA.style "max-width" "64px"
+                , HA.src "/favicon.ico"
+                , HA.style "align-self" "top"
+                ]
+                []
+            , Html.span
+                [ HA.class "desktop" ]
+                [ Html.text "Secret Demo Club HQ" ]
+            ]
+        , Html.label
             [ HA.style "display" "flex"
             , HA.style "align-items" "center"
-            , HA.style "gap" "16px"
+            , HA.style "gap" "8px"
             ]
-            [ Html.label
-                [ HA.style "display" "flex"
-                , HA.style "align-items" "center"
-                , HA.style "gap" "8px"
+            [ Html.input
+                [ HA.type_ "search"
+                , HA.value model.filter.search
+                , Html.Events.onInput Search
                 ]
-                [ Html.input
-                    [ HA.type_ "search"
-                    , HA.value model.filter.search
-                    , Html.Events.onInput Search
-                    ]
-                    []
-                , Phosphor.magnifyingGlass Phosphor.Fill
-                    |> Phosphor.withSize 1.4
-                    |> Phosphor.toHtml []
-                ]
-            , Html.text " "
-            , case model.indexHash of
-                Just _ ->
-                    Html.a
-                        [ HA.href "/logout" ]
-                        [ Html.text "Logout" ]
+                []
+            , Phosphor.magnifyingGlass Phosphor.Fill
+                |> Phosphor.withSize 1.4
+                |> Phosphor.toHtml []
+            ]
+        , Html.text " "
+        , case model.indexHash of
+            Just _ ->
+                Html.a
+                    [ HA.href "/logout" ]
+                    [ Html.text "Logout" ]
 
-                Nothing ->
-                    Html.a
-                        [ HA.href (Route.Login.loginUrl model) ]
-                        [ Html.text "Login" ]
-            ]
+            Nothing ->
+                Html.a
+                    [ HA.href (Route.Login.loginUrl model) ]
+                    [ Html.text "Login" ]
         ]
 
 
