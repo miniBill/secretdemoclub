@@ -150,7 +150,7 @@ viewPost { play } model post =
             , HA.style "left" "0"
             , HA.style "bottom" "0"
             , HA.style "right" "0"
-            , HA.style "background-color" "#0008"
+            , HA.style "background-color" "#000a"
             ]
             []
         , Html.div

@@ -7,7 +7,6 @@ import Post exposing (Post)
 import RemoteData exposing (RemoteData)
 import Route exposing (Filter)
 import Set
-import Theme
 import Time
 import View exposing (View)
 
