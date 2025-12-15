@@ -44,14 +44,10 @@ view messages model posts =
     in
     { title = Nothing
     , content =
-        Html.div
-            [ HA.style "display" "flex"
-            , HA.style "flex-direction" "column"
-            , HA.style "gap" "8px"
-            , HA.style "align-items" "center"
-            , HA.style "flex" "1 0"
-            ]
-            [ if model.hasServiceWorker then
+        ( [ HA.style "align-items" "center"
+          , HA.style "flex" "1 0"
+          ]
+        , [ if model.hasServiceWorker then
                 let
                     files : String
                     files =
@@ -66,12 +62,13 @@ view messages model posts =
                     , href = Url.Builder.absolute [ "download" ] [ Url.Builder.string "files" files ]
                     }
 
-              else
+            else
                 Html.text ""
-            , filteredPosts
+          , filteredPosts
                 |> List.sortBy (\post -> Time.posixToMillis post.date |> negate)
                 |> viewList messages model
-            ]
+          ]
+        )
     }
 
 

@@ -1,4 +1,4 @@
-module Theme exposing (linkButton)
+module Theme exposing (column, linkButton)
 
 import Html exposing (Attribute, Html)
 import Html.Attributes as HA
@@ -30,3 +30,14 @@ linkButton attrs config =
             ++ attrs
         )
         [ Html.text config.text ]
+
+
+column : List (Attribute msg) -> List (Html msg) -> Html msg
+column attrs children =
+    Html.div
+        (HA.style "display" "flex"
+            :: HA.style "flex-direction" "column"
+            :: HA.style "gap" "8px"
+            :: attrs
+        )
+        children

@@ -25,6 +25,7 @@ import Route.Loading
 import Route.Login
 import Route.Posts
 import Task exposing (Task)
+import Theme
 import Time
 import Types exposing (Theme(..))
 import Url exposing (Url)
@@ -279,8 +280,8 @@ postParser =
 view : Model -> Browser.Document Msg
 view model =
     let
-        content : View Msg
-        content =
+        viewData : View Msg
+        viewData =
             case model.posts of
                 RemoteData.Failure err ->
                     Route.Error.view err
@@ -297,9 +298,12 @@ view model =
 
                 RemoteData.Success posts ->
                     innerView model posts
+
+        ( mainAttrs, mainChildren ) =
+            viewData.content
     in
     { title =
-        case content.title of
+        case viewData.title of
             Nothing ->
                 "Secret Demo Club HQ"
 
@@ -308,19 +312,20 @@ view model =
     , body =
         [ [ header model
           , Html.main_
-                [ HA.style "padding" "0 16px"
-                , HA.style "display" "flex"
-                , HA.style "flex" "1 0"
-                ]
-                [ content.content ]
+                (HA.style "padding" "0 16px"
+                    :: HA.style "display" "flex"
+                    :: HA.style "flex-direction" "column"
+                    :: HA.style "flex" "1 0"
+                    :: HA.style "gap" "16px"
+                    :: mainAttrs
+                )
+                mainChildren
           , playerView model
           , hiddenPlayerView model
           ]
-            |> Html.div
+            |> Theme.column
                 [ HA.style "gap" "16px"
-                , HA.style "display" "flex"
-                , HA.style "flex-direction" "column"
-                , HA.style "min-height" "100dvh"
+                , HA.style "height" "100dvh"
                 ]
         ]
     }

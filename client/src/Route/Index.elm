@@ -1,12 +1,13 @@
 module Route.Index exposing (view)
 
-import Html exposing (Html)
+import Html exposing (Attribute, Html)
 import Html.Attributes as HA
 import List.Extra
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
 import Route exposing (Filter)
 import Set
+import Theme
 import Time
 import View exposing (View)
 
@@ -23,7 +24,7 @@ view model =
     , content =
         case model.time of
             Nothing ->
-                Html.text "Loading time information..."
+                ( [], [ Html.text "Loading time information..." ] )
 
             Just ( here, now ) ->
                 loadedView model here now
@@ -38,7 +39,7 @@ loadedView :
     }
     -> Time.Zone
     -> Time.Posix
-    -> Html msg
+    -> ( List (Attribute msg), List (Html msg) )
 loadedView model here now =
     let
         posts : List Post
@@ -67,21 +68,19 @@ loadedView model here now =
                 |> List.reverse
                 |> List.concatMap (\year -> viewYear here model.filter.search posts (Just year))
     in
-    Html.div
-        [ HA.style "display" "flex"
-        , HA.style "flex-direction" "column"
-        , HA.style "align-items" "center"
-        , HA.style "gap" "16px"
-        , HA.style "flex" "1 0"
-        ]
-        [ Html.text "Click on a link below to see the content"
-        , (firstRowView ++ yearViews)
+    ( [ HA.style "align-items" "center"
+      , HA.style "gap" "16px"
+      , HA.style "flex" "1 0"
+      ]
+    , [ Html.text "Click on a link below to see the content"
+      , (firstRowView ++ yearViews)
             |> Html.div
                 [ HA.style "display" "grid"
                 , HA.style "gap" "24px 0"
                 , HA.style "grid-template-columns" "auto 1fr"
                 ]
-        ]
+      ]
+    )
 
 
 viewYear : Time.Zone -> String -> List Post -> Maybe Int -> List (Html msg)

@@ -19,13 +19,13 @@ view :
 view model =
     { title = Just "Login required"
     , content =
-        Html.div
-            [ HA.style "display" "flex"
-            , HA.style "align-items" "center"
-            , HA.style "justify-content" "center"
-            , HA.style "flex" "1 0"
-            ]
-            [ loginButton model ]
+        ( [ HA.style "display" "flex"
+          , HA.style "align-items" "center"
+          , HA.style "justify-content" "center"
+          , HA.style "flex" "1 0"
+          ]
+        , [ loginButton model ]
+        )
     }
 
 

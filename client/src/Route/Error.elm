@@ -9,8 +9,9 @@ import View exposing (View)
 view : Http.Error -> View msg
 view error =
     { content =
-        Html.p []
-            (errorToParagraph error)
+        ( []
+        , [ Html.p [] (errorToParagraph error) ]
+        )
     , title = Just "=("
     }
 
