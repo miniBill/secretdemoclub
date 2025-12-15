@@ -411,7 +411,6 @@ playerView model =
                 , HA.style "bottom" "0"
                 , HA.style "left" "0"
                 , HA.style "align-self" "start"
-                , HA.style "z-index" "1"
                 , HA.style "border-top-right-radius" "8px"
                 , case model.theme of
                     Dark ->
