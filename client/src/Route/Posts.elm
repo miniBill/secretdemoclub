@@ -117,7 +117,7 @@ viewList messages model posts =
         |> Html.Keyed.node "div"
             [ HA.style "display" "flex"
             , HA.style "flex-wrap" "wrap"
-            , HA.style "gap" "8px"
+            , Theme.gap
             , HA.style "align-items" "stretch"
             , HA.style "justify-content" "center"
             ]
@@ -194,7 +194,7 @@ viewPost { play } model post =
             , HA.style "top" "50%"
             , HA.style "left" "50%"
             , HA.style "transform" "translate(-50%,-50%)"
-            , HA.style "padding" "8px"
+            , Theme.padding
             , HA.style "width" "100%"
             , HA.style "font-size" "2em"
             , HA.style "font-weight" "semibold"
@@ -206,7 +206,7 @@ viewPost { play } model post =
             [ HA.style "position" "absolute"
             , HA.style "bottom" "0"
             , HA.style "left" "0"
-            , HA.style "padding" "8px"
+            , Theme.padding
             , HA.classList
                 [ ( "show-on-parent-hover", True )
                 , ( "show-if-hover-none", True )
@@ -227,7 +227,7 @@ viewPost { play } model post =
             [ HA.style "position" "absolute"
             , HA.style "bottom" "0"
             , HA.style "right" "0"
-            , HA.style "padding" "8px"
+            , Theme.padding
             , HA.classList
                 [ ( "show-on-parent-hover", True )
                 , ( "show-if-hover-none", True )

@@ -1,4 +1,4 @@
-module Theme exposing (column, linkButton, row)
+module Theme exposing (column, gap, linkButton, padding, row)
 
 import Html exposing (Attribute, Html)
 import Html.Attributes as HA
@@ -17,7 +17,7 @@ linkButton attrs config =
     Html.a
         ([ HA.href config.href
          , HA.style "display" "inline-block"
-         , HA.style "padding" "8px"
+         , padding
          , case config.theme of
             Dark ->
                 HA.style "background" "var(--red)"
@@ -37,7 +37,7 @@ column attrs children =
     Html.div
         (HA.style "display" "flex"
             :: HA.style "flex-direction" "column"
-            :: HA.style "gap" "8px"
+            :: gap
             :: attrs
         )
         children
@@ -47,7 +47,17 @@ row : List (Attribute msg) -> List (Html msg) -> Html msg
 row attrs children =
     Html.div
         (HA.style "display" "flex"
-            :: HA.style "gap" "8px"
+            :: gap
             :: attrs
         )
         children
+
+
+gap : Attribute msg
+gap =
+    HA.style "gap" "8px"
+
+
+padding : Html.Attribute msg
+padding =
+    HA.style "padding" "8px"

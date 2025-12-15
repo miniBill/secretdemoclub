@@ -350,7 +350,7 @@ header model =
         , HA.style "z-index" "1"
         , HA.style "background-color" "var(--red)"
         , HA.style "padding" "8px 16px"
-        , HA.style "gap" "8px"
+        , Theme.gap
         , HA.style "justify-content" "space-between"
         , HA.style "align-items" "center"
         ]
@@ -358,7 +358,7 @@ header model =
             [ HA.href "/"
             , HA.style "flex" "1 0"
             , HA.style "display" "flex"
-            , HA.style "gap" "8px"
+            , Theme.gap
             , HA.style "align-items" "center"
             ]
             [ Html.img
@@ -374,7 +374,7 @@ header model =
         , Html.label
             [ HA.style "display" "flex"
             , HA.style "align-items" "center"
-            , HA.style "gap" "8px"
+            , Theme.gap
             ]
             [ Html.input
                 [ HA.type_ "search"
@@ -404,31 +404,28 @@ playerView : Model -> Html Msg
 playerView model =
     case model.playing of
         Just url ->
-            Html.div
-                [ HA.style "position" "sticky"
+            Html.audio
+                [ HA.style "display" "block"
+                , Theme.padding
+                , HA.style "position" "sticky"
                 , HA.style "bottom" "0"
                 , HA.style "left" "0"
                 , HA.style "align-self" "start"
                 , HA.style "z-index" "1"
+                , HA.style "border-top-right-radius" "8px"
                 , case model.theme of
                     Dark ->
                         HA.style "background-color" "var(--navy)"
 
                     Light ->
                         HA.style "background-color" "var(--offwhite)"
-                , HA.style "padding" "8px"
-                , HA.style "border-top-right-radius" "8px"
-                ]
-                [ Html.audio
-                    [ HA.style "display" "block"
 
-                    --
-                    , HA.controls True
-                    , HA.autoplay True
-                    , HA.src ("/media/" ++ url)
-                    ]
-                    []
+                --
+                , HA.controls True
+                , HA.autoplay True
+                , HA.src ("/media/" ++ url)
                 ]
+                []
 
         Nothing ->
             Html.text ""
