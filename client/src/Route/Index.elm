@@ -7,6 +7,7 @@ import Post exposing (Post)
 import RemoteData exposing (RemoteData)
 import Route exposing (Filter)
 import Set
+import Theme
 import Time
 import View exposing (View)
 
@@ -141,9 +142,8 @@ viewYear here search posts maybeYear =
                     Html.text (String.fromInt year)
             ]
         ]
-    , Html.div
-        [ HA.style "display" "flex"
-        , HA.style "gap" "8px 24px"
+    , Theme.row
+        [ HA.style "gap" "8px 24px"
         , HA.style "padding" "0 0 8px 0"
         , HA.style "border-bottom" "1px solid var(--offwhite)"
         , HA.style "flex-wrap" "wrap"
