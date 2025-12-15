@@ -26,48 +26,61 @@ view model =
                 Html.text "Loading time information..."
 
             Just ( here, now ) ->
-                let
-                    posts : List Post
-                    posts =
-                        model.posts
-                            |> RemoteData.withDefault []
-
-                    lastPosted : Time.Posix
-                    lastPosted =
-                        posts
-                            |> List.Extra.last
-                            |> Maybe.map .date
-                            |> Maybe.withDefault now
-
-                    yearOfLastPost : Int
-                    yearOfLastPost =
-                        Time.toYear here lastPosted
-
-                    firstRowView : List (Html msg)
-                    firstRowView =
-                        viewYear here model.filter.search posts Nothing
-
-                    yearViews : List (Html msg)
-                    yearViews =
-                        List.range 2015 yearOfLastPost
-                            |> List.reverse
-                            |> List.concatMap (\year -> viewYear here model.filter.search posts (Just year))
-                in
-                Html.div
-                    [ HA.style "display" "flex"
-                    , HA.style "flex-direction" "column"
-                    , HA.style "align-items" "center"
-                    , HA.style "gap" "16px"
-                    ]
-                    [ Html.text "Click on a link below to see the content"
-                    , (firstRowView ++ yearViews)
-                        |> Html.div
-                            [ HA.style "display" "grid"
-                            , HA.style "gap" "24px 0"
-                            , HA.style "grid-template-columns" "auto 1fr"
-                            ]
-                    ]
+                loadedView model here now
     }
+
+
+loadedView :
+    { model
+        | posts : RemoteData err (List Post)
+        , filter : Filter
+        , time : Maybe ( Time.Zone, Time.Posix )
+    }
+    -> Time.Zone
+    -> Time.Posix
+    -> Html msg
+loadedView model here now =
+    let
+        posts : List Post
+        posts =
+            model.posts
+                |> RemoteData.withDefault []
+
+        lastPosted : Time.Posix
+        lastPosted =
+            posts
+                |> List.Extra.last
+                |> Maybe.map .date
+                |> Maybe.withDefault now
+
+        yearOfLastPost : Int
+        yearOfLastPost =
+            Time.toYear here lastPosted
+
+        firstRowView : List (Html msg)
+        firstRowView =
+            viewYear here model.filter.search posts Nothing
+
+        yearViews : List (Html msg)
+        yearViews =
+            List.range 2015 yearOfLastPost
+                |> List.reverse
+                |> List.concatMap (\year -> viewYear here model.filter.search posts (Just year))
+    in
+    Html.div
+        [ HA.style "display" "flex"
+        , HA.style "flex-direction" "column"
+        , HA.style "align-items" "center"
+        , HA.style "gap" "16px"
+        ]
+        [ Html.text "Click on a link below to see the content"
+        , (firstRowView ++ yearViews)
+            |> Html.div
+                [ HA.style "display" "grid"
+                , HA.style "gap" "24px 0"
+                , HA.style "grid-template-columns" "auto 1fr"
+                ]
+        ]
 
 
 viewYear : Time.Zone -> String -> List Post -> Maybe Int -> List (Html msg)
