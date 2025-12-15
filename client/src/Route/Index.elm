@@ -72,6 +72,7 @@ loadedView model here now =
         , HA.style "flex-direction" "column"
         , HA.style "align-items" "center"
         , HA.style "gap" "16px"
+        , HA.style "flex" "1 0"
         ]
         [ Html.text "Click on a link below to see the content"
         , (firstRowView ++ yearViews)

@@ -9,8 +9,9 @@ import Json.Encode
 import List.Extra
 import Post exposing (Post)
 import Route exposing (Filter)
+import Theme
 import Time
-import Types exposing (Theme(..))
+import Types exposing (Theme)
 import Url exposing (Url)
 import Url.Builder
 import View exposing (View)
@@ -48,6 +49,7 @@ view messages model posts =
             , HA.style "flex-direction" "column"
             , HA.style "gap" "8px"
             , HA.style "align-items" "center"
+            , HA.style "flex" "1 0"
             ]
             [ if model.hasServiceWorker then
                 let
@@ -57,28 +59,12 @@ view messages model posts =
                             |> Json.Encode.list (postToDownloadData model.root)
                             |> Json.Encode.encode 0
                 in
-                Html.a
-                    [ HA.href
-                        (Url.Builder.absolute
-                            [ "download" ]
-                            [ Url.Builder.string "files" files ]
-                        )
-                    , HA.download "sdc-download.zip"
-                    ]
-                    [ Html.div
-                        [ HA.style "padding" "8px"
-                        , case model.theme of
-                            Dark ->
-                                HA.style "background" "var(--red)"
-
-                            Light ->
-                                HA.style "background" "var(--navy)"
-                        , HA.style "color" "var(--offwhite)"
-                        , HA.style "border-radius" "999px"
-                        ]
-                        [ Html.text "Download all"
-                        ]
-                    ]
+                Theme.linkButton
+                    [ HA.download "sdc-download.zip" ]
+                    { theme = model.theme
+                    , text = "Download all"
+                    , href = Url.Builder.absolute [ "download" ] [ Url.Builder.string "files" files ]
+                    }
 
               else
                 Html.text ""

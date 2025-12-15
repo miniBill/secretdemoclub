@@ -307,7 +307,12 @@ view model =
                 "Secret Demo Club HQ - " ++ title
     , body =
         [ [ header model
-          , Html.div [ HA.style "padding" "0 16px" ] [ content.content ]
+          , Html.main_
+                [ HA.style "padding" "0 16px"
+                , HA.style "display" "flex"
+                , HA.style "flex" "1 0"
+                ]
+                [ content.content ]
           , playerView model
           , hiddenPlayerView model
           ]
@@ -381,7 +386,9 @@ header model =
                         [ Html.text "Logout" ]
 
                 Nothing ->
-                    Route.Login.loginButton model.root
+                    Html.a
+                        [ HA.href (Route.Login.loginUrl model) ]
+                        [ Html.text "Login" ]
             ]
         ]
 
