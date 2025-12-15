@@ -312,20 +312,28 @@ view model =
     , body =
         [ [ header model
           , Html.main_
-                (HA.style "padding" "0 16px"
+                (HA.style "padding"
+                    (case model.playing of
+                        Just _ ->
+                            "16px 16px 8px 16px"
+
+                        Nothing ->
+                            "16px"
+                    )
                     :: HA.style "display" "flex"
                     :: HA.style "flex-direction" "column"
                     :: HA.style "flex" "1 0"
                     :: HA.style "gap" "16px"
+                    :: HA.style "align-items" "center"
                     :: mainAttrs
                 )
                 mainChildren
           , playerView model
-          , hiddenPlayerView model
           ]
             |> Theme.column
-                [ HA.style "gap" "16px"
-                , HA.style "height" "100dvh"
+                [ HA.style "height" "100dvh"
+                , HA.style "gap" "0"
+                , HA.style "overflow" "scroll"
                 ]
         ]
     }
@@ -392,39 +400,15 @@ header model =
         ]
 
 
-hiddenPlayerView : Model -> Html Msg
-hiddenPlayerView model =
-    case model.playing of
-        Just url ->
-            Html.audio
-                [ HA.style "position" "sticky"
-                , HA.style "bottom" "0"
-                , HA.style "left" "0"
-                , HA.style "right" "0"
-                , HA.style "z-index" "1"
-                , HA.style "background-color" "var(--navy)"
-                , HA.style "padding" "8px"
-                , HA.style "display" "block"
-                , HA.style "visibility" "hidden"
-
-                --
-                , HA.controls True
-                , HA.src ("/media/" ++ url)
-                ]
-                []
-
-        Nothing ->
-            Html.text ""
-
-
 playerView : Model -> Html Msg
 playerView model =
     case model.playing of
         Just url ->
             Html.div
-                [ HA.style "position" "fixed"
+                [ HA.style "position" "sticky"
                 , HA.style "bottom" "0"
                 , HA.style "left" "0"
+                , HA.style "align-self" "start"
                 , HA.style "z-index" "1"
                 , case model.theme of
                     Dark ->

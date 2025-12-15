@@ -44,9 +44,7 @@ view messages model posts =
     in
     { title = Nothing
     , content =
-        ( [ HA.style "align-items" "center"
-          , HA.style "flex" "1 0"
-          ]
+        ( []
         , [ if model.hasServiceWorker then
                 let
                     files : String
