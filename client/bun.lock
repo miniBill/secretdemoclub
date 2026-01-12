@@ -8,8 +8,8 @@
       },
       "devDependencies": {
         "elm": "^0.19.1-6",
-        "elm-review": "^2.13.3",
-        "elm-watch": "^2.0.0-beta.6",
+        "elm-review": "^2.13.5",
+        "elm-watch": "^2.0.0-beta.9",
       },
     },
   },
@@ -92,7 +92,7 @@
 
     "elm": ["elm@0.19.1-6", "", { "optionalDependencies": { "@elm_binaries/darwin_arm64": "0.19.1-0", "@elm_binaries/darwin_x64": "0.19.1-0", "@elm_binaries/linux_x64": "0.19.1-0", "@elm_binaries/win32_x64": "0.19.1-0" }, "bin": { "elm": "bin/elm" } }, "sha512-mKYyierHICPdMx/vhiIacdPmTPnh889gjHOZ75ZAoCxo3lZmSWbGP8HMw78wyctJH0HwvTmeKhlYSWboQNYPeQ=="],
 
-    "elm-review": ["elm-review@2.13.4", "", { "dependencies": { "chalk": "^4.0.0", "chokidar": "^3.5.2", "cross-spawn": "^7.0.3", "elm-solve-deps-wasm": "^1.0.2 || ^2.0.0", "fastest-levenshtein": "^1.0.16", "find-up": "^4.1.0 || ^5.0.0", "folder-hash": "^3.3.0", "got": "^11.8.5", "graceful-fs": "^4.2.11", "minimist": "^1.2.6", "ora": "^5.4.0", "path-key": "^3.1.1", "prompts": "^2.2.1", "strip-ansi": "^6.0.0", "terminal-link": "^2.1.1", "tinyglobby": "^0.2.10", "which": "^2.0.2", "wrap-ansi": "^7.0.0" }, "bin": { "elm-review": "bin/elm-review" } }, "sha512-TnH0qlEokvx3HEUag1g0FMEvFQ1OVYu28FdMFqk6Rqvg0swr75npG5ouAdzybEEKBmLIQKO1BhyxiY0VD483RQ=="],
+    "elm-review": ["elm-review@2.13.5", "", { "dependencies": { "chalk": "^4.0.0", "chokidar": "^3.5.2", "cross-spawn": "^7.0.3", "elm-solve-deps-wasm": "^1.0.2 || ^2.0.0", "fastest-levenshtein": "^1.0.16", "find-up": "^4.1.0 || ^5.0.0", "folder-hash": "^3.3.0", "got": "^11.8.5", "graceful-fs": "^4.2.11", "minimist": "^1.2.6", "ora": "^5.4.0", "path-key": "^3.1.1", "prompts": "^2.2.1", "strip-ansi": "^6.0.0", "terminal-link": "^2.1.1", "tinyglobby": "^0.2.10", "which": "^2.0.2", "wrap-ansi": "^7.0.0" }, "bin": { "elm-review": "bin/elm-review" } }, "sha512-Iw3YztGjmuGyn4nIEVOxqx+dacJialprpB0ZVrBHA0sBBOQ9+QhBaQnQ0tp0G8U8UoIAush0M7XoBqzUN1F/+A=="],
 
     "elm-solve-deps-wasm": ["elm-solve-deps-wasm@2.0.0", "", {}, "sha512-11OV8FgB9qsth/F94q2SJjb1MoEgbworSyNM1L+YlxVoaxp7wtWPyA8cNcPEkSoIKG1B8Tqg68ED1P6dVamHSg=="],
 

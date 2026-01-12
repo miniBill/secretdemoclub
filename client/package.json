@@ -7,8 +7,8 @@
     },
     "devDependencies": {
         "elm": "^0.19.1-6",
-        "elm-review": "^2.13.3",
-        "elm-watch": "^2.0.0-beta.6"
+        "elm-review": "^2.13.5",
+        "elm-watch": "^2.0.0-beta.9"
     },
     "dependencies": {
         "native-file-system-adapter": "^3.0.1"
