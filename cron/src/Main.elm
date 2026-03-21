@@ -1,5 +1,6 @@
 module Main exposing (run)
 
+import Ansi.Color
 import Api
 import BackendTask exposing (BackendTask)
 import BackendTask.Custom as Custom
@@ -18,7 +19,7 @@ import List.Extra
 import Maybe.Extra
 import Pages.Script as Script exposing (Script)
 import Parser exposing ((|.), (|=), Parser, symbol)
-import Parser.Extra
+import Parser.Error
 import Parser.Workaround
 import Result.Extra
 import Rss exposing (Title(..))
@@ -48,12 +49,26 @@ programConfig =
     Program.config
         |> Program.add
             (OptionsParser.build Config
-                |> OptionsParser.with (Option.requiredKeywordArg "output-dir")
-                |> OptionsParser.with (Option.optionalKeywordArg "work-dir" |> Option.withDefault "work")
-                |> OptionsParser.with (Option.flag "force")
+                |> OptionsParser.with
+                    (Option.requiredKeywordArg "output-dir"
+                        |> Option.withDisplayName "dir"
+                        |> Option.withDescription "The directory to output to."
+                    )
+                |> OptionsParser.with
+                    (Option.optionalKeywordArg "work-dir"
+                        |> Option.withDisplayName "dir"
+                        |> Option.withDefault "work"
+                        |> Option.withDescription "The directory to put intermediate files in.\nDefaults to `work`."
+                    )
+                |> OptionsParser.with
+                    (Option.flag "force"
+                        |> Option.withDescription "⚠️ Rewrite existing files ⚠️."
+                    )
                 |> OptionsParser.with
                     (Option.optionalKeywordArg "parallel"
                         |> Option.withDefault "10"
+                        |> Option.withDisplayName "n"
+                        |> Option.withDescription "How many files to download in parallel."
                         |> Option.validateMap
                             (\i ->
                                 i
@@ -61,14 +76,6 @@ programConfig =
                                     |> Result.fromMaybe "Invalid number "
                             )
                     )
-                |> OptionsParser.withDoc """
-
-  options:
-    --output-dir  The directory to output to.
-    --work-dir    The directory to put intermediate files in. Defaults to `work`.
-    --force       ⚠️ Rewrite existing files ⚠️.
-    --parallel    How many files to download in parallel.
-"""
             )
 
 
@@ -311,7 +318,21 @@ parsePost : String -> BackendTask FatalError ParsedPost
 parsePost path =
     Do.allowFatal (File.rawFile path) <| \raw ->
     Parser.run postFileParser raw
-        |> Result.mapError (\e -> FatalError.fromString (Parser.Extra.errorsToString raw e))
+        |> Result.mapError
+            (\e ->
+                Parser.Error.renderError
+                    { text = identity
+                    , formatContext = Ansi.Color.fontColor Ansi.Color.cyan
+                    , formatCaret = Ansi.Color.fontColor Ansi.Color.red
+                    , newline = "\n"
+                    , linesOfExtraContext = 3
+                    }
+                    Parser.Error.forParser
+                    raw
+                    e
+                    |> String.concat
+                    |> FatalError.fromString
+            )
         |> BackendTask.fromResult
 
 
