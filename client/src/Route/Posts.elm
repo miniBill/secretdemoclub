@@ -199,6 +199,7 @@ viewPost { play } model post =
             , HA.style "font-size" "2em"
             , HA.style "font-weight" "semibold"
             , HA.style "text-align" "center"
+            , HA.style "overflow-wrap" "break-word"
             ]
             [ Html.text post.title
             ]
