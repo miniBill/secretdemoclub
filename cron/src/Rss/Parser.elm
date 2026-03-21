@@ -291,8 +291,8 @@ voiceMemoParser =
                 |. Parser.token "'overthinking' / 'code red' voice memo :)"
             , Parser.succeed "A Tuesday voice memo"
                 |. Parser.token "a tuesday voice memo"
-            , Parser.succeed "gold+silver tier voice memo : 'thinky as fuck'"
-                |. Parser.token "thinky as fuck"
+            , Parser.succeed "thinky as fuck"
+                |. Parser.token "gold+silver tier voice memo : 'thinky as fuck'"
             ]
     in
     Parser.succeed (\title -> VoiceMemo (cleanQuotes title))
@@ -302,6 +302,7 @@ voiceMemoParser =
                 |. Parser.oneOf
                     [ Parser.token "new voice memo"
                     , Parser.token "hello! a voice memo"
+                    , Parser.token "voice memo idea"
                     , Parser.token "voice memo"
                     ]
                 |. Parser.spaces
