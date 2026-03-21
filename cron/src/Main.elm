@@ -450,13 +450,13 @@ cachePost config post =
                         Just (Api.PostFileAudioVideo { url }) ->
                             case url of
                                 Nothing ->
-                                    Err ("Post " ++ post.id ++ ", missing file")
+                                    missingFileError post
 
                                 Just u ->
                                     Ok u
 
                         Nothing ->
-                            Err ("Post " ++ post.id ++ ", missing file")
+                            missingFileError post
 
                         Just (Api.PostFileImage _) ->
                             Err ("Post " ++ post.id ++ ", expecting an audio/video file, found image")
@@ -508,6 +508,16 @@ cachePost config post =
 
         Api.AudioEmbed ->
             BackendTask.succeed Nothing
+
+
+missingFileError : Api.Post -> Result String Url
+missingFileError post =
+    let
+        title : String
+        title =
+            post.attributes.title |> Maybe.withDefault "<no title>"
+    in
+    Err ("Post " ++ post.id ++ " - " ++ title ++ ", missing file")
 
 
 taskFromResult : Result String a -> BackendTask FatalError a
