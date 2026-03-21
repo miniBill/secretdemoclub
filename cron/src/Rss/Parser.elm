@@ -217,14 +217,9 @@ titleParser =
 
 demoParser : Parser Title
 demoParser =
-    Parser.succeed
-        (\( number, name ) ->
-            name
-                |> String.replace " (+ London show this tuesday)" ""
-                |> cleanQuotes
-                |> Demo number
-        )
-        |= Parser.oneOf
+    let
+        edgeCases : List (Parser ( Maybe number, String ))
+        edgeCases =
             [ Parser.succeed ( Nothing, "lifeline" )
                 |. Parser.token "March demo 'lifeline': lyrics & an amended mix!"
             , Parser.succeed ( Nothing, "ragdoll" )
@@ -239,6 +234,17 @@ demoParser =
                 |. Parser.token "another live demo: 'cookie cutter lover'"
             , Parser.succeed ( Just 37, "for you" )
                 |. Parser.token "demo no (?) - 'for you'"
+            ]
+    in
+    Parser.succeed
+        (\( number, name ) ->
+            name
+                |> String.replace " (+ London show this tuesday)" ""
+                |> cleanQuotes
+                |> Demo number
+        )
+        |= Parser.oneOf
+            [ Parser.oneOf edgeCases
             , Parser.succeed Tuple.pair
                 |. Parser.oneOf
                     [ Parser.token "another live"
@@ -272,8 +278,9 @@ demoParser =
 
 voiceMemoParser : Parser Title
 voiceMemoParser =
-    Parser.succeed (\title -> VoiceMemo (cleanQuotes title))
-        |= Parser.oneOf
+    let
+        edgeCases : List (Parser String)
+        edgeCases =
             [ Parser.succeed "Christmas Eve"
                 |. Parser.token "a Christmas Eve voice memo for you"
             , Parser.succeed "an update"
@@ -284,6 +291,13 @@ voiceMemoParser =
                 |. Parser.token "'overthinking' / 'code red' voice memo :)"
             , Parser.succeed "A Tuesday voice memo"
                 |. Parser.token "a tuesday voice memo"
+            , Parser.succeed "gold+silver tier voice memo : 'thinky as fuck'"
+                |. Parser.token "thinky as fuck"
+            ]
+    in
+    Parser.succeed (\title -> VoiceMemo (cleanQuotes title))
+        |= Parser.oneOf
+            [ Parser.oneOf edgeCases
             , Parser.succeed identity
                 |. Parser.oneOf
                     [ Parser.token "new voice memo"
