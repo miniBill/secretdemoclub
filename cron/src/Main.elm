@@ -283,7 +283,7 @@ task config =
         |> Spinner.Reader.withStep "Writing indexes"
             (\_ finalPosts ->
                 let
-                    writeTierIndex : Tier -> BackendTask FatalError ()
+                    writeTierIndex : Tier -> BackendTask FatalError ( String, ContentAddress )
                     writeTierIndex tier =
                         let
                             path : String
@@ -313,12 +313,12 @@ task config =
                                 , extension = "md"
                                 }
                             )
-                        <| \_ ->
-                        Do.noop
+                        <|
+                            \address -> BackendTask.succeed ( tierToString tier, address )
                 in
                 [ Bronze, Silver, Gold ]
                     |> List.map writeTierIndex
-                    |> BackendTask.doEach
+                    |> BackendTask.combine
             )
         |> Spinner.Reader.withStep "Cleaning up"
             (\_ indexAddresses ->
@@ -326,6 +326,20 @@ task config =
                 BackendTask.succeed indexAddresses
             )
         |> Spinner.Reader.runSteps
+        |> BackendTask.andThen
+            (\tiers ->
+                tiers
+                    |> List.map
+                        (\( name, address ) ->
+                            let
+                                msg : String
+                                msg =
+                                    " - " ++ name ++ ": " ++ contentAddressToPath address
+                            in
+                            Script.log msg
+                        )
+                    |> BackendTask.doEach
+            )
 
 
 type alias ParsedPost =
