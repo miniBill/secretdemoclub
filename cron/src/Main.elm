@@ -174,7 +174,23 @@ task config =
         |> Spinner.Reader.withStep "Downloading media"
             (\_ ( apiPosts, _ ) ->
                 apiPosts
-                    |> List.map (\post -> cachePost config post)
+                    |> List.map
+                        (\post ->
+                            cachePost config post
+                                |> BackendTask.toResult
+                                |> BackendTask.map
+                                    (\v ->
+                                        case v of
+                                            Err e ->
+                                                Just (Err e)
+
+                                            Ok Nothing ->
+                                                Nothing
+
+                                            Ok (Just w) ->
+                                                Just (Ok w)
+                                    )
+                        )
                     |> List.Extra.greedyGroupsOf config.parallel
                     |> List.map BackendTask.combine
                     |> BackendTask.sequence
@@ -188,7 +204,16 @@ task config =
         |> Spinner.Reader.withStep "Formatting posts"
             (\_ cachedPosts ->
                 cachedPosts
-                    |> List.map (postToContent config)
+                    |> List.map
+                        (\v ->
+                            case v of
+                                Ok post ->
+                                    postToContent config post
+                                        |> BackendTask.map Ok
+
+                                Err e ->
+                                    BackendTask.succeed (Err e)
+                        )
                     |> BackendTask.combine
             )
         |> Spinner.Reader.withStep "Writing dump"
@@ -197,6 +222,8 @@ task config =
                     body : String
                     body =
                         cachedPosts
+                            -- TODO
+                            |> List.filterMap Result.toMaybe
                             |> List.map postToDumpFragment
                             |> String.join "\n"
 
