@@ -636,13 +636,13 @@ type alias Embed =
 
 
 type alias Image =
-    { height : Int
+    { height : Maybe Int
     , largeUrl : Maybe Url
     , thumbSquareLargeUrl : Maybe Url
     , thumbSquareUrl : Maybe Url
     , thumbUrl : Maybe Url
     , url : Url
-    , width : Int
+    , width : Maybe Int
     }
 
 
@@ -859,13 +859,13 @@ rfc3339Decoder =
 imageDecoder : Json.Decode.Decoder Image
 imageDecoder =
     DecodeComplete.object Image
-        |> DecodeComplete.required "height" Json.Decode.int
+        |> DecodeComplete.omissibleNullableMaybe "height" Json.Decode.int
         |> DecodeComplete.omissibleMaybe "large_url" urlDecoder
         |> DecodeComplete.omissibleMaybe "thumb_square_large_url" urlDecoder
         |> DecodeComplete.omissibleMaybe "thumb_square_url" urlDecoder
         |> DecodeComplete.omissibleMaybe "thumb_url" urlDecoder
         |> DecodeComplete.required "url" urlDecoder
-        |> DecodeComplete.required "width" Json.Decode.int
+        |> DecodeComplete.omissibleNullableMaybe "width" Json.Decode.int
         |> DecodeComplete.complete
 
 
@@ -948,7 +948,7 @@ idAndTypeDecoder =
 embedDecoder : Json.Decode.Decoder Embed
 embedDecoder =
     DecodeComplete.object Embed
-        |> DecodeComplete.omissibleMaybe "description" Json.Decode.string
+        |> DecodeComplete.omissibleNullableMaybe "description" Json.Decode.string
         |> DecodeComplete.omissibleNullableMaybe "html" Json.Decode.string
         |> DecodeComplete.required "provider" Json.Decode.string
         |> DecodeComplete.required "provider_url" Json.Decode.string
@@ -1031,8 +1031,8 @@ squareThumbnailDecoder =
         |> DecodeComplete.required "thumbnail_large" urlDecoder
         |> DecodeComplete.required "thumbnail_small" urlDecoder
         |> DecodeComplete.required "url" urlDecoder
-        |> DecodeComplete.omissibleMaybe "height" numberAsStringDecoder
-        |> DecodeComplete.omissibleMaybe "width" numberAsStringDecoder
+        |> DecodeComplete.omissibleNullableMaybe "height" numberAsStringDecoder
+        |> DecodeComplete.omissibleNullableMaybe "width" numberAsStringDecoder
         |> DecodeComplete.complete
 
 
