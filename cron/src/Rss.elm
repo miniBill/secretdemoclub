@@ -1,6 +1,5 @@
 module Rss exposing (Post, Title(..), getAlbum, titleToString)
 
-import String.Extra
 import Time
 
 
@@ -65,40 +64,31 @@ titleToString : Title -> String
 titleToString title =
     case title of
         Demo _ demoTitle ->
-            firstUpperWithQuotes demoTitle
+            demoTitle
 
         VoiceMemo memoTitle ->
-            firstUpperWithQuotes memoTitle
+            memoTitle
 
         BonusDemo bonusDemoTitle ->
-            firstUpperWithQuotes bonusDemoTitle
+            bonusDemoTitle
 
         SongIdea songIdeaTitle ->
-            firstUpperWithQuotes songIdeaTitle
+            songIdeaTitle
 
         Podcast _ podcastTitle ->
-            firstUpperWithQuotes podcastTitle
+            podcastTitle
 
         AnIdeaADay _ ideaTitle ->
-            firstUpperWithQuotes ideaTitle
+            ideaTitle
 
         WritingSomethingEveryDay _ somethingTitle ->
-            firstUpperWithQuotes somethingTitle
+            somethingTitle
 
         FirstDraftFebruary _ draftTitle ->
-            firstUpperWithQuotes draftTitle
+            draftTitle
 
         AudioDiary _ diaryTitle ->
-            firstUpperWithQuotes diaryTitle
+            diaryTitle
 
         Other otherTitle ->
-            firstUpperWithQuotes otherTitle
-
-
-firstUpperWithQuotes : String -> String
-firstUpperWithQuotes title =
-    if String.startsWith "\"" title || String.startsWith "'" title then
-        String.left 1 title ++ String.Extra.toSentenceCase (String.dropLeft 1 title)
-
-    else
-        String.Extra.toSentenceCase title
+            otherTitle

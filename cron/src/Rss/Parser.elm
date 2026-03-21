@@ -293,6 +293,8 @@ voiceMemoParser =
                 |. Parser.token "a tuesday voice memo"
             , Parser.succeed "thinky as fuck"
                 |. Parser.token "gold+silver tier voice memo : 'thinky as fuck'"
+            , Parser.succeed "Late to the party"
+                |. Parser.token "late to the party (original voice memo)"
             ]
     in
     Parser.succeed (\title -> VoiceMemo (cleanQuotes title))
