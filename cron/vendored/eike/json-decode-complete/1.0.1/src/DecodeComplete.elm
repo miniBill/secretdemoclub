@@ -1,6 +1,6 @@
 module DecodeComplete exposing
     ( ObjectDecoder, object
-    , required, optional, omissible, omissibleMaybe, discard, discardOptional, hardcoded
+    , required, optional, omissible, omissibleMaybe, omissibleNullableMaybe, discard, discardOptional, hardcoded
     , complete, discardRest, rest, restValues
     , andThen, fail
     )
@@ -35,7 +35,7 @@ The general usage is as follows: Start decoding the object with `object f`, wher
 
 # Decoding fields
 
-@docs required, optional, omissible, omissibleMaybe, discard, discardOptional, hardcoded
+@docs required, optional, omissible, omissibleMaybe, omissibleNullableMaybe, discard, discardOptional, hardcoded
 
 
 # Finish decoding
@@ -120,6 +120,11 @@ omissible field decoder default =
                 |> D.map (Maybe.withDefault default)
                 |> D.map (\result -> ( Set.remove field unhandled, f result ))
         )
+
+
+omissibleNullableMaybe : String -> Decoder a -> ObjectDecoder (Maybe a -> b) -> ObjectDecoder b
+omissibleNullableMaybe field decoder =
+    omissible field (D.nullable decoder) Nothing
 
 
 omissibleMaybe : String -> Decoder a -> ObjectDecoder (Maybe a -> b) -> ObjectDecoder b

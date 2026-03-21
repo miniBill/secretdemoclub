@@ -448,7 +448,12 @@ cachePost config post =
                 mediaUrlResult =
                     case post.attributes.postFile of
                         Just (Api.PostFileAudioVideo { url }) ->
-                            Ok url
+                            case url of
+                                Nothing ->
+                                    Err ("Post " ++ post.id ++ ", missing file")
+
+                                Just u ->
+                                    Ok u
 
                         Nothing ->
                             Err ("Post " ++ post.id ++ ", missing file")

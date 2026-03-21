@@ -150,9 +150,9 @@ rawIncludedDecoder type_ =
                 |> DecodeComplete.required "attributes"
                     (DecodeComplete.object Media
                         |> DecodeComplete.required "display" postFileDecoder
-                        |> DecodeComplete.required "download_url" Json.Decode.string
+                        |> DecodeComplete.omissibleMaybe "download_url" urlDecoder
                         |> DecodeComplete.required "file_name" (Json.Decode.nullable Json.Decode.string)
-                        |> DecodeComplete.required "image_urls" (Json.Decode.nullable imageUrlsDecoder)
+                        |> DecodeComplete.omissibleNullableMaybe "image_urls" imageUrlsDecoder
                         |> DecodeComplete.discard "metadata"
                         |> DecodeComplete.complete
                     )
@@ -247,10 +247,10 @@ rawIncludedDecoder type_ =
                         |> DecodeComplete.required "title" Json.Decode.string
                         |> DecodeComplete.required "unpublished_at" (Json.Decode.nullable rfc3339Decoder)
                         |> DecodeComplete.required "url" Json.Decode.string
-                        |> DecodeComplete.optional "welcome_message" (Json.Decode.map Just Json.Decode.string) Nothing
-                        |> DecodeComplete.optional "welcome_message_unsafe" (Json.Decode.nullable Json.Decode.string) Nothing
-                        |> DecodeComplete.optional "welcome_video_embed" (Json.Decode.nullable Json.Decode.string) Nothing
-                        |> DecodeComplete.optional "welcome_video_url" (Json.Decode.nullable Json.Decode.string) Nothing
+                        |> DecodeComplete.omissibleMaybe "welcome_message" Json.Decode.string
+                        |> DecodeComplete.omissibleNullableMaybe "welcome_message_unsafe" Json.Decode.string
+                        |> DecodeComplete.omissibleNullableMaybe "welcome_video_embed" Json.Decode.string
+                        |> DecodeComplete.omissibleNullableMaybe "welcome_video_url" Json.Decode.string
                         |> DecodeComplete.complete
                     )
 
@@ -260,7 +260,7 @@ rawIncludedDecoder type_ =
 
 type alias Media =
     { display : PostFile
-    , downloadUrl : String
+    , downloadUrl : Maybe Url
     , fileName : Maybe String
     , imageUrls : Maybe ImageUrls
     }
@@ -315,32 +315,32 @@ type PostTag
 
 
 type alias ImageUrls =
-    { default : Maybe String
-    , defaultBlurred : Maybe String
-    , defaultBlurredSmall : Maybe String
-    , defaultLarge : Maybe String
-    , defaultSmall : String
-    , original : Maybe String
-    , thumbnail : String
-    , thumbnailLarge : Maybe String
-    , thumbnailSmall : Maybe String
-    , url : String
+    { default : Maybe Url
+    , defaultBlurred : Maybe Url
+    , defaultBlurredSmall : Maybe Url
+    , defaultLarge : Maybe Url
+    , defaultSmall : Url
+    , original : Maybe Url
+    , thumbnail : Url
+    , thumbnailLarge : Maybe Url
+    , thumbnailSmall : Maybe Url
+    , url : Url
     }
 
 
 imageUrlsDecoder : Json.Decode.Decoder ImageUrls
 imageUrlsDecoder =
     DecodeComplete.object ImageUrls
-        |> DecodeComplete.optional "default" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.optional "default_blurred" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.optional "default_blurred_small" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.optional "default_large" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.required "default_small" Json.Decode.string
-        |> DecodeComplete.optional "original" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.required "thumbnail" Json.Decode.string
-        |> DecodeComplete.optional "thumbnail_large" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.optional "thumbnail_small" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.required "url" Json.Decode.string
+        |> DecodeComplete.omissibleMaybe "default" urlDecoder
+        |> DecodeComplete.omissibleMaybe "default_blurred" urlDecoder
+        |> DecodeComplete.omissibleMaybe "default_blurred_small" urlDecoder
+        |> DecodeComplete.omissibleMaybe "default_large" urlDecoder
+        |> DecodeComplete.required "default_small" urlDecoder
+        |> DecodeComplete.omissibleMaybe "original" urlDecoder
+        |> DecodeComplete.required "thumbnail" urlDecoder
+        |> DecodeComplete.omissibleMaybe "thumbnail_large" urlDecoder
+        |> DecodeComplete.omissibleMaybe "thumbnail_small" urlDecoder
+        |> DecodeComplete.required "url" urlDecoder
         |> DecodeComplete.complete
 
 
@@ -664,7 +664,7 @@ type alias PostAudioVideo =
     , fullContentDuration : Maybe Float
     , mediaId : Int
     , state : String
-    , url : Url
+    , url : Maybe Url
     , width : Maybe Int
     , height : Maybe Int
     }
@@ -675,8 +675,9 @@ type alias PostImage =
     , imageColors : ImageColors
     , mediaId : Int
     , state : String
-    , url : Url
+    , url : Maybe Url
     , width : Int
+    , altText : Maybe String
     }
 
 
@@ -780,19 +781,19 @@ type alias AverageColorsOfCorners =
 attributesDecoder : Json.Decode.Decoder Attributes
 attributesDecoder =
     DecodeComplete.object Attributes
-        |> DecodeComplete.optional "content" (Json.Decode.map Just Json.Decode.string) Nothing
+        |> DecodeComplete.omissibleNullableMaybe "content" Json.Decode.string
         |> DecodeComplete.required "created_at" rfc3339Decoder
-        |> DecodeComplete.optional "embed" (Json.Decode.map Just embedDecoder) Nothing
-        |> DecodeComplete.optional "image" (Json.Decode.map Just imageDecoder) Nothing
+        |> DecodeComplete.omissibleNullableMaybe "embed" embedDecoder
+        |> DecodeComplete.omissibleNullableMaybe "image" imageDecoder
         |> DecodeComplete.required "meta_image_url" urlDecoder
         |> DecodeComplete.required "patreon_url" Json.Decode.string
         |> DecodeComplete.required "pledge_url" Json.Decode.string
-        |> DecodeComplete.optional "post_file" (Json.Decode.map Just postFileDecoder) Nothing
-        |> DecodeComplete.optional "post_metadata" (Json.Decode.map Just postMetadataDecoder) Nothing
+        |> DecodeComplete.omissibleNullableMaybe "post_file" postFileDecoder
+        |> DecodeComplete.omissibleMaybe "post_metadata" postMetadataDecoder
         |> DecodeComplete.required "post_type" postTypeDecoder
-        |> DecodeComplete.optional "preview_asset_type" (Json.Decode.map Just Json.Decode.string) Nothing
+        |> DecodeComplete.omissibleNullableMaybe "preview_asset_type" Json.Decode.string
         |> DecodeComplete.required "published_at" rfc3339Decoder
-        |> DecodeComplete.optional "thumbnail" (Json.Decode.map Just thumbnailDecoder) Nothing
+        |> DecodeComplete.omissibleNullableMaybe "thumbnail" thumbnailDecoder
         |> DecodeComplete.required "title" (Json.Decode.nullable Json.Decode.string)
         |> DecodeComplete.required "url" urlDecoder
         |> DecodeComplete.discard "change_visibility_at"
@@ -859,10 +860,10 @@ imageDecoder : Json.Decode.Decoder Image
 imageDecoder =
     DecodeComplete.object Image
         |> DecodeComplete.required "height" Json.Decode.int
-        |> DecodeComplete.optional "large_url" (Json.Decode.map Just urlDecoder) Nothing
-        |> DecodeComplete.optional "thumb_square_large_url" (Json.Decode.map Just urlDecoder) Nothing
-        |> DecodeComplete.optional "thumb_square_url" (Json.Decode.map Just urlDecoder) Nothing
-        |> DecodeComplete.optional "thumb_url" (Json.Decode.map Just urlDecoder) Nothing
+        |> DecodeComplete.omissibleMaybe "large_url" urlDecoder
+        |> DecodeComplete.omissibleMaybe "thumb_square_large_url" urlDecoder
+        |> DecodeComplete.omissibleMaybe "thumb_square_url" urlDecoder
+        |> DecodeComplete.omissibleMaybe "thumb_url" urlDecoder
         |> DecodeComplete.required "url" urlDecoder
         |> DecodeComplete.required "width" Json.Decode.int
         |> DecodeComplete.complete
@@ -871,16 +872,14 @@ imageDecoder =
 postAudioVideoDecoder : Json.Decode.Decoder PostAudioVideo
 postAudioVideoDecoder =
     DecodeComplete.object PostAudioVideo
-        |> DecodeComplete.optional "default_thumbnail"
-            (Json.Decode.map Just (Json.Decode.field "url" urlDecoder))
-            Nothing
-        |> DecodeComplete.optional "duration" (Json.Decode.map Just Json.Decode.float) Nothing
-        |> DecodeComplete.optional "full_content_duration" (Json.Decode.map Just Json.Decode.float) Nothing
+        |> DecodeComplete.omissibleMaybe "default_thumbnail" (Json.Decode.field "url" urlDecoder)
+        |> DecodeComplete.omissibleMaybe "duration" Json.Decode.float
+        |> DecodeComplete.omissibleMaybe "full_content_duration" Json.Decode.float
         |> DecodeComplete.required "media_id" Json.Decode.int
         |> DecodeComplete.required "state" Json.Decode.string
-        |> DecodeComplete.required "url" urlDecoder
-        |> DecodeComplete.optional "width" (Json.Decode.map Just Json.Decode.int) Nothing
-        |> DecodeComplete.optional "height" (Json.Decode.map Just Json.Decode.int) Nothing
+        |> DecodeComplete.omissibleMaybe "url" urlDecoder
+        |> DecodeComplete.omissibleMaybe "width" Json.Decode.int
+        |> DecodeComplete.omissibleMaybe "height" Json.Decode.int
         |> DecodeComplete.discardOptional "progress"
         |> DecodeComplete.discardOptional "closed_captions_enabled"
         |> DecodeComplete.discardOptional "video_issues"
@@ -915,26 +914,26 @@ relationshipsDecoder : Json.Decode.Decoder RawRelationships
 relationshipsDecoder =
     DecodeComplete.object RawRelationships
         |> DecodeComplete.required "access_rules" listOfIdAndTypeDecoder
-        |> DecodeComplete.optional "attachments_media" listOfIdAndTypeDecoder []
-        |> DecodeComplete.optional "audio"
+        |> DecodeComplete.omissible "attachments_media" listOfIdAndTypeDecoder []
+        |> DecodeComplete.omissible "audio"
             (Json.Decode.oneOf
                 [ Json.Decode.map Just audioRelationshipsDecoder
                 , Json.Decode.field "data" (Json.Decode.null Nothing)
                 ]
             )
             Nothing
-        |> DecodeComplete.optional "audio_preview"
+        |> DecodeComplete.omissible "audio_preview"
             (Json.Decode.oneOf
                 [ Json.Decode.map Just audioRelationshipsDecoder
                 , Json.Decode.field "data" (Json.Decode.null Nothing)
                 ]
             )
             Nothing
-        |> DecodeComplete.optional "images" listOfIdAndTypeDecoder []
-        |> DecodeComplete.optional "video" listOfIdAndTypeDecoder []
-        |> DecodeComplete.optional "media" listOfIdAndTypeDecoder []
-        |> DecodeComplete.optional "user_defined_tags" listOfIdAndTypeDecoder []
-        |> DecodeComplete.optional "content_unlock_options" listOfIdAndTypeDecoder []
+        |> DecodeComplete.omissible "images" listOfIdAndTypeDecoder []
+        |> DecodeComplete.omissible "video" listOfIdAndTypeDecoder []
+        |> DecodeComplete.omissible "media" listOfIdAndTypeDecoder []
+        |> DecodeComplete.omissible "user_defined_tags" listOfIdAndTypeDecoder []
+        |> DecodeComplete.omissible "content_unlock_options" listOfIdAndTypeDecoder []
         |> DecodeComplete.complete
 
 
@@ -949,12 +948,15 @@ idAndTypeDecoder =
 embedDecoder : Json.Decode.Decoder Embed
 embedDecoder =
     DecodeComplete.object Embed
-        |> DecodeComplete.optional "description" (Json.Decode.map Just Json.Decode.string) Nothing
-        |> DecodeComplete.optional "html" (Json.Decode.map Just Json.Decode.string) Nothing
+        |> DecodeComplete.omissibleMaybe "description" Json.Decode.string
+        |> DecodeComplete.omissibleNullableMaybe "html" Json.Decode.string
         |> DecodeComplete.required "provider" Json.Decode.string
         |> DecodeComplete.required "provider_url" Json.Decode.string
         |> DecodeComplete.required "subject" Json.Decode.string
         |> DecodeComplete.required "url" urlDecoder
+        |> DecodeComplete.discard "linked_object_id"
+        |> DecodeComplete.discard "linked_object_type"
+        |> DecodeComplete.discard "product_variant_id"
         |> DecodeComplete.complete
 
 
@@ -982,8 +984,9 @@ postImageDecoder =
         |> DecodeComplete.required "image_colors" imageColorsDecoder
         |> DecodeComplete.required "media_id" Json.Decode.int
         |> DecodeComplete.required "state" Json.Decode.string
-        |> DecodeComplete.required "url" urlDecoder
+        |> DecodeComplete.omissibleMaybe "url" urlDecoder
         |> DecodeComplete.required "width" Json.Decode.int
+        |> DecodeComplete.omissibleMaybe "alt_text" Json.Decode.string
         |> DecodeComplete.complete
 
 
@@ -1028,23 +1031,26 @@ squareThumbnailDecoder =
         |> DecodeComplete.required "thumbnail_large" urlDecoder
         |> DecodeComplete.required "thumbnail_small" urlDecoder
         |> DecodeComplete.required "url" urlDecoder
-        |> DecodeComplete.optional "height" (Json.Decode.map Just numberAsStringDecoder) Nothing
-        |> DecodeComplete.optional "width" (Json.Decode.map Just numberAsStringDecoder) Nothing
+        |> DecodeComplete.omissibleMaybe "height" numberAsStringDecoder
+        |> DecodeComplete.omissibleMaybe "width" numberAsStringDecoder
         |> DecodeComplete.complete
 
 
 numberAsStringDecoder : Json.Decode.Decoder Int
 numberAsStringDecoder =
-    Json.Decode.string
-        |> Json.Decode.andThen
-            (\raw ->
-                case String.toInt raw of
-                    Nothing ->
-                        Json.Decode.fail (raw ++ " is not a valid number")
+    Json.Decode.oneOf
+        [ Json.Decode.int
+        , Json.Decode.string
+            |> Json.Decode.andThen
+                (\raw ->
+                    case String.toInt raw of
+                        Nothing ->
+                            Json.Decode.fail (raw ++ " is not a valid number")
 
-                    Just i ->
-                        Json.Decode.succeed i
-            )
+                        Just i ->
+                            Json.Decode.succeed i
+                )
+        ]
 
 
 gifThumbnailDecoder : Json.Decode.Decoder GifThumbnail
@@ -1091,6 +1097,7 @@ listOfIdAndTypeDecoder =
     DecodeComplete.object identity
         |> DecodeComplete.required "data"
             (listOrNull idAndTypeDecoder)
+        |> DecodeComplete.discardOptional "links"
         |> DecodeComplete.complete
 
 
@@ -1098,5 +1105,6 @@ listOrNull : Json.Decode.Decoder a -> Json.Decode.Decoder (List a)
 listOrNull inner =
     Json.Decode.oneOf
         [ Json.Decode.list inner
+        , Json.Decode.map List.singleton inner
         , Json.Decode.null []
         ]
