@@ -4,4 +4,12 @@ function fileExists(path) {
     return fs.existsSync(path);
 }
 
-export { fileExists };
+function profile(label) {
+    console.profile(label);
+}
+
+function profileEnd(label) {
+    console.profileEnd(label);
+}
+
+export { fileExists, profile, profileEnd };

@@ -6,6 +6,7 @@ import BackendTask exposing (BackendTask)
 import BackendTask.Custom as Custom
 import BackendTask.Do as Do
 import BackendTask.Env as Env
+import BackendTask.Extra
 import BackendTask.File as File
 import BackendTask.Http as Http
 import Cli.Option as Option
@@ -41,7 +42,10 @@ type alias Config =
 
 run : Script
 run =
-    Script.withCliOptions programConfig task
+    Script.withCliOptions programConfig
+        (\config ->
+            BackendTask.Extra.profile "main" (task config)
+        )
 
 
 programConfig : Program.Config Config
