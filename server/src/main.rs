@@ -76,6 +76,10 @@ async fn main() -> anyhow::Result<()> {
         .await
         .expect("Failed to load tiers");
 
+    println!("🥉 Bronze tier: {}", tiers.bronze_tier);
+    println!("🥈 Silver tier: {}", tiers.silver_tier);
+    println!("🥇 Gold tier: {}", tiers.gold_tier);
+
     let public_root = parsed_config.public_root.clone();
 
     let app_state = AppState {
@@ -140,7 +144,7 @@ async fn load_tiers(app_config: &AppConfig) -> anyhow::Result<Tiers> {
             maybe_update(&path, filename.to_string(), &mut gold_candidate).await?;
         }
     }
-    return match (bronze_candidate, silver_candidate, gold_candidate) {
+    match (bronze_candidate, silver_candidate, gold_candidate) {
         (None, _, _) => Err(anyhow!("Could not find bronze tier")),
         (_, None, _) => Err(anyhow!("Could not find silver tier")),
         (_, _, None) => Err(anyhow!("Could not find gold tier")),
@@ -149,7 +153,7 @@ async fn load_tiers(app_config: &AppConfig) -> anyhow::Result<Tiers> {
             silver_tier,
             gold_tier,
         }),
-    };
+    }
 }
 
 async fn reload_config_on_sigusr1(config_file: String, app_state: AppState) -> anyhow::Result<()> {
