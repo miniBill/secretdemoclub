@@ -1,11 +1,12 @@
 module Route.Index exposing (view)
 
+import Filter exposing (Filter(..))
 import Html exposing (Attribute, Html)
 import Html.Attributes as HA
 import List.Extra
 import Post exposing (Post)
 import RemoteData exposing (RemoteData)
-import Route exposing (Filter)
+import Route
 import Set
 import Theme
 import Time
@@ -60,13 +61,13 @@ loadedView model here now =
 
         firstRowView : List (Html msg)
         firstRowView =
-            viewYear here model.filter.search posts Nothing
+            viewYear here model.filter posts Nothing
 
         yearViews : List (Html msg)
         yearViews =
             List.range 2015 yearOfLastPost
                 |> List.reverse
-                |> List.concatMap (\year -> viewYear here model.filter.search posts (Just year))
+                |> List.concatMap (\year -> viewYear here model.filter posts (Just year))
     in
     ( [ HA.style "align-items" "center"
       , HA.style "gap" "16px"
@@ -83,8 +84,8 @@ loadedView model here now =
     )
 
 
-viewYear : Time.Zone -> String -> List Post -> Maybe Int -> List (Html msg)
-viewYear here search posts maybeYear =
+viewYear : Time.Zone -> Filter -> List Post -> Maybe Int -> List (Html msg)
+viewYear here filter posts maybeYear =
     let
         isCorrectYear : Post -> Bool
         isCorrectYear post =
@@ -114,10 +115,12 @@ viewYear here search posts maybeYear =
         categoryLink category =
             Route.link
                 (Route.Index
-                    { categories = Set.singleton (String.toLower category)
-                    , year = maybeYear
-                    , search = search
-                    }
+                    (Filtered
+                        { categories = Set.singleton (String.toLower category)
+                        , year = maybeYear
+                        , search = (Filter.current filter).search
+                        }
+                    )
                 )
                 []
                 [ Html.text category ]
@@ -128,10 +131,12 @@ viewYear here search posts maybeYear =
         ]
         [ Route.link
             (Route.Index
-                { categories = Set.singleton "all"
-                , year = maybeYear
-                , search = search
-                }
+                (Filtered
+                    { categories = Set.singleton "all"
+                    , year = maybeYear
+                    , search = (Filter.current filter).search
+                    }
+                )
             )
             []
             [ case maybeYear of

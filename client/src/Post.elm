@@ -1,6 +1,6 @@
 module Post exposing (Post, isMatch)
 
-import Route exposing (Filter)
+import Filter exposing (Filter, FilterData)
 import Set
 import Time
 import Url exposing (Url)
@@ -18,7 +18,7 @@ type alias Post =
 
 
 isMatch :
-    Filter
+    FilterData
     -> Time.Zone
     -> { title : String, image : String, link : Url, media : String, number : Maybe String, date : Time.Posix, category : String }
     -> Bool
@@ -28,7 +28,7 @@ isMatch filter here post =
         && isTextMatch filter.search post
 
 
-isCorrectCategory : Filter -> { title : String, image : String, link : Url, media : String, number : Maybe String, date : Time.Posix, category : String } -> Bool
+isCorrectCategory : FilterData -> { title : String, image : String, link : Url, media : String, number : Maybe String, date : Time.Posix, category : String } -> Bool
 isCorrectCategory filter post =
     Set.isEmpty filter.categories
         || Set.member "all" filter.categories
@@ -36,7 +36,7 @@ isCorrectCategory filter post =
         || Set.member (String.toLower post.category ++ "s") filter.categories
 
 
-isCorrectYear : Filter -> Time.Zone -> { title : String, image : String, link : Url, media : String, number : Maybe String, date : Time.Posix, category : String } -> Bool
+isCorrectYear : FilterData -> Time.Zone -> { title : String, image : String, link : Url, media : String, number : Maybe String, date : Time.Posix, category : String } -> Bool
 isCorrectYear filter here post =
     case filter.year of
         Nothing ->

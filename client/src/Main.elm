@@ -5,6 +5,7 @@ import Browser
 import Browser.Navigation exposing (Key)
 import Cmd.Extra
 import Dict
+import Filter exposing (Filter(..))
 import Html exposing (Html)
 import Html.Attributes as HA
 import Html.Events
@@ -16,9 +17,10 @@ import Parser.Extra
 import Parser.Workaround
 import Phosphor
 import Post exposing (Post)
+import Process
 import RemoteData exposing (RemoteData)
 import Result.Extra
-import Route exposing (Filter, Route(..))
+import Route exposing (Route(..))
 import Route.Error
 import Route.Index
 import Route.Loading
@@ -42,6 +44,7 @@ type alias Model =
     , playing : Maybe String
     , hasServiceWorker : Bool
     , theme : Theme
+    , searchBounceStack : Int
     }
 
 
@@ -54,6 +57,7 @@ type Msg
     | OnUrlRequest Browser.UrlRequest
     | ServiceWorkerRegistrationSuccess
     | PrefersColorSchemeDark Bool
+    | DebounceSearch
 
 
 type alias Flags =
@@ -133,13 +137,14 @@ init flags url key =
         initialModel =
             { key = key
             , root = { url | path = "", query = Nothing, fragment = Nothing }
-            , filter = Route.emptyFilter
+            , filter = Filtered Filter.empty
             , indexHash = decodedFlags.index
             , hasServiceWorker = False
             , posts = posts
             , time = Nothing
             , playing = Nothing
             , theme = decodedFlags.theme
+            , searchBounceStack = 0
             }
 
         hereAndNow : Cmd Msg
@@ -290,7 +295,7 @@ view model =
                     Route.Loading.view
 
                 RemoteData.NotAsked ->
-                    if model.filter == Route.emptyFilter then
+                    if Filter.current model.filter == Filter.empty then
                         Route.Index.view model
 
                     else
@@ -378,7 +383,7 @@ header model =
             ]
             [ Html.input
                 [ HA.type_ "search"
-                , HA.value model.filter.search
+                , HA.value (Filter.current model.filter).search
                 , Html.Events.onInput Search
                 ]
                 []
@@ -432,7 +437,7 @@ playerView model =
 
 innerView : Model -> List Post -> View Msg
 innerView model posts =
-    if model.filter == Route.emptyFilter then
+    if Filter.current model.filter == Filter.empty then
         Route.Index.view model
 
     else
@@ -466,11 +471,36 @@ update msg model =
             let
                 filter : Filter
                 filter =
-                    model.filter
+                    case model.filter of
+                        Filtered current ->
+                            Filtering
+                                { current = { current | search = search }
+                                , previous = current
+                                }
+
+                        Filtering { current, previous } ->
+                            Filtering
+                                { current = { current | search = search }
+                                , previous = previous
+                                }
             in
-            { model | filter = { filter | search = search } }
-                |> Cmd.Extra.pure
-                |> Cmd.Extra.andThen replaceUrlWithCurrentRoute
+            ( { model | filter = filter, searchBounceStack = model.searchBounceStack + 1 }
+            , Process.sleep 1000 |> Task.perform (\_ -> DebounceSearch)
+            )
+
+        DebounceSearch ->
+            let
+                newModel : Model
+                newModel =
+                    { model | searchBounceStack = model.searchBounceStack - 1 }
+            in
+            if newModel.searchBounceStack == 0 then
+                { newModel | filter = Filtered (Filter.current newModel.filter) }
+                    |> Cmd.Extra.pure
+                    |> Cmd.Extra.andThen replaceUrlWithCurrentRoute
+
+            else
+                newModel |> Cmd.Extra.pure
 
         OnUrlChange url ->
             let

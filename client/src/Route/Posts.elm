@@ -1,6 +1,7 @@
 module Route.Posts exposing (view)
 
 import Date
+import Filter exposing (Filter(..))
 import Html exposing (Html)
 import Html.Attributes as HA
 import Html.Events
@@ -8,7 +9,6 @@ import Html.Keyed
 import Json.Encode
 import List.Extra
 import Post exposing (Post)
-import Route exposing (Filter)
 import Theme
 import Time
 import Types exposing (Theme)
@@ -37,10 +37,6 @@ view messages model posts =
         here =
             Maybe.map Tuple.first model.time
                 |> Maybe.withDefault Time.utc
-
-        filteredPosts : List Post
-        filteredPosts =
-            List.filter (Post.isMatch model.filter here) posts
     in
     { title = Nothing
     , content =
@@ -49,7 +45,8 @@ view messages model posts =
                 let
                     files : String
                     files =
-                        filteredPosts
+                        posts
+                            |> List.filter (Post.isMatch (Filter.current model.filter) here)
                             |> Json.Encode.list (postToDownloadData model.root)
                             |> Json.Encode.encode 0
                 in
@@ -62,9 +59,9 @@ view messages model posts =
 
             else
                 Html.text ""
-          , filteredPosts
+          , posts
                 |> List.sortBy (\post -> Time.posixToMillis post.date |> negate)
-                |> viewList messages model
+                |> viewList messages model here
           ]
         )
     }
@@ -108,37 +105,68 @@ postToDownloadData root post =
 
 viewList :
     { messages | play : String -> msg }
-    -> { model | time : Maybe ( Time.Zone, Time.Posix ) }
+    -> { model | filter : Filter }
+    -> Time.Zone
     -> List Post
     -> Html msg
-viewList messages model posts =
+viewList messages model here posts =
     posts
-        |> List.map (\post -> ( Url.toString post.link, viewPost messages model post ))
+        |> List.map (\post -> ( Url.toString post.link, viewPost messages model here post ))
         |> Html.Keyed.node "div"
             [ HA.style "display" "flex"
             , HA.style "flex-wrap" "wrap"
-            , Theme.gap
             , HA.style "align-items" "stretch"
             , HA.style "justify-content" "center"
             ]
 
 
+type FilterStatus
+    = Matches
+    | MatchesPrevious
+    | DoesntMatch
+
+
 viewPost :
     { messages | play : String -> msg }
-    -> { model | time : Maybe ( Time.Zone, Time.Posix ) }
+    -> { model | filter : Filter }
+    -> Time.Zone
     -> Post
     -> Html msg
-viewPost { play } model post =
+viewPost { play } model here post =
+    let
+        filterStatus : FilterStatus
+        filterStatus =
+            getFilterStatus model.filter here post
+
+        perState : List (Html.Attribute msg)
+        perState =
+            case filterStatus of
+                Matches ->
+                    []
+
+                MatchesPrevious ->
+                    [ HA.style "filter" "grayscale(1)"
+                    ]
+
+                DoesntMatch ->
+                    [ HA.style "width" "0vmin"
+                    , HA.style "font-size" "0"
+                    , HA.style "filter" "grayscale(1)"
+                    ]
+    in
     Theme.column
-        [ HA.style "width" "40vmin"
-        , HA.style "height" "40vmin"
-        , HA.style "max-width" "300px"
-        , HA.style "max-height" "300px"
-        , HA.style "position" "relative"
-        , HA.style "color" "var(--offwhite)"
-        , HA.style "font-size" "calc(min(2.2vmin, 17.5px))"
-        , Html.Events.onClick (play post.media)
-        ]
+        ([ HA.style "width" "40vmin"
+         , HA.style "transition" "all 2s"
+         , HA.style "height" "40vmin"
+         , HA.style "max-width" "300px"
+         , HA.style "max-height" "300px"
+         , HA.style "position" "relative"
+         , HA.style "color" "var(--offwhite)"
+         , HA.style "font-size" "calc(min(2.2vmin, 17.5px))"
+         , Html.Events.onClick (play post.media)
+         ]
+            ++ perState
+        )
         [ Html.div
             [ HA.style "position" "absolute"
             , HA.style "top" "0"
@@ -215,14 +243,9 @@ viewPost { play } model post =
             , HA.href (Url.toString post.link)
             , HA.style "flex" "1"
             ]
-            [ case model.time of
-                Nothing ->
-                    Html.text ""
-
-                Just ( here, _ ) ->
-                    Date.fromPosix here post.date
-                        |> Date.toIsoString
-                        |> Html.text
+            [ Date.fromPosix here post.date
+                |> Date.toIsoString
+                |> Html.text
             ]
         , Html.a
             [ HA.style "position" "absolute"
@@ -251,3 +274,24 @@ viewPost { play } model post =
             ]
             []
         ]
+
+
+getFilterStatus : Filter -> Time.Zone -> Post -> FilterStatus
+getFilterStatus filter here post =
+    case filter of
+        Filtered current ->
+            if Post.isMatch current here post then
+                Matches
+
+            else
+                DoesntMatch
+
+        Filtering { current, previous } ->
+            if Post.isMatch current here post then
+                Matches
+
+            else if Post.isMatch previous here post then
+                MatchesPrevious
+
+            else
+                DoesntMatch

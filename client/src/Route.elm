@@ -1,7 +1,8 @@
-module Route exposing (Filter, Route(..), emptyFilter, link, parse, toString)
+module Route exposing (Route(..), link, parse, toString)
 
 import AppUrl exposing (AppUrl)
 import Dict
+import Filter exposing (Filter(..), FilterData)
 import Html exposing (Html)
 import Html.Attributes
 import Set exposing (Set)
@@ -12,21 +13,6 @@ import Url.Builder
 type Route
     = Index Filter
     | Logout
-
-
-type alias Filter =
-    { year : Maybe Int
-    , categories : Set String
-    , search : String
-    }
-
-
-emptyFilter : Filter
-emptyFilter =
-    { year = Nothing
-    , categories = Set.empty
-    , search = ""
-    }
 
 
 parse : Url -> Route
@@ -41,6 +27,11 @@ parse url =
             Logout
 
         _ ->
+            let
+                emptyFilter : Filter.FilterData
+                emptyFilter =
+                    Filter.empty
+            in
             List.foldl
                 (\piece filter ->
                     case String.toInt piece of
@@ -58,6 +49,7 @@ parse url =
                             |> String.join " "
                 }
                 appUrl.path
+                |> Filtered
                 |> Index
 
 
@@ -68,12 +60,17 @@ toString route =
         path =
             case route of
                 Index filter ->
-                    case filter.year of
+                    let
+                        currentFilter : FilterData
+                        currentFilter =
+                            Filter.current filter
+                    in
+                    case currentFilter.year of
                         Just year ->
-                            (filter.categories |> Set.toList) ++ [ String.fromInt year ]
+                            (currentFilter.categories |> Set.toList) ++ [ String.fromInt year ]
 
                         Nothing ->
-                            filter.categories |> Set.toList
+                            currentFilter.categories |> Set.toList
 
                 Logout ->
                     [ "logout" ]
@@ -81,7 +78,12 @@ toString route =
         query : List (Maybe Url.Builder.QueryParameter)
         query =
             [ case route of
-                Index { search } ->
+                Index filter ->
+                    let
+                        search : String
+                        search =
+                            (Filter.current filter).search
+                    in
                     if String.isEmpty search then
                         Nothing
 
