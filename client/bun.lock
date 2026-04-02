@@ -9,7 +9,7 @@
       "devDependencies": {
         "elm": "^0.19.1-6",
         "elm-review": "^2.13.5",
-        "elm-watch": "^2.0.0-beta.9",
+        "elm-watch": "^2.0.0-beta.12",
       },
     },
   },
@@ -96,7 +96,7 @@
 
     "elm-solve-deps-wasm": ["elm-solve-deps-wasm@2.0.0", "", {}, "sha512-11OV8FgB9qsth/F94q2SJjb1MoEgbworSyNM1L+YlxVoaxp7wtWPyA8cNcPEkSoIKG1B8Tqg68ED1P6dVamHSg=="],
 
-    "elm-watch": ["elm-watch@2.0.0-beta.9", "", { "dependencies": { "chokidar": "^3.5.3", "cross-spawn": "^7.0.6", "tiny-decoders": "^23.0.0", "ws": "^8.18.0" }, "bin": { "elm-watch": "index.js" } }, "sha512-q62qcZYcnwOa8r3t3pTGnJvD1j7ELtnnWg31oDoCN3jFTDd9nl8658h3czMHk2L2we0Du8ldV/3Mx8V6iviIsQ=="],
+    "elm-watch": ["elm-watch@2.0.0-beta.12", "", { "dependencies": { "chokidar": "^3.5.3", "cross-spawn": "^7.0.6", "tiny-decoders": "^23.0.0", "ws": "^8.18.0" }, "bin": { "elm-watch": "index.js" } }, "sha512-qIgi3gvEHzSdWDo7T12v1JR6vCXM3rrh5PPmjB3ZXdnYmc2ADvNKHt9+vAmoQNJVJcR/EIofAtHp/RpUgC8m3w=="],
 
     "emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
 
