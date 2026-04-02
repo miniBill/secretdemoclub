@@ -5,7 +5,7 @@ import Dict
 import Filter exposing (Filter(..), FilterData)
 import Html exposing (Html)
 import Html.Attributes
-import Set exposing (Set)
+import Set
 import Url exposing (Url)
 import Url.Builder
 

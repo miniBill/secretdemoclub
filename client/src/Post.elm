@@ -1,6 +1,6 @@
 module Post exposing (Post, isMatch)
 
-import Filter exposing (Filter, FilterData)
+import Filter exposing (FilterData)
 import Set
 import Time
 import Url exposing (Url)
