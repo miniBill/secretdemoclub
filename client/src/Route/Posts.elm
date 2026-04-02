@@ -149,8 +149,7 @@ viewPost { play } model here post =
                     ]
 
                 DoesntMatch ->
-                    [ HA.style "width" "0vmin"
-                    , HA.style "font-size" "0"
+                    [ HA.style "display" "none"
                     , HA.style "filter" "grayscale(1)"
                     ]
     in
