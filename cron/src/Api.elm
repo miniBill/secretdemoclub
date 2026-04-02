@@ -352,7 +352,7 @@ type alias Page =
 
 
 getPosts :
-    { cfg | workDir : String, cookie : String }
+    { cfg | workDir : String, cookie : Maybe String }
     -> BackendTask FatalError (List Post)
 getPosts config =
     let
@@ -417,7 +417,11 @@ getPosts config =
 
                 filename : String
                 filename =
-                    hash ++ ".json"
+                    if config.cookie == Nothing then
+                        "anon-" ++ hash ++ ".json"
+
+                    else
+                        hash ++ ".json"
 
                 target : String
                 target =
@@ -438,10 +442,15 @@ getPosts config =
                                 , method = "GET"
                                 , body = Http.emptyBody
                                 , headers =
-                                    [ ( "User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0" )
+                                    [ ( "User-Agent"
+                                      , "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0"
+                                      )
+                                        |> Just
                                     , ( "Referer", "https://www.patreon.com/c/orlagartland/posts" )
-                                    , ( "Cookie", config.cookie )
+                                        |> Just
+                                    , Maybe.map (Tuple.pair "Cookie") config.cookie
                                     ]
+                                        |> List.filterMap identity
                                 , retries = Nothing
                                 , timeoutInMs = Nothing
                                 }

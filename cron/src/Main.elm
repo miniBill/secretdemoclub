@@ -109,15 +109,17 @@ task config =
             (\_ _ ->
                 Script.command "cp" [ "-r", "overrides/posts", config.workDir ]
             )
-        |> Spinner.Reader.withStep "Getting posts from the Patreon API"
+        |> Spinner.Reader.withStep "Getting posts from the Patreon API (auth)"
             (\env _ ->
-                Api.getPosts { workDir = config.workDir, cookie = env.cookie }
+                Api.getPosts { workDir = config.workDir, cookie = Just env.cookie }
             )
         |> Spinner.Reader.withFatalStep "Downloading RSS feed"
             (\{ rssUrl } apiPosts ->
                 BackendTask.map
                     (Tuple.pair apiPosts)
-                    (Http.get rssUrl Http.expectString)
+                    (Http.get rssUrl Http.expectString
+                        |> BackendTask.quiet
+                    )
             )
         |> Spinner.Reader.withStep "Parsing RSS feed"
             (\_ ( apiPosts, xml ) ->
@@ -136,8 +138,13 @@ task config =
                     Ok rssPosts ->
                         BackendTask.succeed ( apiPosts, rssPosts )
             )
-        |> Spinner.Reader.withStep "Checking posts' list"
+        |> Spinner.Reader.withStep "Getting posts from the Patreon API (anon)"
             (\_ ( apiPosts, rssPosts ) ->
+                Do.do (Api.getPosts { workDir = config.workDir, cookie = Nothing }) <| \anonPosts ->
+                BackendTask.succeed ( apiPosts, rssPosts, anonPosts )
+            )
+        |> Spinner.Reader.withStep "Checking posts' list"
+            (\_ ( apiPosts, rssPosts, _ ) ->
                 let
                     apiSet : Set String
                     apiSet =
