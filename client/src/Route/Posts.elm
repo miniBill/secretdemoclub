@@ -47,7 +47,8 @@ view messages model posts =
                     files =
                         posts
                             |> List.filter (Post.isMatch (Filter.current model.filter) here)
-                            |> Json.Encode.list (postToDownloadData model.root)
+                            |> List.filterMap (postToDownloadData model.root)
+                            |> Json.Encode.list identity
                             |> Json.Encode.encode 0
                 in
                 Theme.linkButton
@@ -67,40 +68,44 @@ view messages model posts =
     }
 
 
-postToDownloadData : Url -> Post -> Json.Encode.Value
+postToDownloadData : Url -> Post -> Maybe Json.Encode.Value
 postToDownloadData root post =
-    let
-        extension : String
-        extension =
-            post.media
-                |> String.split "."
-                |> List.Extra.last
-                |> Maybe.withDefault "mp3"
+    post.media
+        |> Maybe.map
+            (\media ->
+                let
+                    extension : String
+                    extension =
+                        media
+                            |> String.split "."
+                            |> List.Extra.last
+                            |> Maybe.withDefault "mp3"
 
-        filename : String
-        filename =
-            post.category
-                ++ "/"
-                ++ (case post.number of
-                        Nothing ->
-                            ""
+                    filename : String
+                    filename =
+                        post.category
+                            ++ "/"
+                            ++ (case post.number of
+                                    Nothing ->
+                                        ""
 
-                        Just n ->
-                            String.replace "/" "_" n ++ " - "
-                   )
-                ++ String.replace "/" "_" post.title
-                ++ "."
-                ++ extension
+                                    Just n ->
+                                        String.replace "/" "_" n ++ " - "
+                               )
+                            ++ String.replace "/" "_" post.title
+                            ++ "."
+                            ++ extension
 
-        media : String
-        media =
-            Url.Builder.crossOrigin (Url.toString root) [ "media", post.media ] []
-    in
-    Json.Encode.object
-        [ ( "filename", Json.Encode.string filename )
-        , ( "url", Json.Encode.string media )
-        , ( "mtime", Json.Encode.int (Time.posixToMillis post.date) )
-        ]
+                    mediaUrl : String
+                    mediaUrl =
+                        Url.Builder.crossOrigin (Url.toString root) [ "media", media ] []
+                in
+                Json.Encode.object
+                    [ ( "filename", Json.Encode.string filename )
+                    , ( "url", Json.Encode.string mediaUrl )
+                    , ( "mtime", Json.Encode.int (Time.posixToMillis post.date) )
+                    ]
+            )
 
 
 viewList :
@@ -138,8 +143,19 @@ viewPost { play } model here post =
         filterStatus =
             getFilterStatus model.filter here post
 
-        perState : List (Html.Attribute msg)
-        perState =
+        commonAttributes : List (Html.Attribute msg)
+        commonAttributes =
+            [ HA.style "width" "40vmin"
+            , HA.style "height" "40vmin"
+            , HA.style "max-width" "300px"
+            , HA.style "max-height" "300px"
+            , HA.style "position" "relative"
+            , HA.style "color" "var(--offwhite)"
+            , HA.style "font-size" "calc(min(2.2vmin, 17.5px))"
+            ]
+
+        perStateAttributes : List (Html.Attribute msg)
+        perStateAttributes =
             case filterStatus of
                 Matches ->
                     []
@@ -152,19 +168,20 @@ viewPost { play } model here post =
                     [ HA.style "display" "none"
                     , HA.style "filter" "grayscale(1)"
                     ]
+
+        perMediaAttributes : List (Html.Attribute msg)
+        perMediaAttributes =
+            case post.media of
+                Just media ->
+                    [ Html.Events.onClick (play media) ]
+
+                Nothing ->
+                    []
     in
     Theme.column
-        ([ HA.style "width" "40vmin"
-         , HA.style "transition" "all 2s"
-         , HA.style "height" "40vmin"
-         , HA.style "max-width" "300px"
-         , HA.style "max-height" "300px"
-         , HA.style "position" "relative"
-         , HA.style "color" "var(--offwhite)"
-         , HA.style "font-size" "calc(min(2.2vmin, 17.5px))"
-         , Html.Events.onClick (play post.media)
-         ]
-            ++ perState
+        (commonAttributes
+            ++ perStateAttributes
+            ++ perMediaAttributes
         )
         [ Html.div
             [ HA.style "position" "absolute"
@@ -193,29 +210,34 @@ viewPost { play } model here post =
                 Just number ->
                     Html.text (post.category ++ " " ++ number)
             ]
-        , Html.div
-            [ HA.style "position" "absolute"
-            , HA.style "top" "32px"
-            , HA.style "left" "32px"
-            , HA.style "right" "28px"
-            , HA.style "bottom" "28px"
-            , HA.style "border-radius" "9999px"
-            , HA.class "show-on-parent-hover"
-            , HA.style "background-color" "#0008"
-            ]
-            [ Html.div
-                [ HA.style "position" "absolute"
-                , HA.style "top" "50%"
-                , HA.style "left" "50%"
-                , HA.style "transform" "translate(-50%,-50%)"
-                , HA.style "width" "0"
-                , HA.style "height" "0"
-                , HA.style "border-top" "48px solid transparent"
-                , HA.style "border-bottom" "48px solid transparent"
-                , HA.style "border-left" "78px solid #fff4"
-                ]
-                []
-            ]
+        , case post.media of
+            Nothing ->
+                Html.text ""
+
+            Just _ ->
+                Html.div
+                    [ HA.style "position" "absolute"
+                    , HA.style "top" "32px"
+                    , HA.style "left" "32px"
+                    , HA.style "right" "28px"
+                    , HA.style "bottom" "28px"
+                    , HA.style "border-radius" "9999px"
+                    , HA.class "show-on-parent-hover"
+                    , HA.style "background-color" "#0008"
+                    ]
+                    [ Html.div
+                        [ HA.style "position" "absolute"
+                        , HA.style "top" "50%"
+                        , HA.style "left" "50%"
+                        , HA.style "transform" "translate(-50%,-50%)"
+                        , HA.style "width" "0"
+                        , HA.style "height" "0"
+                        , HA.style "border-top" "48px solid transparent"
+                        , HA.style "border-bottom" "48px solid transparent"
+                        , HA.style "border-left" "78px solid #fff4"
+                        ]
+                        []
+                    ]
         , Html.div
             [ HA.style "position" "absolute"
             , HA.style "top" "50%"
@@ -246,27 +268,32 @@ viewPost { play } model here post =
                 |> Date.toIsoString
                 |> Html.text
             ]
-        , Html.a
-            [ HA.style "position" "absolute"
-            , HA.style "bottom" "0"
-            , HA.style "right" "0"
-            , Theme.padding
-            , HA.classList
-                [ ( "show-on-parent-hover", True )
-                , ( "show-if-hover-none", True )
-                ]
-            , HA.href ("/media/" ++ post.media)
-            , let
-                extension : String
-                extension =
-                    post.media
-                        |> String.split "."
-                        |> List.Extra.last
-                        |> Maybe.withDefault "mp3"
-              in
-              HA.download (post.title ++ "." ++ extension)
-            ]
-            [ Html.text "Download" ]
+        , case post.media of
+            Nothing ->
+                Html.text ""
+
+            Just media ->
+                Html.a
+                    [ HA.style "position" "absolute"
+                    , HA.style "bottom" "0"
+                    , HA.style "right" "0"
+                    , Theme.padding
+                    , HA.classList
+                        [ ( "show-on-parent-hover", True )
+                        , ( "show-if-hover-none", True )
+                        ]
+                    , HA.href ("/media/" ++ media)
+                    , let
+                        extension : String
+                        extension =
+                            media
+                                |> String.split "."
+                                |> List.Extra.last
+                                |> Maybe.withDefault "mp3"
+                      in
+                      HA.download (post.title ++ "." ++ extension)
+                    ]
+                    [ Html.text "Download" ]
         , Html.img
             [ HA.src ("/media/" ++ post.image)
             , HA.style "width" "100%"
