@@ -12,4 +12,15 @@ function profileEnd(label) {
     console.profileEnd(label);
 }
 
-export { fileExists, profile, profileEnd };
+function setupDebugger() {
+    const original = console.log;
+    console.log = (...data) => {
+        if (data[0] === "!!!BREAK!!!: ()") {
+            debugger;
+        } else {
+            original(...data);
+        }
+    };
+}
+
+export { fileExists, profile, profileEnd, setupDebugger };
