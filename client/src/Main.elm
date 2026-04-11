@@ -458,12 +458,17 @@ update msg model =
                 |> Cmd.Extra.pure
 
         LoadedPosts (Ok { indexHash, posts }) ->
-            ( { model
-                | indexHash = Just indexHash
-                , posts = RemoteData.Success posts
-              }
-            , saveIndexHash (Just indexHash)
-            )
+            if indexHash == "anonymous.md" then
+                { model | posts = RemoteData.Success posts }
+                    |> Cmd.Extra.pure
+
+            else
+                ( { model
+                    | indexHash = Just indexHash
+                    , posts = RemoteData.Success posts
+                  }
+                , saveIndexHash (Just indexHash)
+                )
 
         LoadedPosts (Err err) ->
             { model | posts = RemoteData.Failure err }
