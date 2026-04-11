@@ -192,114 +192,146 @@ viewPost { play } model here post =
             , HA.style "background-color" "#000a"
             ]
             []
-        , Html.div
-            [ HA.style "position" "absolute"
-            , HA.style "top" "0"
-            , HA.style "left" "0"
-            , HA.style "padding" "8px 8px 24px 8px"
-            , HA.style "width" "100%"
-            , HA.style "font-size" "1.2em"
-            , HA.style "font-weight" "semibold"
-            , HA.style "text-align" "center"
-            , HA.style "flex" "1"
-            ]
-            [ case post.number of
-                Nothing ->
-                    Html.text post.category
-
-                Just number ->
-                    Html.text (post.category ++ " " ++ number)
-            ]
-        , case post.media of
-            Nothing ->
-                Html.text ""
-
-            Just _ ->
-                Html.div
-                    [ HA.style "position" "absolute"
-                    , HA.style "top" "32px"
-                    , HA.style "left" "32px"
-                    , HA.style "right" "28px"
-                    , HA.style "bottom" "28px"
-                    , HA.style "border-radius" "9999px"
-                    , HA.class "show-on-parent-hover"
-                    , HA.style "background-color" "#0008"
-                    ]
-                    [ Html.div
-                        [ HA.style "position" "absolute"
-                        , HA.style "top" "50%"
-                        , HA.style "left" "50%"
-                        , HA.style "transform" "translate(-50%,-50%)"
-                        , HA.style "width" "0"
-                        , HA.style "height" "0"
-                        , HA.style "border-top" "48px solid transparent"
-                        , HA.style "border-bottom" "48px solid transparent"
-                        , HA.style "border-left" "78px solid #fff4"
-                        ]
-                        []
-                    ]
-        , Html.div
-            [ HA.style "position" "absolute"
-            , HA.style "top" "50%"
-            , HA.style "left" "50%"
-            , HA.style "transform" "translate(-50%,-50%)"
-            , Theme.padding
-            , HA.style "width" "100%"
-            , HA.style "font-size" "2em"
-            , HA.style "font-weight" "semibold"
-            , HA.style "text-align" "center"
-            , HA.style "overflow-wrap" "break-word"
-            ]
-            [ Html.text post.title
-            ]
-        , Html.a
-            [ HA.style "position" "absolute"
-            , HA.style "bottom" "0"
-            , HA.style "left" "0"
-            , Theme.padding
-            , HA.classList
-                [ ( "show-on-parent-hover", True )
-                , ( "show-if-hover-none", True )
-                ]
-            , HA.href (Url.toString post.link)
-            , HA.style "flex" "1"
-            ]
-            [ Date.fromPosix here post.date
-                |> Date.toIsoString
-                |> Html.text
-            ]
-        , case post.media of
-            Nothing ->
-                Html.text ""
-
-            Just media ->
-                Html.a
-                    [ HA.style "position" "absolute"
-                    , HA.style "bottom" "0"
-                    , HA.style "right" "0"
-                    , Theme.padding
-                    , HA.classList
-                        [ ( "show-on-parent-hover", True )
-                        , ( "show-if-hover-none", True )
-                        ]
-                    , HA.href ("/media/" ++ media)
-                    , let
-                        extension : String
-                        extension =
-                            media
-                                |> String.split "."
-                                |> List.Extra.last
-                                |> Maybe.withDefault "mp3"
-                      in
-                      HA.download (post.title ++ "." ++ extension)
-                    ]
-                    [ Html.text "Download" ]
+        , viewPostCategory post
+        , viewPostPlayHover post
+        , viewPostTitle post
+        , viewPostDate post here
+        , viewPostDownloadButton post
         , Html.img
             [ HA.src ("/media/" ++ post.image)
             , HA.style "width" "100%"
             ]
             []
         ]
+
+
+viewPostCategory : Post -> Html msg
+viewPostCategory post =
+    Html.div
+        [ HA.style "position" "absolute"
+        , HA.style "top" "0"
+        , HA.style "left" "0"
+        , HA.style "text-align" "center"
+        , HA.style "width" "100%"
+        , HA.style "padding" "8px 8px 24px 8px"
+        , HA.style "font-size" "1.2em"
+        , HA.style "font-weight" "semibold"
+        , HA.style "flex" "1"
+        ]
+        [ case post.number of
+            Nothing ->
+                Html.text post.category
+
+            Just number ->
+                Html.text (post.category ++ " " ++ number)
+        ]
+
+
+viewPostPlayHover : Post -> Html msg
+viewPostPlayHover post =
+    case post.media of
+        Nothing ->
+            Html.text ""
+
+        Just _ ->
+            Html.div
+                [ HA.style "position" "absolute"
+                , HA.style "top" "32px"
+                , HA.style "left" "32px"
+                , HA.style "right" "28px"
+                , HA.style "bottom" "28px"
+                , HA.style "border-radius" "9999px"
+                , HA.class "show-on-parent-hover"
+                , HA.style "background-color" "#0008"
+                ]
+                [ Html.div
+                    [ HA.style "position" "absolute"
+                    , HA.style "top" "50%"
+                    , HA.style "left" "50%"
+                    , HA.style "transform" "translate(-50%,-50%)"
+                    , HA.style "width" "0"
+                    , HA.style "height" "0"
+                    , HA.style "border-top" "48px solid transparent"
+                    , HA.style "border-bottom" "48px solid transparent"
+                    , HA.style "border-left" "78px solid #fff4"
+                    ]
+                    []
+                ]
+
+
+viewPostTitle : Post -> Html msg
+viewPostTitle post =
+    Html.div
+        [ HA.style "position" "absolute"
+        , HA.style "top" "50%"
+        , HA.style "left" "50%"
+        , HA.style "transform" "translate(-50%,-50%)"
+        , Theme.padding
+        , HA.style "width" "100%"
+        , HA.style "font-size" "2em"
+        , HA.style "font-weight" "semibold"
+        , HA.style "text-align" "center"
+        , HA.style "overflow-wrap" "break-word"
+        ]
+        [ Html.text post.title
+        ]
+
+
+viewPostDate : Post -> Time.Zone -> Html msg
+viewPostDate post here =
+    Html.a
+        [ HA.style "position" "absolute"
+        , HA.style "bottom" "0"
+        , HA.style "left" "0"
+        , HA.style "text-align" "center"
+        , case post.media of
+            Nothing ->
+                HA.style "width" "100%"
+
+            Just _ ->
+                HA.style "" ""
+        , Theme.padding
+        , HA.classList
+            [ ( "show-on-parent-hover", True )
+            , ( "show-if-hover-none", True )
+            ]
+        , HA.href (Url.toString post.link)
+        , HA.style "flex" "1"
+        ]
+        [ Date.fromPosix here post.date
+            |> Date.toIsoString
+            |> Html.text
+        ]
+
+
+viewPostDownloadButton : Post -> Html msg
+viewPostDownloadButton post =
+    case post.media of
+        Nothing ->
+            Html.text ""
+
+        Just media ->
+            Html.a
+                [ HA.style "position" "absolute"
+                , HA.style "bottom" "0"
+                , HA.style "right" "0"
+                , Theme.padding
+                , HA.classList
+                    [ ( "show-on-parent-hover", True )
+                    , ( "show-if-hover-none", True )
+                    ]
+                , HA.href ("/media/" ++ media)
+                , let
+                    extension : String
+                    extension =
+                        media
+                            |> String.split "."
+                            |> List.Extra.last
+                            |> Maybe.withDefault "mp3"
+                  in
+                  HA.download (post.title ++ "." ++ extension)
+                ]
+                [ Html.text "Download" ]
 
 
 getFilterStatus : Filter -> Time.Zone -> Post -> FilterStatus
