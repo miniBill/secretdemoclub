@@ -124,8 +124,10 @@ init flags url key =
                             )
 
                         _ ->
-                            RemoteData.NotAsked
-                                |> Cmd.Extra.pure
+                            ( RemoteData.Loading
+                            , loadPostsFromIndexHash "anonymous.md"
+                                |> Task.attempt LoadedPosts
+                            )
 
                 Just indexUrl ->
                     ( RemoteData.Loading
@@ -273,7 +275,11 @@ postParser =
             )
         |= line "Image" Just
         |= line "Link" Url.fromString
-        |= line "Media" Just
+        |= Parser.oneOf
+            [ Parser.succeed Just
+                |= line "Media" Just
+            , Parser.succeed Nothing
+            ]
         |= Parser.oneOf
             [ Parser.succeed Just
                 |= line "Number" Just

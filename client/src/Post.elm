@@ -12,23 +12,19 @@ type alias Post =
     , date : Time.Posix
     , image : String
     , link : Url
-    , media : String
+    , media : Maybe String
     , number : Maybe String
     }
 
 
-isMatch :
-    FilterData
-    -> Time.Zone
-    -> { title : String, image : String, link : Url, media : String, number : Maybe String, date : Time.Posix, category : String }
-    -> Bool
+isMatch : FilterData -> Time.Zone -> Post -> Bool
 isMatch filter here post =
     isCorrectCategory filter post
         && isCorrectYear filter here post
         && isTextMatch filter.search post
 
 
-isCorrectCategory : FilterData -> { title : String, image : String, link : Url, media : String, number : Maybe String, date : Time.Posix, category : String } -> Bool
+isCorrectCategory : FilterData -> Post -> Bool
 isCorrectCategory filter post =
     Set.isEmpty filter.categories
         || Set.member "all" filter.categories
@@ -36,7 +32,7 @@ isCorrectCategory filter post =
         || Set.member (String.toLower post.category ++ "s") filter.categories
 
 
-isCorrectYear : FilterData -> Time.Zone -> { title : String, image : String, link : Url, media : String, number : Maybe String, date : Time.Posix, category : String } -> Bool
+isCorrectYear : FilterData -> Time.Zone -> Post -> Bool
 isCorrectYear filter here post =
     case filter.year of
         Nothing ->
