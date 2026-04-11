@@ -13,6 +13,9 @@ import Cli.Option as Option
 import Cli.OptionsParser as OptionsParser
 import Cli.Program as Program
 import Date exposing (Date)
+import Dict exposing (Dict)
+import Diff
+import Diff.ToString
 import FatalError exposing (FatalError)
 import Json.Decode
 import Json.Encode
@@ -25,7 +28,7 @@ import Parser.Workaround
 import Result.Extra
 import Rss exposing (Title(..))
 import Rss.Parser
-import Set exposing (Set)
+import Set
 import Spinner.Reader
 import String.Multiline
 import Time
@@ -44,7 +47,9 @@ run : Script
 run =
     Script.withCliOptions programConfig
         (\config ->
-            BackendTask.Extra.profile "main" (task config)
+            BackendTask.Extra.setupDebugger
+                |> BackendTask.and
+                    (BackendTask.Extra.profile "main" (task config))
         )
 
 
@@ -144,97 +149,167 @@ task config =
                 BackendTask.succeed ( apiPosts, rssPosts, anonPosts )
             )
         |> Spinner.Reader.withStep "Checking posts' list"
-            (\_ ( apiPosts, rssPosts, _ ) ->
+            (\_ (( apiPosts, rssPosts, _ ) as posts) ->
                 let
-                    apiSet : Set String
-                    apiSet =
+                    apiDict : Dict String Api.Post
+                    apiDict =
                         apiPosts
                             |> List.map
                                 (\apiPost ->
-                                    "https://www.patreon.com" ++ apiPost.attributes.patreonUrl
+                                    ( "https://www.patreon.com" ++ apiPost.attributes.patreonUrl, apiPost )
                                 )
-                            |> Set.fromList
+                            |> Dict.fromList
 
-                    rssSet : Set String
-                    rssSet =
+                    rssDict : Dict String Rss.Post
+                    rssDict =
                         rssPosts
                             |> List.map
                                 (\rssPost ->
-                                    rssPost.link
+                                    ( rssPost.link, rssPost )
                                 )
-                            |> Set.fromList
+                            |> Dict.fromList
                 in
-                -- case Set.diff apiSet rssSet |> Set.toList of
-                --     [] ->
-                --         BackendTask.succeed ( apiPosts, rssPosts )
-                --     missingInRss ->
-                --         BackendTask.fail
-                --             (FatalError.fromString
-                --                 ("Posts missing in RSS: " ++ String.join ", " missingInRss)
-                --             )
-                case Set.diff rssSet apiSet |> Set.toList of
+                case Dict.diff rssDict apiDict |> Dict.keys of
                     [] ->
-                        BackendTask.succeed ( apiPosts, rssPosts )
+                        BackendTask.succeed posts
 
                     missingInApi ->
-                        BackendTask.fail
-                            (FatalError.fromString
-                                ("Posts missing in API: " ++ String.join ", " missingInApi)
-                            )
+                        ("Posts missing in API: " ++ String.join ", " missingInApi)
+                            |> FatalError.fromString
+                            |> BackendTask.fail
             )
         |> Spinner.Reader.withStep "Downloading media"
-            (\_ ( apiPosts, _ ) ->
-                apiPosts
-                    |> List.map
-                        (\post ->
-                            cachePost config post
-                                |> BackendTask.toResult
-                                |> BackendTask.map
-                                    (\v ->
-                                        case v of
-                                            Err e ->
-                                                Just (Err e)
+            (\_ ( apiPosts, _, anonPosts ) ->
+                let
+                    cachePosts :
+                        List Api.Post
+                        ->
+                            BackendTask
+                                FatalError
+                                ( List { image : MediaPath, media : Maybe MediaPath, post : Api.Post }
+                                , List String
+                                )
+                    cachePosts posts =
+                        let
+                            ( tasks, warnings ) =
+                                posts
+                                    |> List.filterMap
+                                        (\post ->
+                                            case cachePost config post of
+                                                CanCache t ->
+                                                    Just (Ok t)
 
-                                            Ok Nothing ->
-                                                Nothing
+                                                CannotCache e ->
+                                                    Just (Err e)
 
-                                            Ok (Just w) ->
-                                                Just (Ok w)
-                                    )
-                        )
-                    |> List.Extra.greedyGroupsOf config.parallel
-                    |> List.map BackendTask.combine
-                    |> BackendTask.sequence
-                    |> BackendTask.map
-                        (\groups ->
-                            groups
-                                |> List.concat
-                                |> List.filterMap identity
-                        )
+                                                NotRelevant ->
+                                                    Nothing
+                                        )
+                                    |> Result.Extra.partition
+                        in
+                        tasks
+                            |> List.Extra.greedyGroupsOf config.parallel
+                            |> List.map BackendTask.combine
+                            |> BackendTask.sequence
+                            |> BackendTask.map (\ps -> ( List.concat ps, warnings ))
+                in
+                Do.do (cachePosts apiPosts) <| \( cachedPosts, cachedErrors ) ->
+                Do.do (cachePosts anonPosts) <| \( cachedAnonPosts, cachedAnonErrors ) ->
+                BackendTask.succeed
+                    ( cachedPosts
+                    , cachedAnonPosts
+                    , (cachedErrors ++ cachedAnonErrors)
+                        |> Set.fromList
+                        |> Set.toList
+                    )
             )
         |> Spinner.Reader.withStep "Formatting posts"
-            (\_ cachedPosts ->
-                cachedPosts
-                    |> List.map
-                        (\v ->
-                            case v of
-                                Ok post ->
-                                    postToContent config post
-                                        |> BackendTask.map Ok
+            (\_ ( cachedPosts, cachedAnonPosts, warnings ) ->
+                let
+                    formatPosts :
+                        { anonymous : Bool }
+                        ->
+                            List
+                                { image : MediaPath
+                                , media : Maybe MediaPath
+                                , post : Api.Post
+                                }
+                        -> BackendTask FatalError (List ParsedPost)
+                    formatPosts anonymous posts =
+                        posts
+                            |> List.map
+                                (\post ->
+                                    postToContent config anonymous post
+                                )
+                            |> BackendTask.combine
+                in
+                Do.do (formatPosts { anonymous = False } cachedPosts) <| \formatted ->
+                Do.do (formatPosts { anonymous = True } cachedAnonPosts) <| \formattedAnon ->
+                BackendTask.succeed ( formatted, formattedAnon, warnings )
+            )
+        |> Spinner.Reader.withStep "Checking anon posts"
+            (\_ ( formatted, formattedAnon, warnings ) ->
+                let
+                    loggedInDict : Dict String ParsedPost
+                    loggedInDict =
+                        formatted
+                            |> List.map
+                                (\formattedPost ->
+                                    ( formattedPost.link, formattedPost )
+                                )
+                            |> Dict.fromList
 
-                                Err e ->
-                                    BackendTask.succeed (Err e)
-                        )
-                    |> BackendTask.combine
+                    anonDict : Dict String ParsedPost
+                    anonDict =
+                        formattedAnon
+                            |> List.map
+                                (\formattedPost ->
+                                    ( formattedPost.link, formattedPost )
+                                )
+                            |> Dict.fromList
+
+                    anonCheck : Result String (List String)
+                    anonCheck =
+                        Dict.merge
+                            (\_ _ acc -> acc)
+                            (\k l r a ->
+                                let
+                                    clean : ParsedPost -> ParsedPost
+                                    clean p =
+                                        { p | media = Nothing, anonymous = False, content = Nothing }
+                                in
+                                if clean l /= clean r then
+                                    Err
+                                        ("Post is different in anon/auth feed: "
+                                            ++ k
+                                            ++ "\n"
+                                            ++ toStringDiff Debug.toString (clean l) (clean r)
+                                        )
+
+                                else if r.media /= Nothing then
+                                    Result.map ((::) ("Media in anonymous post: " ++ k)) a
+
+                                else
+                                    a
+                            )
+                            (\k _ _ -> Err ("Post missing in authenticated feed: " ++ k))
+                            loggedInDict
+                            anonDict
+                            (Ok [])
+                in
+                case anonCheck of
+                    Ok newWarnings ->
+                        BackendTask.succeed ( formatted, formattedAnon, warnings ++ newWarnings )
+
+                    Err e ->
+                        BackendTask.fail (FatalError.fromString e)
             )
         |> Spinner.Reader.withStep "Writing dump"
-            (\_ cachedPosts ->
+            (\_ ( formatted, _, warnings ) ->
                 let
                     body : String
                     body =
-                        cachedPosts
-                            -- TODO
-                            |> List.filterMap Result.toMaybe
+                        formatted
                             |> List.map postToDumpFragment
                             |> String.join "\n"
 
@@ -267,20 +342,29 @@ task config =
                         }
                     )
                 <| \_ ->
-                BackendTask.succeed cachedPosts
+                BackendTask.succeed warnings
             )
         |> Spinner.Reader.withStep "Re-reading the posts from disk to apply overrides"
-            (\_ _ ->
+            (\_ warnings ->
                 Do.glob (config.workDir ++ "/posts/*/*/*.md") <| \filenames ->
                 Do.each filenames parsePost <| \parsed ->
-                BackendTask.succeed parsed
+                BackendTask.succeed ( parsed, warnings )
             )
         |> Spinner.Reader.withStep "Copying media to content storage"
-            (\_ parsedPosts ->
+            (\_ ( parsedPosts, warnings ) ->
                 parsedPosts
                     |> List.map
                         (\post ->
-                            Do.do (copyMediaToContentAddressableStorage config post.media) <| \media ->
+                            Do.do
+                                (case post.media of
+                                    Nothing ->
+                                        BackendTask.succeed Nothing
+
+                                    Just media ->
+                                        copyMediaToContentAddressableStorage config media
+                                            |> BackendTask.map Just
+                                )
+                            <| \media ->
                             Do.do (copyMediaToContentAddressableStorage config post.image) <| \image ->
                             { post = post
                             , media = media
@@ -289,21 +373,43 @@ task config =
                                 |> BackendTask.succeed
                         )
                     |> BackendTask.combine
-                    |> BackendTask.map (\posts -> List.sortBy (\{ post } -> Time.posixToMillis post.date) posts)
+                    |> BackendTask.map
+                        (\posts ->
+                            ( List.sortBy (\{ post } -> Time.posixToMillis post.date) posts
+                            , warnings
+                            )
+                        )
             )
         |> Spinner.Reader.withStep "Writing indexes"
-            (\_ finalPosts ->
+            (\_ ( finalPosts, warnings ) ->
                 let
-                    writeTierIndex : Tier -> BackendTask FatalError ( String, ContentAddress )
-                    writeTierIndex tier =
+                    writeTierIndex : Maybe Tier -> BackendTask FatalError ( String, ContentAddress )
+                    writeTierIndex maybeTier =
                         let
+                            tierName : String
+                            tierName =
+                                case maybeTier of
+                                    Just tier ->
+                                        tierToString tier
+
+                                    Nothing ->
+                                        "Anonymous"
+
                             path : String
                             path =
-                                config.workDir ++ "/index-" ++ String.toLower (tierToString tier) ++ ".md"
+                                config.workDir ++ "/index-" ++ String.toLower tierName ++ ".md"
                         in
                         Do.each
                             (finalPosts
-                                |> List.filter (\{ post } -> List.member tier post.tiers)
+                                |> List.filter
+                                    (\{ post } ->
+                                        case maybeTier of
+                                            Just tier ->
+                                                not post.anonymous && List.member tier post.tiers
+
+                                            Nothing ->
+                                                post.anonymous
+                                    )
                             )
                             (\post ->
                                 parsedPostToFinalString post
@@ -319,38 +425,78 @@ task config =
                         <| \_ ->
                         Do.do
                             (copyToContentAddressableStorage config
-                                { prefix = String.toLower (tierToString tier)
+                                { prefix = String.toLower tierName
                                 , path = path
                                 , extension = "md"
                                 }
                             )
                         <|
-                            \address -> BackendTask.succeed ( tierToString tier, address )
+                            \address -> BackendTask.succeed ( tierName, address )
                 in
-                [ Bronze, Silver, Gold ]
-                    |> List.map writeTierIndex
-                    |> BackendTask.combine
+                Do.do
+                    ([ Nothing, Just Bronze, Just Silver, Just Gold ]
+                        |> List.map writeTierIndex
+                        |> BackendTask.combine
+                    )
+                <| \tiers ->
+                BackendTask.succeed ( tiers, warnings )
             )
         |> Spinner.Reader.withStep "Cleaning up"
-            (\_ indexAddresses ->
+            (\_ ( indexAddresses, warnings ) ->
                 Do.command "rm" [ "-r", "work/media-scratch" ] <| \_ ->
-                BackendTask.succeed indexAddresses
+                BackendTask.succeed ( indexAddresses, warnings )
             )
         |> Spinner.Reader.runSteps
         |> BackendTask.andThen
-            (\tiers ->
-                tiers
-                    |> List.map
-                        (\( name, address ) ->
-                            let
-                                msg : String
-                                msg =
-                                    " - " ++ name ++ ": " ++ contentAddressToPath address
-                            in
-                            Script.log msg
-                        )
-                    |> BackendTask.doEach
+            (\( tiers, warnings ) ->
+                let
+                    tiersOutput : List String
+                    tiersOutput =
+                        List.map
+                            (\( name, address ) ->
+                                " - " ++ name ++ ": " ++ contentAddressToPath address
+                            )
+                            tiers
+                in
+                Script.log (String.join "\n" (tiersOutput ++ warnings))
             )
+
+
+toStringDiff : (a -> String) -> a -> a -> String
+toStringDiff toString l r =
+    let
+        ls : String
+        ls =
+            toString l
+                |> String.replace "," ",\n"
+
+        rs : String
+        rs =
+            toString r
+                |> String.replace "," ",\n"
+    in
+    Diff.diffLines ls rs
+        |> List.map expandChange
+        |> Diff.ToString.diffToString
+            { context = 3, color = True }
+
+
+expandChange :
+    Diff.Change () String
+    -> Diff.Change (List (Diff.Change Never Char)) String
+expandChange change =
+    case change of
+        Diff.Added a ->
+            Diff.Added a
+
+        Diff.Removed r ->
+            Diff.Removed r
+
+        Diff.Similar l r _ ->
+            Diff.Similar l r (Diff.diff (String.toList l) (String.toList r))
+
+        Diff.NoChange n ->
+            Diff.NoChange n
 
 
 type alias ParsedPost =
@@ -359,17 +505,18 @@ type alias ParsedPost =
     , date : Time.Posix
     , image : MediaPath
     , link : String
-    , media : MediaPath
+    , media : Maybe MediaPath
     , tiers : List Tier
     , number : Maybe String
     , content : Maybe String
+    , anonymous : Bool
     }
 
 
 parsePost : String -> BackendTask FatalError ParsedPost
 parsePost path =
     Do.allowFatal (File.rawFile path) <| \raw ->
-    Parser.run postFileParser raw
+    Parser.run (postFileParser { anonymous = String.contains "anonymous-" path }) raw
         |> Result.mapError
             (\e ->
                 Parser.Error.renderError
@@ -388,8 +535,8 @@ parsePost path =
         |> BackendTask.fromResult
 
 
-postFileParser : Parser ParsedPost
-postFileParser =
+postFileParser : { anonymous : Bool } -> Parser ParsedPost
+postFileParser { anonymous } =
     let
         row : String -> (String -> Result String a) -> Parser a
         row key postChomp =
@@ -444,6 +591,7 @@ postFileParser =
             , tiers = tiers
             , number = number
             , content = content
+            , anonymous = anonymous
             }
         )
         |= row "Title" Ok
@@ -459,7 +607,10 @@ postFileParser =
             )
         |= mediaRow "Image"
         |= row "Link" Ok
-        |= mediaRow "Media"
+        |= Parser.oneOf
+            [ Parser.map (\t m -> Just (t m)) (mediaRow "Media")
+            , Parser.succeed (\_ -> Nothing)
+            ]
         |= row "Tiers"
             (\raw ->
                 raw
@@ -478,6 +629,14 @@ postFileParser =
                 |= Parser.getChompedString (Parser.chompWhile (\_ -> True))
             , Parser.succeed Nothing
             ]
+        |> Parser.andThen
+            (\p ->
+                if p.media == Nothing && not p.anonymous then
+                    Parser.problem (missingFileError p)
+
+                else
+                    Parser.succeed p
+            )
 
 
 postToDumpFragment : ParsedPost -> String
@@ -491,85 +650,111 @@ postToDumpFragment post =
         ++ "</p>"
 
 
-cachePost : Config -> Api.Post -> BackendTask FatalError (Maybe { image : MediaPath, media : MediaPath, post : Api.Post })
+type CacheResult
+    = CannotCache String
+    | CanCache (BackendTask FatalError { image : MediaPath, media : Maybe MediaPath, post : Api.Post })
+    | NotRelevant
+
+
+cachePost : Config -> Api.Post -> CacheResult
 cachePost config post =
     case post.attributes.postType of
         Api.Podcast ->
             let
-                mediaUrlResult : Result String Url
-                mediaUrlResult =
-                    case post.attributes.postFile of
-                        Just (Api.PostFileAudioVideo { url }) ->
-                            case url of
-                                Nothing ->
-                                    missingFileError post
-
-                                Just u ->
-                                    Ok u
-
-                        Nothing ->
-                            missingFileError post
-
-                        Just (Api.PostFileImage _) ->
-                            Err ("Post " ++ post.id ++ ", expecting an audio/video file, found image")
-
-                        Just (Api.PostFileSize _) ->
-                            Err ("Post " ++ post.id ++ ", expecting an audio/video file, found size")
-
-                thumbSquareUrlResult : Result String Url
-                thumbSquareUrlResult =
-                    case post.attributes.thumbnail of
-                        Just (Api.Thumbnail_Square square) ->
-                            Ok square.thumbnail
-
-                        Just (Api.Thumbnail_Gif _) ->
-                            Err ("Post " ++ post.id ++ " has a GIF thumbnail")
-
-                        Nothing ->
-                            Err ("Post " ++ post.id ++ " does not have a thumbnail")
+                isOneTimePayment : Bool
+                isOneTimePayment =
+                    List.member Api.UnlockByPostOneTimePayment post.relationships.contentUnlockOptions
             in
-            Do.do (taskFromResult mediaUrlResult) <| \mediaUrl ->
-            Do.do (taskFromResult thumbSquareUrlResult) <| \thumbUrl ->
-            Do.do (cache config post (Url.toString thumbUrl)) <| \image ->
-            Do.do (cache config post (Url.toString mediaUrl)) <| \media ->
-            BackendTask.succeed (Just { image = image, media = media, post = post })
+            if isOneTimePayment then
+                NotRelevant
+
+            else
+                let
+                    mediaUrlResult : Result String (Maybe Url)
+                    mediaUrlResult =
+                        case post.attributes.postFile of
+                            Just (Api.PostFileAudioVideo { url }) ->
+                                case url of
+                                    Nothing ->
+                                        Ok Nothing
+
+                                    Just u ->
+                                        Ok (Just u)
+
+                            Nothing ->
+                                Ok Nothing
+
+                            Just (Api.PostFileImage _) ->
+                                Err ("Post " ++ post.id ++ ", expecting an audio/video file, found image")
+
+                            Just (Api.PostFileSize _) ->
+                                Err ("Post " ++ post.id ++ ", expecting an audio/video file, found size")
+
+                    thumbSquareUrlResult : Result String Url
+                    thumbSquareUrlResult =
+                        case post.attributes.thumbnail of
+                            Just (Api.Thumbnail_Square square) ->
+                                Ok square.thumbnail
+
+                            Just (Api.Thumbnail_Gif _) ->
+                                Err ("Post " ++ post.id ++ " has a GIF thumbnail")
+
+                            Nothing ->
+                                Err ("Post " ++ post.id ++ " does not have a thumbnail")
+                in
+                case ( mediaUrlResult, thumbSquareUrlResult ) of
+                    ( Err e, _ ) ->
+                        CannotCache e
+
+                    ( _, Err e ) ->
+                        CannotCache e
+
+                    ( Ok mediaUrl, Ok thumbUrl ) ->
+                        (Do.do (cache config post thumbUrl) <| \image ->
+                        Do.do
+                            (case mediaUrl of
+                                Nothing ->
+                                    BackendTask.succeed Nothing
+
+                                Just url ->
+                                    BackendTask.map Just (cache config post url)
+                            )
+                        <| \media ->
+                        BackendTask.succeed { image = image, media = media, post = post }
+                        )
+                            |> CanCache
 
         Api.LivestreamYoutube ->
-            BackendTask.succeed Nothing
+            NotRelevant
 
         Api.TextOnly ->
-            BackendTask.succeed Nothing
+            NotRelevant
 
         Api.ImageFile ->
-            BackendTask.succeed Nothing
+            NotRelevant
 
         Api.Link ->
-            BackendTask.succeed Nothing
+            NotRelevant
 
         Api.VideoEmbed ->
-            BackendTask.succeed Nothing
+            NotRelevant
 
         Api.VideoExternalFile ->
-            BackendTask.succeed Nothing
+            NotRelevant
 
         Api.Poll ->
-            BackendTask.succeed Nothing
+            NotRelevant
 
         Api.LivestreamCrowdcast ->
-            BackendTask.succeed Nothing
+            NotRelevant
 
         Api.AudioEmbed ->
-            BackendTask.succeed Nothing
+            NotRelevant
 
 
-missingFileError : Api.Post -> Result String Url
+missingFileError : ParsedPost -> String
 missingFileError post =
-    let
-        title : String
-        title =
-            post.attributes.title |> Maybe.withDefault "<no title>"
-    in
-    Err ("Post " ++ post.id ++ " - " ++ title ++ ", missing file")
+    "Post \"" ++ post.title ++ "\" - " ++ post.link ++ ", missing file\n" ++ Debug.toString post
 
 
 taskFromResult : Result String a -> BackendTask FatalError a
@@ -579,8 +764,12 @@ taskFromResult result =
         |> BackendTask.fromResult
 
 
-postToContent : Config -> { image : MediaPath, media : MediaPath, post : Api.Post } -> BackendTask FatalError ParsedPost
-postToContent config { image, media, post } =
+postToContent :
+    Config
+    -> { anonymous : Bool }
+    -> { image : MediaPath, media : Maybe MediaPath, post : Api.Post }
+    -> BackendTask FatalError ParsedPost
+postToContent config anonymous { image, media, post } =
     let
         postPath : PostPath
         postPath =
@@ -594,7 +783,7 @@ postToContent config { image, media, post } =
 
         target : String
         target =
-            postPathToPath config postPath
+            postPathToPath config anonymous postPath
 
         title : Rss.Title
         title =
@@ -624,6 +813,7 @@ postToContent config { image, media, post } =
                 , tiers = tiers
                 , number = toNumber title
                 , content = post.attributes.content
+                , anonymous = anonymous.anonymous
                 }
 
             body : String
@@ -645,7 +835,7 @@ parsedPostToString post =
     , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.date))
     , Just ("Image: " ++ mediaPathToFilename post.image)
     , Just ("Link: " ++ post.link)
-    , Just ("Media: " ++ mediaPathToFilename post.media)
+    , Maybe.map (\media -> "Media: " ++ mediaPathToFilename media) post.media
     , Just ("Tiers: " ++ String.join ", " (List.map tierToString post.tiers))
     , Maybe.map (\num -> "Number: " ++ num) post.number
     , Maybe.map (\content -> "Content: " ++ content) post.content
@@ -654,14 +844,14 @@ parsedPostToString post =
         |> String.join "\n"
 
 
-parsedPostToFinalString : { post : ParsedPost, image : ContentAddress, media : ContentAddress } -> String
+parsedPostToFinalString : { post : ParsedPost, image : ContentAddress, media : Maybe ContentAddress } -> String
 parsedPostToFinalString { post, image, media } =
     [ Just ("Title: " ++ post.title)
     , Just ("Category: " ++ post.category)
     , Just ("Date: " ++ String.fromInt (Time.posixToMillis post.date))
     , Just ("Image: " ++ contentAddressToPath image)
     , Just ("Link: " ++ post.link)
-    , Just ("Media: " ++ contentAddressToPath media)
+    , Maybe.map (\m -> "Media: " ++ contentAddressToPath m) media
     , Maybe.map (\num -> "Number: " ++ num) post.number
     ]
         |> List.filterMap identity
@@ -768,11 +958,15 @@ type PostPath
     = PostPath { date : Date, filename : String, extension : String }
 
 
-postPathToPath : Config -> PostPath -> String
-postPathToPath config ((PostPath inner) as path) =
+postPathToPath : Config -> { anonymous : Bool } -> PostPath -> String
+postPathToPath config { anonymous } ((PostPath inner) as path) =
     String.join "/"
         [ postPathToDir config path
-        , pathToFilename inner
+        , if anonymous then
+            "anonymous-" ++ pathToFilename inner
+
+          else
+            pathToFilename inner
         ]
 
 
@@ -827,83 +1021,82 @@ copyToContentAddressableStorage config { prefix, path, extension } =
     BackendTask.succeed (ContentAddress { filename = filename, extension = extension })
 
 
-cache : Config -> Api.Post -> String -> BackendTask FatalError MediaPath
-cache config post urlString =
-    case Url.fromString urlString of
-        Nothing ->
-            BackendTask.fail (FatalError.fromString ("Invalid URL: " ++ urlString))
+cache : Config -> Api.Post -> Url -> BackendTask FatalError MediaPath
+cache config post url =
+    let
+        urlString : String
+        urlString =
+            Url.toString url
 
-        Just url ->
+        extension : String
+        extension =
+            url.path
+                |> String.split "."
+                |> List.reverse
+                |> List.head
+                |> Maybe.withDefault "???"
+
+        date : Date
+        date =
+            Date.fromPosix Time.utc post.attributes.publishedAt
+
+        filename : String
+        filename =
+            post.attributes.title
+                |> Maybe.withDefault "unnamed"
+
+        scratchPath : ScratchPath
+        scratchPath =
+            ScratchPath
+                { date = date
+                , filename = filename
+                , extension = extension
+                }
+
+        scratchTarget : String
+        scratchTarget =
+            scratchPathToPath config scratchPath
+
+        scratchDir : String
+        scratchDir =
+            scratchPathToDir config scratchPath
+
+        mediaPath : MediaPath
+        mediaPath =
+            MediaPath
+                { date = date
+                , filename = filename
+                , extension = extension
+                }
+
+        mediaTarget : String
+        mediaTarget =
+            mediaPathToPath config mediaPath
+
+        mediaDir : String
+        mediaDir =
+            mediaPathToDir config mediaPath
+    in
+    Do.allowFatal (fileExists mediaTarget) <| \exists ->
+    Do.do
+        (if exists then
+            Do.noop
+
+         else
             let
-                extension : String
-                extension =
-                    url.path
-                        |> String.split "."
-                        |> List.reverse
-                        |> List.head
-                        |> Maybe.withDefault "???"
-
-                date : Date
-                date =
-                    Date.fromPosix Time.utc post.attributes.publishedAt
-
-                filename : String
-                filename =
-                    post.attributes.title
-                        |> Maybe.withDefault "unnamed"
-
-                scratchPath : ScratchPath
-                scratchPath =
-                    ScratchPath
-                        { date = date
-                        , filename = filename
-                        , extension = extension
-                        }
-
-                scratchTarget : String
-                scratchTarget =
-                    scratchPathToPath config scratchPath
-
-                scratchDir : String
-                scratchDir =
-                    scratchPathToDir config scratchPath
-
-                mediaPath : MediaPath
-                mediaPath =
-                    MediaPath
-                        { date = date
-                        , filename = filename
-                        , extension = extension
-                        }
-
-                mediaTarget : String
-                mediaTarget =
-                    mediaPathToPath config mediaPath
-
-                mediaDir : String
-                mediaDir =
-                    mediaPathToDir config mediaPath
+                opts : List String
+                opts =
+                    [ urlString, "-s", "-o", scratchTarget ]
             in
-            Do.allowFatal (fileExists mediaTarget) <| \exists ->
-            Do.do
-                (if exists then
-                    Do.noop
-
-                 else
-                    let
-                        opts : List String
-                        opts =
-                            [ urlString, "-s", "-o", scratchTarget ]
-                    in
-                    Do.log (String.join " " ("curl" :: opts)) <| \_ ->
-                    Do.exec "mkdir" [ "-p", scratchDir ] <| \_ ->
-                    Do.exec "mkdir" [ "-p", mediaDir ] <| \_ ->
-                    Do.exec "curl" opts <| \_ ->
-                    Do.exec "mv" [ scratchTarget, mediaTarget ] <| \_ ->
-                    Do.noop
-                )
-            <| \_ ->
-            BackendTask.succeed mediaPath
+            Do.log (String.join " " ("curl" :: opts)) <| \_ ->
+            Do.exec "mkdir" [ "-p", scratchDir ] <| \_ ->
+            Do.exec "mkdir" [ "-p", mediaDir ] <| \_ ->
+            Do.exec "curl" opts <| \_ ->
+            Do.exec "mv" [ scratchTarget, mediaTarget ] <| \_ ->
+            Do.noop
+        )
+    <| \_ ->
+    BackendTask.succeed mediaPath
 
 
 fileExists :

@@ -22,6 +22,7 @@
             "justinmimbs/date": "4.1.0",
             "lamdera/codecs": "1.0.0",
             "lamdera/containers": "1.0.0",
+            "miniBill/elm-diff": "1.1.2",
             "miniBill/elm-parser-error-extra": "1.0.0",
             "miniBill/elm-xml-parser": "1.0.2",
             "pithub/elm-parser-bug-workaround": "1.0.0",
