@@ -323,6 +323,8 @@ bonusDemoParser =
         |= Parser.oneOf
             [ Parser.succeed "I don't care"
                 |. Parser.token "your October bonus demo: 'I don't care'"
+            , Parser.succeed "Zombie"
+                |. Parser.token "gold tier bonus demo: 'zombie' + details for sept hangout"
             , Parser.succeed "Madison"
                 |. Parser.token "gold tier post - Madison "
             , Parser.succeed "God is a woman (cover w/ dodie & Julia Nunes)"
