@@ -424,11 +424,29 @@ task config =
                             )
                         <| \_ ->
                         Do.do
-                            (copyToContentAddressableStorage config
-                                { prefix = String.toLower tierName
-                                , path = path
-                                , extension = "md"
-                                }
+                            (case maybeTier of
+                                Just _ ->
+                                    copyToContentAddressableStorage config
+                                        { prefix = String.toLower tierName
+                                        , path = path
+                                        , extension = "md"
+                                        }
+
+                                Nothing ->
+                                    let
+                                        target : String
+                                        target =
+                                            config.outputDir ++ "/anonymous.md"
+
+                                        address : ContentAddress
+                                        address =
+                                            ContentAddress
+                                                { filename = "anonymous"
+                                                , extension = "md"
+                                                }
+                                    in
+                                    Do.exec "cp" [ "-n", path, target ] <| \_ ->
+                                    BackendTask.succeed address
                             )
                         <|
                             \address -> BackendTask.succeed ( tierName, address )
