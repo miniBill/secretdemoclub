@@ -43,7 +43,6 @@ class Crc32Transformer {
     constructor() {
         this._crc = 0xdebb20e3;
         this.length = 0;
-        // this._crc = ~0xdebb20e3;
     }
 
     start() {}
