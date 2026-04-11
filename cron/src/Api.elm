@@ -1,4 +1,4 @@
-module Api exposing (AccessRule, Attributes, AudioLinks, AudioRelationships, AverageColorsOfCorners, Embed, GifThumbnail, IdAndType, Image, ImageColors, ImageUrls, Media, Post, PostAudioVideo, PostFile(..), PostImage, PostMetadata, PostSize, PostTag, PostType(..), Relationships, Reward, SquareThumbnail, Thumbnail(..), getPosts)
+module Api exposing (AccessRule, Attributes, AudioLinks, AudioRelationships, AverageColorsOfCorners, ContentUnlockOption(..), Embed, GifThumbnail, IdAndType, Image, ImageColors, ImageUrls, Media, Post, PostAudioVideo, PostFile(..), PostImage, PostMetadata, PostSize, PostTag, PostType(..), Relationships, Reward, SquareThumbnail, Thumbnail(..), getPosts)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
@@ -108,11 +108,11 @@ rawRelationshipsToRelationships included rawRelationships =
                 _ ->
                     Err "Value is not a valid post tag"
 
-        asContentUnlockOption : RawIncluded -> Result String {}
+        asContentUnlockOption : RawIncluded -> Result String ContentUnlockOption
         asContentUnlockOption value =
             case value of
-                RawIncludedContentUnlockOption ->
-                    Ok {}
+                RawIncludedContentUnlockOption option ->
+                    Ok option
 
                 _ ->
                     Err "Value is not a valid post tag"
@@ -138,7 +138,7 @@ type RawIncluded
     = RawIncludedMedia Media
     | RawIncludedPostTag PostTag
     | RawIncludedPostAccessRule RawAccessRule { tier : Maybe IdAndType }
-    | RawIncludedContentUnlockOption
+    | RawIncludedContentUnlockOption ContentUnlockOption
     | RawIncludedReward Reward
     | RawIncludedProductVariant
 
@@ -200,15 +200,35 @@ rawIncludedDecoder type_ =
                     )
 
         "content-unlock-option" ->
-            DecodeComplete.object (\_ _ -> RawIncludedContentUnlockOption)
+            DecodeComplete.object (\option {} {} -> RawIncludedContentUnlockOption option)
+                |> DecodeComplete.required "id"
+                    (Json.Decode.string
+                        |> Json.Decode.andThen
+                            (\id ->
+                                if String.startsWith "post_otp:" id then
+                                    Json.Decode.succeed UnlockByPostOneTimePayment
+
+                                else if String.startsWith "patrons:" id then
+                                    Json.Decode.succeed UnlockByPatron
+
+                                else if String.startsWith "tier:" id then
+                                    Json.Decode.succeed UnlockByTier
+
+                                else if String.startsWith "min_cents_pledged:" id then
+                                    Json.Decode.succeed UnlockByMinCentsPledged
+
+                                else
+                                    Json.Decode.fail ("Unknown content-unlock-option type: " ++ id)
+                            )
+                    )
                 |> DecodeComplete.required "attributes"
                     (DecodeComplete.object {}
                         |> DecodeComplete.complete
                     )
                 |> DecodeComplete.omissible "relationships"
-                    (DecodeComplete.object (\_ -> {})
+                    (DecodeComplete.object identity
                         |> DecodeComplete.required "product_variant"
-                            (DecodeComplete.object (\_ -> {})
+                            (DecodeComplete.object {}
                                 |> DecodeComplete.discard "data"
                                 |> DecodeComplete.discard "links"
                                 |> DecodeComplete.complete
@@ -738,8 +758,15 @@ type alias Relationships =
     , video : List Media
     , media : List Media
     , userDefinedTags : List PostTag
-    , contentUnlockOptions : List {}
+    , contentUnlockOptions : List ContentUnlockOption
     }
+
+
+type ContentUnlockOption
+    = UnlockByPatron
+    | UnlockByPostOneTimePayment
+    | UnlockByTier
+    | UnlockByMinCentsPledged
 
 
 type alias RawRelationships =
