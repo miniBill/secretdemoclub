@@ -2,7 +2,7 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     naersk = {
-      url = "github:nix-community/naersk";
+      url = "github:nix-community/naersk/pull/391/head";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
