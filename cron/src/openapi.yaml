@@ -692,10 +692,10 @@ components:
                     format: uri
                 height:
                     type: string
-                    format: integer
+                    pattern: "^\\d+$"
                 width:
                     type: string
-                    format: integer
+                    pattern: "^\\d+$"
             required:
                 - original
                 - default
