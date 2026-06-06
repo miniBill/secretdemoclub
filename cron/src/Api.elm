@@ -377,44 +377,6 @@ getPosts :
     -> BackendTask FatalError (List Post)
 getPosts config =
     let
-        pageDecoder : Json.Decode.Decoder Page
-        pageDecoder =
-            DecodeComplete.object
-                (\data included next ->
-                    { data = data
-                    , next = next
-                    , included = SeqDict.fromList included
-                    }
-                )
-                |> DecodeComplete.required "data" (Json.Decode.list rawPostDecoder)
-                |> DecodeComplete.omissible "included"
-                    (Json.Decode.list
-                        (DecodeComplete.object
-                            (\id type_ ->
-                                { id = id
-                                , type_ = type_
-                                }
-                            )
-                            |> DecodeComplete.required "id" Json.Decode.string
-                            |> DecodeComplete.required "type" Json.Decode.string
-                            |> DecodeComplete.andThen
-                                (\key ->
-                                    rawIncludedDecoder key.type_
-                                        |> DecodeComplete.andThen
-                                            (\value -> DecodeComplete.object ( key, value ))
-                                )
-                            |> DecodeComplete.complete
-                        )
-                    )
-                    []
-                |> DecodeComplete.required "meta"
-                    (Json.Decode.at
-                        [ "pagination", "cursors", "next" ]
-                        (Json.Decode.nullable Json.Decode.string)
-                    )
-                |> DecodeComplete.discardOptional "links"
-                |> DecodeComplete.complete
-
         decodeContent : String -> BackendTask FatalError Page
         decodeContent content =
             Json.Decode.decodeString pageDecoder content
@@ -426,69 +388,7 @@ getPosts config =
             -> List (List Post)
             -> BackendTask FatalError (List Post)
         go cursor acc =
-            let
-                url : String
-                url =
-                    postsUrl cursor
-
-                hash : String
-                hash =
-                    SHA256.fromString url
-                        |> SHA256.toHex
-
-                filename : String
-                filename =
-                    if config.cookie == Nothing then
-                        "anon-" ++ hash ++ ".json"
-
-                    else
-                        hash ++ ".json"
-
-                target : String
-                target =
-                    String.join "/" [ config.workDir, "internal-api", filename ]
-            in
-            Do.glob target <| \existing ->
-            Do.do
-                (if not (List.isEmpty existing) then
-                    File.rawFile target
-                        |> BackendTask.allowFatal
-
-                 else
-                    let
-                        httpRequest : BackendTask { fatal : FatalError, recoverable : Http.Error } String
-                        httpRequest =
-                            Http.request
-                                { url = url
-                                , method = "GET"
-                                , body = Http.emptyBody
-                                , headers =
-                                    [ ( "User-Agent"
-                                      , "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0"
-                                      )
-                                        |> Just
-                                    , ( "Referer", "https://www.patreon.com/c/orlagartland/posts" )
-                                        |> Just
-                                    , Maybe.map (Tuple.pair "Cookie") config.cookie
-                                    ]
-                                        |> List.filterMap identity
-                                , retries = Nothing
-                                , timeoutInMs = Nothing
-                                }
-                                Http.expectString
-
-                        writeFile : String -> BackendTask { fatal : FatalError, recoverable : Script.Error } ()
-                        writeFile body =
-                            Script.writeFile
-                                { path = target
-                                , body = body
-                                }
-                    in
-                    Do.allowFatal httpRequest <| \body ->
-                    Do.allowFatal (writeFile body) <| \_ ->
-                    BackendTask.succeed body
-                )
-            <| \content ->
+            Do.do (getFromCache config (postsUrl cursor)) <| \content ->
             Do.do (decodeContent content) <| \{ next, data, included } ->
             case Result.Extra.combineMap (rawPostToPost included) data of
                 Err e ->
@@ -513,6 +413,105 @@ getPosts config =
                                 |> BackendTask.succeed
     in
     go "" []
+
+
+pageDecoder : Json.Decode.Decoder Page
+pageDecoder =
+    DecodeComplete.object
+        (\data included next ->
+            { data = data
+            , next = next
+            , included = SeqDict.fromList included
+            }
+        )
+        |> DecodeComplete.required "data" (Json.Decode.list rawPostDecoder)
+        |> DecodeComplete.omissible "included"
+            (Json.Decode.list
+                (DecodeComplete.object
+                    (\id type_ ->
+                        { id = id
+                        , type_ = type_
+                        }
+                    )
+                    |> DecodeComplete.required "id" Json.Decode.string
+                    |> DecodeComplete.required "type" Json.Decode.string
+                    |> DecodeComplete.andThen
+                        (\key ->
+                            rawIncludedDecoder key.type_
+                                |> DecodeComplete.andThen
+                                    (\value -> DecodeComplete.object ( key, value ))
+                        )
+                    |> DecodeComplete.complete
+                )
+            )
+            []
+        |> DecodeComplete.required "meta"
+            (Json.Decode.at
+                [ "pagination", "cursors", "next" ]
+                (Json.Decode.nullable Json.Decode.string)
+            )
+        |> DecodeComplete.discardOptional "links"
+        |> DecodeComplete.complete
+
+
+getFromCache : { cfg | workDir : String, cookie : Maybe String } -> String -> BackendTask FatalError String
+getFromCache config url =
+    let
+        hash : String
+        hash =
+            SHA256.fromString url
+                |> SHA256.toHex
+
+        filename : String
+        filename =
+            if config.cookie == Nothing then
+                "anon-" ++ hash ++ ".json"
+
+            else
+                hash ++ ".json"
+
+        target : String
+        target =
+            String.join "/" [ config.workDir, "internal-api", filename ]
+    in
+    Do.do (File.exists target) <| \fileExists ->
+    if fileExists then
+        File.rawFile target
+            |> BackendTask.allowFatal
+
+    else
+        let
+            httpRequest : BackendTask { fatal : FatalError, recoverable : Http.Error } String
+            httpRequest =
+                Http.request
+                    { url = url
+                    , method = "GET"
+                    , body = Http.emptyBody
+                    , headers =
+                        [ ( "User-Agent"
+                          , "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0"
+                          )
+                            |> Just
+                        , ( "Referer", "https://www.patreon.com/c/orlagartland/posts" )
+                            |> Just
+                        , Maybe.map (Tuple.pair "Cookie") config.cookie
+                        ]
+                            |> List.filterMap identity
+                    , retries = Nothing
+                    , timeoutInMs = Nothing
+                    }
+                    Http.expectString
+
+            writeFile : String -> BackendTask { fatal : FatalError, recoverable : Script.Error } ()
+            writeFile body =
+                Script.writeFile
+                    { path = target
+                    , body = body
+                    }
+        in
+        Do.allowFatal httpRequest <| \body ->
+        Do.allowFatal (writeFile body) <| \_ ->
+        BackendTask.succeed body
 
 
 postsUrl : String -> String
@@ -607,8 +606,8 @@ type alias Post =
 
 
 type alias RawPost =
-    { attributes : Attributes
-    , id : String
+    { id : String
+    , attributes : Attributes
     , relationships : RawRelationships
     }
 
@@ -616,8 +615,8 @@ type alias RawPost =
 rawPostDecoder : Json.Decode.Decoder RawPost
 rawPostDecoder =
     DecodeComplete.object RawPost
-        |> DecodeComplete.required "attributes" attributesDecoder
         |> DecodeComplete.required "id" Json.Decode.string
+        |> DecodeComplete.required "attributes" attributesDecoder
         |> DecodeComplete.required "relationships" relationshipsDecoder
         |> DecodeComplete.discard "type"
         |> DecodeComplete.complete
@@ -653,6 +652,7 @@ type PostType
     | Poll
     | LivestreamCrowdcast
     | AudioEmbed
+    | AudioFile
 
 
 type alias Embed =
@@ -873,6 +873,9 @@ postTypeDecoder =
 
                     "audio_embed" ->
                         Json.Decode.succeed AudioEmbed
+
+                    "audio_file" ->
+                        Json.Decode.succeed AudioFile
 
                     _ ->
                         Json.Decode.fail ("Unexpected post type: " ++ type_)

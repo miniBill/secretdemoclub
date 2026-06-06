@@ -660,69 +660,13 @@ cachePost : Config -> Api.Post -> CacheResult
 cachePost config post =
     case post.attributes.postType of
         Api.Podcast ->
-            let
-                isOneTimePayment : Bool
-                isOneTimePayment =
-                    List.member Api.UnlockByPostOneTimePayment post.relationships.contentUnlockOptions
-            in
-            if isOneTimePayment then
-                NotRelevant
+            innerCachePost config post
 
-            else
-                let
-                    mediaUrlResult : Result String (Maybe Url)
-                    mediaUrlResult =
-                        case post.attributes.postFile of
-                            Just (Api.PostFileAudioVideo { url }) ->
-                                case url of
-                                    Nothing ->
-                                        Ok Nothing
+        Api.AudioEmbed ->
+            NotRelevant
 
-                                    Just u ->
-                                        Ok (Just u)
-
-                            Nothing ->
-                                Ok Nothing
-
-                            Just (Api.PostFileImage _) ->
-                                Err ("Post " ++ post.id ++ ", expecting an audio/video file, found image")
-
-                            Just (Api.PostFileSize _) ->
-                                Err ("Post " ++ post.id ++ ", expecting an audio/video file, found size")
-
-                    thumbSquareUrlResult : Result String Url
-                    thumbSquareUrlResult =
-                        case post.attributes.thumbnail of
-                            Just (Api.Thumbnail_Square square) ->
-                                Ok square.thumbnail
-
-                            Just (Api.Thumbnail_Gif _) ->
-                                Err ("Post " ++ post.id ++ " has a GIF thumbnail")
-
-                            Nothing ->
-                                Err ("Post " ++ post.id ++ " does not have a thumbnail")
-                in
-                case ( mediaUrlResult, thumbSquareUrlResult ) of
-                    ( Err e, _ ) ->
-                        CannotCache e
-
-                    ( _, Err e ) ->
-                        CannotCache e
-
-                    ( Ok mediaUrl, Ok thumbUrl ) ->
-                        (Do.do (cache config post thumbUrl) <| \image ->
-                        Do.do
-                            (case mediaUrl of
-                                Nothing ->
-                                    BackendTask.succeed Nothing
-
-                                Just url ->
-                                    BackendTask.map Just (cache config post url)
-                            )
-                        <| \media ->
-                        BackendTask.succeed { image = image, media = media, post = post }
-                        )
-                            |> CanCache
+        Api.AudioFile ->
+            innerCachePost config post
 
         Api.LivestreamYoutube ->
             NotRelevant
@@ -748,13 +692,95 @@ cachePost config post =
         Api.LivestreamCrowdcast ->
             NotRelevant
 
-        Api.AudioEmbed ->
-            NotRelevant
+
+innerCachePost : Config -> { relationships : Api.Relationships, attributes : Api.Attributes, id : String } -> CacheResult
+innerCachePost config post =
+    let
+        isOneTimePayment : Bool
+        isOneTimePayment =
+            List.member Api.UnlockByPostOneTimePayment post.relationships.contentUnlockOptions
+    in
+    if isOneTimePayment then
+        NotRelevant
+
+    else
+        let
+            mediaUrlResult : Result String (Maybe Url)
+            mediaUrlResult =
+                case post.attributes.postType of
+                    Api.AudioEmbed ->
+                        case post.relationships.audio of
+                            Just { links } ->
+                                case Url.fromString links.related of
+                                    Nothing ->
+                                        Err ("Invalid url: " ++ links.related)
+
+                                    Just v ->
+                                        Ok (Just v)
+
+                            Nothing ->
+                                Ok Nothing
+
+                    Api.Podcast ->
+                        case post.attributes.postFile of
+                            Just (Api.PostFileAudioVideo { url }) ->
+                                case url of
+                                    Nothing ->
+                                        Ok Nothing
+
+                                    Just u ->
+                                        Ok (Just u)
+
+                            Nothing ->
+                                Ok Nothing
+
+                            Just (Api.PostFileImage _) ->
+                                Err ("Post " ++ post.id ++ ", expecting an audio/video file, found image")
+
+                            Just (Api.PostFileSize _) ->
+                                Err ("Post " ++ post.id ++ ", expecting an audio/video file, found size")
+
+                    _ ->
+                        Err ("Post " ++ post.id ++ " has unexpected postType " ++ Debug.toString post.attributes.postType)
+
+            thumbSquareUrlResult : Result String Url
+            thumbSquareUrlResult =
+                case post.attributes.thumbnail of
+                    Just (Api.Thumbnail_Square square) ->
+                        Ok square.thumbnail
+
+                    Just (Api.Thumbnail_Gif _) ->
+                        Err ("Post " ++ post.id ++ " has a GIF thumbnail")
+
+                    Nothing ->
+                        Err ("Post " ++ post.id ++ " does not have a thumbnail")
+        in
+        case ( mediaUrlResult, thumbSquareUrlResult ) of
+            ( Err e, _ ) ->
+                CannotCache e
+
+            ( _, Err e ) ->
+                CannotCache e
+
+            ( Ok mediaUrl, Ok thumbUrl ) ->
+                (Do.do (cache config post thumbUrl) <| \image ->
+                Do.do
+                    (case mediaUrl of
+                        Nothing ->
+                            BackendTask.succeed Nothing
+
+                        Just url ->
+                            BackendTask.map Just (cache config post url)
+                    )
+                <| \media ->
+                BackendTask.succeed { image = image, media = media, post = post }
+                )
+                    |> CanCache
 
 
 missingFileError : ParsedPost -> String
 missingFileError post =
-    "Post \"" ++ post.title ++ "\" - " ++ post.link ++ ", missing file\n" ++ Debug.toString post
+    "Missing file in post \"" ++ post.title ++ "\" - " ++ post.link ++ "\n" ++ Debug.toString post
 
 
 taskFromResult : Result String a -> BackendTask FatalError a
