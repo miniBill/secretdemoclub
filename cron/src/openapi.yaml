@@ -111,9 +111,9 @@ paths:
                 - name: json-api-version
                   in: query
                   schema:
-                      type: number
+                      type: string
                       enum:
-                          - 1.0
+                          - "1.0"
             responses:
                 "200":
                     description: 200 response

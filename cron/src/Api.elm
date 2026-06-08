@@ -10,13 +10,14 @@ import FatalError exposing (FatalError)
 import Json.Decode
 import Pages.Script as Script
 import Parser.Advanced
+import PatreonInternalApi.Api
+import PatreonInternalApi.Types
 import Result.Extra
 import Rfc3339
 import SHA256
 import SeqDict exposing (SeqDict)
 import Time
 import Url exposing (Url)
-import Url.Builder
 
 
 rawPostToPost :
@@ -223,6 +224,7 @@ rawIncludedDecoder type_ =
                     )
                 |> DecodeComplete.required "attributes"
                     (DecodeComplete.object {}
+                        |> DecodeComplete.discard "content_unlock_type"
                         |> DecodeComplete.complete
                     )
                 |> DecodeComplete.omissible "relationships"
@@ -517,85 +519,125 @@ getFromCache config url =
 postsUrl : String -> String
 postsUrl cursor =
     let
-        fields : String -> List String -> Url.Builder.QueryParameter
-        fields type_ list =
-            Url.Builder.string
-                ("fields[" ++ type_ ++ "]")
-                (String.join "," list)
-    in
-    Url.Builder.crossOrigin
-        "https://www.patreon.com"
-        [ "api", "posts" ]
-        [ Url.Builder.string "include"
-            ([ "access_rules"
+        filter :
+            { accessible_by_user_id : Maybe Int
+            , campaign_id : Maybe Int
+            , collection_ids : Maybe (List Int)
+            , contains_exclusive_posts : Maybe Bool
+            , include_drops : Maybe Bool
+            , include_lives : Maybe Bool
+            , is_draft : Maybe Bool
+            , media_types : Maybe (List PatreonInternalApi.Types.MediaType)
+            }
+        filter =
+            { accessible_by_user_id = Nothing
+            , campaign_id = Just 119662
+            , collection_ids = Nothing
+            , contains_exclusive_posts = Nothing
+            , include_drops = Nothing
+            , include_lives = Nothing
+            , is_draft = Nothing
+            , media_types = Nothing
+            }
 
-             --  , "access_rules.tier.null"
-             , "access_rules.tier"
-             , "attachments_media"
-             , "audio"
-             , "audio_preview.null"
-             , "images"
-             , "media"
-             , "user_defined_tags"
-             , "video.null"
-             , "content_unlock_options.product_variant.null"
-             ]
-                |> String.join ","
-            )
-        , fields "post"
-            [ "change_visibility_at"
-            , "content"
-            , "created_at"
-            , "embed"
-            , "image"
-            , "meta_image_url"
-            , "post_file"
-            , "post_metadata"
-            , "published_at"
-            , "patreon_url"
-            , "post_type"
-            , "pledge_url"
-            , "preview_asset_type"
-            , "thumbnail"
-            , "thumbnail_url"
-            , "title"
-            , "url"
-            , "video"
-            , "video_preview"
-            , "content_unlock_options"
-            ]
-        , fields "post_tag"
-            [ "tag_type"
-            , "value"
-            ]
-        , fields "access_rule"
-            [ "access_rule_type"
-            ]
-        , fields "media"
-            [ "id"
-            , "image_urls"
-            , "display"
-            , "download_url"
-            , "metadata"
-            , "file_name"
-            ]
-        , fields "productvariant"
-            [ "price_cents"
-            , "currency_code"
-            , "checkout_url"
-            , "is_hidden"
-            , "published_at_datetime"
-            , "content_type"
-            , "orders_count"
-            , "access_metadata"
-            ]
-        , fields "contentunlock-option" [ "content_unlock_type" ]
-        , Url.Builder.string "filter[campaign_id]" "119662"
-        , Url.Builder.string "sort" "-published_at"
-        , Url.Builder.string "page[cursor]" cursor
-        , Url.Builder.string "json-api-use-default-includes" "false"
-        , Url.Builder.string "json-api-version" "1.0"
-        ]
+        fields_ :
+            { access_rule : Maybe (List PatreonInternalApi.Types.AccessRuleField)
+            , campaign : Maybe (List PatreonInternalApi.Types.CampaignField)
+            , content_unlock_option : Maybe (List PatreonInternalApi.Types.ContentUnlockOptionField)
+            , livestream : Maybe (List PatreonInternalApi.Types.LivestreamField)
+            , media : Maybe (List PatreonInternalApi.Types.MediaField)
+            , post : Maybe (List PatreonInternalApi.Types.PostField)
+            , post_tag : Maybe (List PatreonInternalApi.Types.PostTagField)
+            , productvariant : Maybe (List PatreonInternalApi.Types.ProductVariantField)
+            , user : Maybe (List PatreonInternalApi.Types.UserField)
+            }
+        fields_ =
+            { campaign = Nothing
+            , livestream = Nothing
+            , user = Nothing
+            , post =
+                [ PatreonInternalApi.Types.PostField__ChangeVisibilityAt
+                , PatreonInternalApi.Types.PostField__Content
+                , PatreonInternalApi.Types.PostField__CreatedAt
+                , PatreonInternalApi.Types.PostField__Embed
+                , PatreonInternalApi.Types.PostField__Image
+                , PatreonInternalApi.Types.PostField__MetaImageUrl
+                , PatreonInternalApi.Types.PostField__PostFile
+                , PatreonInternalApi.Types.PostField__PostMetadata
+                , PatreonInternalApi.Types.PostField__PublishedAt
+                , PatreonInternalApi.Types.PostField__PatreonUrl
+                , PatreonInternalApi.Types.PostField__PostType
+                , PatreonInternalApi.Types.PostField__PledgeUrl
+                , PatreonInternalApi.Types.PostField__PreviewAssetType
+                , PatreonInternalApi.Types.PostField__Thumbnail
+                , PatreonInternalApi.Types.PostField__ThumbnailUrl
+                , PatreonInternalApi.Types.PostField__Title
+                , PatreonInternalApi.Types.PostField__Url
+                , PatreonInternalApi.Types.PostField__Video
+                , PatreonInternalApi.Types.PostField__VideoPreview
+                , PatreonInternalApi.Types.PostField__ContentUnlockOptions
+                ]
+                    |> Just
+            , post_tag =
+                [ PatreonInternalApi.Types.PostTagField__TagType
+                , PatreonInternalApi.Types.PostTagField__Value
+                ]
+                    |> Just
+            , access_rule =
+                [ PatreonInternalApi.Types.AccessRuleField__AccessRuleType
+                ]
+                    |> Just
+            , media =
+                [ PatreonInternalApi.Types.MediaField__Id
+                , PatreonInternalApi.Types.MediaField__ImageUrls
+                , PatreonInternalApi.Types.MediaField__Display
+                , PatreonInternalApi.Types.MediaField__DownloadUrl
+                , PatreonInternalApi.Types.MediaField__Metadata
+                , PatreonInternalApi.Types.MediaField__FileName
+                ]
+                    |> Just
+            , productvariant =
+                [ PatreonInternalApi.Types.ProductVariantField__PriceCents
+                , PatreonInternalApi.Types.ProductVariantField__CurrencyCode
+                , PatreonInternalApi.Types.ProductVariantField__CheckoutUrl
+                , PatreonInternalApi.Types.ProductVariantField__IsHidden
+                , PatreonInternalApi.Types.ProductVariantField__PublishedAtDatetime
+                , PatreonInternalApi.Types.ProductVariantField__ContentType
+                , PatreonInternalApi.Types.ProductVariantField__OrdersCount
+                , PatreonInternalApi.Types.ProductVariantField__AccessMetadata
+                ]
+                    |> Just
+            , content_unlock_option =
+                [ PatreonInternalApi.Types.ContentUnlockOptionField__ContentUnlockType
+                ]
+                    |> Just
+            }
+    in
+    PatreonInternalApi.Api.postsRecord
+        { params =
+            { include =
+                Just
+                    [ PatreonInternalApi.Types.Include__AccessRules
+                    , PatreonInternalApi.Types.Include__AccessRulesTier
+                    , PatreonInternalApi.Types.Include__AttachmentsMedia
+                    , PatreonInternalApi.Types.Include__Audio
+                    , PatreonInternalApi.Types.Include__AudioPreviewNull
+                    , PatreonInternalApi.Types.Include__Images
+                    , PatreonInternalApi.Types.Include__Media
+                    , PatreonInternalApi.Types.Include__UserDefinedTags
+                    , PatreonInternalApi.Types.Include__VideoNull
+                    , PatreonInternalApi.Types.Include__ContentUnlockOptionsProductVariantNull
+                    ]
+            , fields = Just fields_
+            , filter = Just filter
+            , sort = Just PatreonInternalApi.Types.Sort__MinuspublishedAt
+            , page = Just { cursor = Just cursor }
+            , json_api_use_default_includes = Just False
+            , json_api_version = Just "1.0"
+            }
+        }
+        |> Tuple.first
+        |> .url
 
 
 type alias Post =
