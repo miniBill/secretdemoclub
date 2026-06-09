@@ -1049,6 +1049,15 @@ copyMediaToContentAddressableStorage config ((MediaPath { extension }) as mediaP
 
 copyToContentAddressableStorage : Config -> { prefix : String, path : String, extension : String } -> BackendTask FatalError ContentAddress
 copyToContentAddressableStorage config { prefix, path, extension } =
+    Do.do (File.exists path) <| \exists ->
+    Do.do
+        (if not exists then
+            BackendTask.fail (FatalError.fromString ("Missing file: " ++ path))
+
+         else
+            Do.noop
+        )
+    <| \() ->
     Do.command "sha512sum" [ path ] <| \output ->
     let
         sum : String
