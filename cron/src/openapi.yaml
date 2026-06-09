@@ -185,10 +185,13 @@ components:
                     format: uri
                 linked_object_id:
                     type: string
+                    nullable: true
                 linked_object_type:
                     type: string
+                    nullable: true
                 product_variant_id:
                     type: string
+                    nullable: true
             required:
                 - provider
                 - provider_url
@@ -208,6 +211,33 @@ components:
             required:
                 - id
                 - type
+        Image:
+            type: object
+            additionalProperties: false
+            properties:
+                height:
+                    type: integer
+                    nullable: true
+                large_url:
+                    type: string
+                    format: uri
+                thumb_square_large_url:
+                    type: string
+                    format: uri
+                thumb_square_url:
+                    type: string
+                    format: uri
+                thumb_url:
+                    type: string
+                    format: uri
+                url:
+                    type: string
+                    format: uri
+                width:
+                    type: integer
+                    nullable: true
+            required:
+                - url
         ImageColors:
             type: object
             additionalProperties: false
@@ -354,7 +384,7 @@ components:
                 embed:
                     $ref: "#/components/schemas/Embed"
                 image:
-                    $ref: "#/components/schemas/PostImage"
+                    $ref: "#/components/schemas/Image"
                 meta_image_url:
                     type: string
                     format: uri
@@ -384,6 +414,7 @@ components:
                     format: uri
                 change_visibility_at:
                     type: string # TODO
+                    nullable: true
                 video_preview:
                     type: string # TODO
                     nullable: true
@@ -431,7 +462,16 @@ components:
                 height:
                     type: integer
                 progress:
-                    type: integer
+                    type: object
+                    additionalProperties: false
+                    properties:
+                        is_watched:
+                            type: boolean
+                        watch_state:
+                            $ref: "#/components/schemas/WatchState"
+                    required:
+                        - is_watched
+                        - watch_state
                 closed_captions_enabled:
                     type: integer
                 video_issues:
@@ -476,6 +516,7 @@ components:
             oneOf:
                 - $ref: "#/components/schemas/PostMetadataImageOrder"
                 - $ref: "#/components/schemas/PostMetadataPodcast"
+                - $ref: "#/components/schemas/PostMetadataOther"
         PostMetadataImageOrder:
             type: object
             additionalProperties: false
@@ -486,6 +527,16 @@ components:
                         type: string
             required:
                 - image_order
+        PostMetadataOther:
+            type: object
+            additionalProperties: false
+            properties:
+                platform:
+                    type: object
+                    additionalProperties: false
+                send_notifications:
+                    type: object
+                    additionalProperties: false
         PostMetadataPodcast:
             type: object
             additionalProperties: false
@@ -727,3 +778,7 @@ components:
                 - full_name
                 - image_url
                 - url
+        WatchState:
+            type: string
+            enum:
+                - is_not_watched
