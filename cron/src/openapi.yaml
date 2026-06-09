@@ -145,7 +145,6 @@ components:
                 - bottom_right
                 - top_left
                 - top_right
-
         CampaignField:
             type: string
             enum:
