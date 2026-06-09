@@ -668,7 +668,7 @@ cachePost config post =
             NotRelevant
 
         ApiTypes.PostType__AudioFile ->
-            innerCachePost config post
+            NotRelevant
 
         ApiTypes.PostType__LivestreamYoutube ->
             NotRelevant
