@@ -1,4 +1,4 @@
-module Api exposing (AccessRule, Attributes, AudioLinks, AudioRelationships, AverageColorsOfCorners, ContentUnlockOption(..), Embed, GifThumbnail, IdAndType, Image, ImageColors, ImageUrls, Media, Post, PostAudioVideo, PostFile(..), PostImage, PostMetadata, PostSize, PostTag, PostType(..), Relationships, Reward, SquareThumbnail, Thumbnail(..), getPosts)
+module Api exposing (AccessRule, AudioLinks, AudioRelationships, AverageColorsOfCorners, Embed, IdAndType, Image, ImageColors, ImageUrls, Post, Relationships, getPosts)
 
 import BackendTask exposing (BackendTask)
 import BackendTask.Do as Do
@@ -8,11 +8,12 @@ import DecodeComplete
 import DecodeComplete.Extra
 import FatalError exposing (FatalError)
 import Json.Decode
+import OpenApi.Common
 import Pages.Script as Script
 import Parser.Advanced
 import PatreonInternalApi.Api
 import PatreonInternalApi.Json
-import PatreonInternalApi.Types
+import PatreonInternalApi.Types as ApiTypes
 import Result.Extra
 import Rfc3339
 import SHA256
@@ -22,25 +23,74 @@ import Url exposing (Url)
 
 
 rawPostToPost :
-    SeqDict IdAndType RawIncluded
-    -> RawPost
+    Maybe (List ApiTypes.Included)
+    -> ApiTypes.Post
     -> Result FatalError Post
 rawPostToPost included rawPost =
+    let
+        includedDict : SeqDict ApiTypes.IdAndType ApiTypes.Included
+        includedDict =
+            List.foldl
+                (\e a ->
+                    SeqDict.insert (includedToIdAndType e) e a
+                )
+                SeqDict.empty
+                (Maybe.withDefault [] included)
+    in
     Result.map
         (\relationships ->
             { id = rawPost.id
+            , type_ = rawPost.type_
             , attributes = rawPost.attributes
             , relationships = relationships
             }
         )
-        (rawRelationshipsToRelationships included rawPost.relationships)
+        (rawRelationshipsToRelationships includedDict rawPost.relationships)
         |> Result.mapError (\str -> FatalError.fromString ("While converting post " ++ rawPost.id ++ ", " ++ str))
 
 
-rawRelationshipsToRelationships : SeqDict IdAndType RawIncluded -> RawRelationships -> Result String Relationships
+includedToIdAndType : ApiTypes.Included -> ApiTypes.IdAndType
+includedToIdAndType included =
+    case included of
+        ApiTypes.IncludedContentUnlockOption_Or_IncludedMedia_Or_IncludedPostAccessRule_Or_IncludedPostTag_Or_IncludedProductVariant_Or_IncludedReward__IncludedContentUnlockOption contentUnlockOption ->
+            contentUnlockOptionToIdAndType contentUnlockOption
+
+        ApiTypes.IncludedContentUnlockOption_Or_IncludedMedia_Or_IncludedPostAccessRule_Or_IncludedPostTag_Or_IncludedProductVariant_Or_IncludedReward__IncludedMedia media ->
+            { id = media.id, type_ = media.type_ }
+
+        ApiTypes.IncludedContentUnlockOption_Or_IncludedMedia_Or_IncludedPostAccessRule_Or_IncludedPostTag_Or_IncludedProductVariant_Or_IncludedReward__IncludedPostAccessRule postAccessRule ->
+            { id = postAccessRule.id, type_ = postAccessRule.type_ }
+
+        ApiTypes.IncludedContentUnlockOption_Or_IncludedMedia_Or_IncludedPostAccessRule_Or_IncludedPostTag_Or_IncludedProductVariant_Or_IncludedReward__IncludedPostTag postTag ->
+            { id = postTag.id, type_ = postTag.type_ }
+
+        ApiTypes.IncludedContentUnlockOption_Or_IncludedMedia_Or_IncludedPostAccessRule_Or_IncludedPostTag_Or_IncludedProductVariant_Or_IncludedReward__IncludedProductVariant productVariant ->
+            { id = productVariant.id, type_ = productVariant.type_ }
+
+        ApiTypes.IncludedContentUnlockOption_Or_IncludedMedia_Or_IncludedPostAccessRule_Or_IncludedPostTag_Or_IncludedProductVariant_Or_IncludedReward__IncludedReward reward ->
+            { id = reward.id, type_ = reward.type_ }
+
+
+contentUnlockOptionToIdAndType : ApiTypes.IncludedContentUnlockOption -> ApiTypes.IdAndType
+contentUnlockOptionToIdAndType contentUnlockOption =
+    case contentUnlockOption of
+        ApiTypes.UnlockOptionMinCentsPledged_Or_UnlockOptionOneTimePayment_Or_UnlockOptionPatron_Or_UnlockOptionTier__UnlockOptionMinCentsPledged v ->
+            v
+
+        ApiTypes.UnlockOptionMinCentsPledged_Or_UnlockOptionOneTimePayment_Or_UnlockOptionPatron_Or_UnlockOptionTier__UnlockOptionOneTimePayment v ->
+            v
+
+        ApiTypes.UnlockOptionMinCentsPledged_Or_UnlockOptionOneTimePayment_Or_UnlockOptionPatron_Or_UnlockOptionTier__UnlockOptionPatron v ->
+            v
+
+        ApiTypes.UnlockOptionMinCentsPledged_Or_UnlockOptionOneTimePayment_Or_UnlockOptionPatron_Or_UnlockOptionTier__UnlockOptionTier v ->
+            v
+
+
+rawRelationshipsToRelationships : SeqDict IdAndType ApiTypes.Included -> ApiTypes.PostRelationships -> Result String Relationships
 rawRelationshipsToRelationships included rawRelationships =
     let
-        find : IdAndType -> (RawIncluded -> Result String value) -> Result String value
+        find : IdAndType -> (ApiTypes.Included -> Result String value) -> Result String value
         find key unpacker =
             case SeqDict.get key included of
                 Nothing ->
@@ -54,288 +104,138 @@ rawRelationshipsToRelationships included rawRelationships =
                 Just value ->
                     unpacker value
 
-        asAccessRule : RawIncluded -> Result String AccessRule
+        asAccessRule : ApiTypes.Included -> Result String AccessRule
         asAccessRule value =
             case value of
-                RawIncludedPostAccessRule raw data ->
-                    case data.tier of
-                        Nothing ->
-                            { accessRuleType = raw.accessRuleType
-                            , amountCents = raw.amountCents
-                            , currency = raw.currency
-                            , postCount = raw.postCount
+                ApiTypes.IncludedContentUnlockOption_Or_IncludedMedia_Or_IncludedPostAccessRule_Or_IncludedPostTag_Or_IncludedProductVariant_Or_IncludedReward__IncludedPostAccessRule postAccessRule ->
+                    case listOfIdAndTypeToList postAccessRule.relationships.tier of
+                        [] ->
+                            { accessRuleType = postAccessRule.attributes.access_rule_type
+                            , amountCents = postAccessRule.attributes.amount_cents
+                            , currency = postAccessRule.attributes.currency
+                            , postCount = postAccessRule.attributes.post_count
                             , reward = Nothing
                             }
                                 |> Ok
 
-                        Just tier ->
+                        [ tier ] ->
                             find tier asReward
                                 |> Result.map
                                     (\reward ->
-                                        { accessRuleType = raw.accessRuleType
-                                        , amountCents = raw.amountCents
-                                        , currency = raw.currency
-                                        , postCount = raw.postCount
-                                        , reward = Just reward
+                                        { accessRuleType = postAccessRule.attributes.access_rule_type
+                                        , amountCents = postAccessRule.attributes.amount_cents
+                                        , currency = postAccessRule.attributes.currency
+                                        , postCount = postAccessRule.attributes.post_count
+                                        , reward = Just reward.attributes
                                         }
                                     )
+
+                        _ ->
+                            Err "Multiple tiers"
 
                 _ ->
                     Err "Value is not a valid access rule"
 
-        asReward : RawIncluded -> Result String Reward
+        asReward : ApiTypes.Included -> Result String ApiTypes.IncludedReward
         asReward value =
             case value of
-                RawIncludedReward reward ->
+                ApiTypes.IncludedContentUnlockOption_Or_IncludedMedia_Or_IncludedPostAccessRule_Or_IncludedPostTag_Or_IncludedProductVariant_Or_IncludedReward__IncludedReward reward ->
                     Ok reward
 
                 _ ->
                     Err "Value is not a valid reward"
 
-        asMedia : RawIncluded -> Result String Media
+        asMedia : ApiTypes.Included -> Result String ApiTypes.IncludedMedia
         asMedia value =
             case value of
-                RawIncludedMedia media ->
+                ApiTypes.IncludedContentUnlockOption_Or_IncludedMedia_Or_IncludedPostAccessRule_Or_IncludedPostTag_Or_IncludedProductVariant_Or_IncludedReward__IncludedMedia media ->
                     Ok media
 
                 _ ->
                     Err "Value is not a valid media"
 
-        asTag : RawIncluded -> Result String PostTag
+        asTag : ApiTypes.Included -> Result String ApiTypes.IncludedPostTag
         asTag value =
             case value of
-                RawIncludedPostTag media ->
+                ApiTypes.IncludedContentUnlockOption_Or_IncludedMedia_Or_IncludedPostAccessRule_Or_IncludedPostTag_Or_IncludedProductVariant_Or_IncludedReward__IncludedPostTag media ->
                     Ok media
 
                 _ ->
                     Err "Value is not a valid post tag"
 
-        asContentUnlockOption : RawIncluded -> Result String ContentUnlockOption
+        asContentUnlockOption : ApiTypes.Included -> Result String ApiTypes.IncludedContentUnlockOption
         asContentUnlockOption value =
             case value of
-                RawIncludedContentUnlockOption option ->
+                ApiTypes.IncludedContentUnlockOption_Or_IncludedMedia_Or_IncludedPostAccessRule_Or_IncludedPostTag_Or_IncludedProductVariant_Or_IncludedReward__IncludedContentUnlockOption option ->
                     Ok option
 
                 _ ->
                     Err "Value is not a valid post tag"
 
-        findAll : (RawRelationships -> List IdAndType) -> (RawIncluded -> Result String value) -> Result String (List value)
-        findAll prop unpacker =
-            prop rawRelationships
-                |> Result.Extra.combineMap (\item -> find item unpacker)
+        findAll :
+            ApiTypes.ListOfIdAndType
+            -> (ApiTypes.Included -> Result String value)
+            -> Result String (List value -> b)
+            -> Result String b
+        findAll prop unpacker k =
+            k
+                |> Result.Extra.andMap
+                    (prop
+                        |> listOfIdAndTypeToList
+                        |> Result.Extra.combineMap (\item -> find item unpacker)
+                    )
+
+        findAllMaybe :
+            Maybe ApiTypes.ListOfIdAndType
+            -> (ApiTypes.Included -> Result String value)
+            -> Result String (List value -> b)
+            -> Result String b
+        findAllMaybe prop unpacker k =
+            findAll
+                (Maybe.withDefault
+                    (ApiTypes.EmptyListOfIdAndType_Or_NonEmptyListOfIdAndType_Or_SingleIdAndType__EmptyListOfIdAndType { data = () })
+                    prop
+                )
+                unpacker
+                k
     in
     Ok Relationships
-        |> Result.Extra.andMap (findAll .accessRules asAccessRule)
-        |> Result.Extra.andMap (findAll .attachmentsMedia asMedia)
-        |> Result.Extra.andMap (Ok rawRelationships.audio)
-        |> Result.Extra.andMap (Ok rawRelationships.audioPreview)
-        |> Result.Extra.andMap (findAll .images asMedia)
-        |> Result.Extra.andMap (findAll .video asMedia)
-        |> Result.Extra.andMap (findAll .media asMedia)
-        |> Result.Extra.andMap (findAll .userDefinedTags asTag)
-        |> Result.Extra.andMap (findAll .contentUnlockOptions asContentUnlockOption)
+        |> findAll rawRelationships.access_rules asAccessRule
+        |> findAllMaybe rawRelationships.attachments_media asMedia
+        |> findAllMaybe rawRelationships.audio asMedia
+        |> findAllMaybe rawRelationships.audio_preview asMedia
+        |> findAllMaybe rawRelationships.images asMedia
+        |> findAllMaybe rawRelationships.video asMedia
+        |> findAllMaybe rawRelationships.media asMedia
+        |> findAllMaybe rawRelationships.user_defined_tags asTag
+        |> findAllMaybe rawRelationships.content_unlock_options asContentUnlockOption
 
 
-type RawIncluded
-    = RawIncludedMedia Media
-    | RawIncludedPostTag PostTag
-    | RawIncludedPostAccessRule RawAccessRule { tier : Maybe IdAndType }
-    | RawIncludedContentUnlockOption ContentUnlockOption
-    | RawIncludedReward Reward
-    | RawIncludedProductVariant
+listOfIdAndTypeToList : ApiTypes.ListOfIdAndType -> List IdAndType
+listOfIdAndTypeToList list =
+    case list of
+        ApiTypes.EmptyListOfIdAndType_Or_NonEmptyListOfIdAndType_Or_SingleIdAndType__EmptyListOfIdAndType _ ->
+            []
 
+        ApiTypes.EmptyListOfIdAndType_Or_NonEmptyListOfIdAndType_Or_SingleIdAndType__NonEmptyListOfIdAndType { data } ->
+            data
 
-rawIncludedDecoder : String -> DecodeComplete.ObjectDecoder RawIncluded
-rawIncludedDecoder type_ =
-    case type_ of
-        "media" ->
-            DecodeComplete.object RawIncludedMedia
-                |> DecodeComplete.required "attributes"
-                    (DecodeComplete.object Media
-                        |> DecodeComplete.required "display" postFileDecoder
-                        |> DecodeComplete.Extra.omissibleMaybe "download_url" urlDecoder
-                        |> DecodeComplete.required "file_name" (Json.Decode.nullable Json.Decode.string)
-                        |> DecodeComplete.Extra.omissibleNullableMaybe "image_urls" imageUrlsDecoder
-                        |> DecodeComplete.discard "metadata"
-                        |> DecodeComplete.complete
-                    )
+        ApiTypes.EmptyListOfIdAndType_Or_NonEmptyListOfIdAndType_Or_SingleIdAndType__SingleIdAndType { data } ->
+            case data of
+                OpenApi.Common.Present d ->
+                    [ d ]
 
-        "post_tag" ->
-            DecodeComplete.object RawIncludedPostTag
-                |> DecodeComplete.required "attributes"
-                    (DecodeComplete.object identity
-                        |> DecodeComplete.required "tag_type"
-                            (Json.Decode.string
-                                |> Json.Decode.andThen
-                                    (\tagType ->
-                                        case tagType of
-                                            "user_defined" ->
-                                                Json.Decode.succeed UserDefined
-
-                                            _ ->
-                                                Json.Decode.fail ("Unknown tag_type:" ++ tagType)
-                                    )
-                            )
-                        |> DecodeComplete.required "value" Json.Decode.string
-                        |> DecodeComplete.complete
-                    )
-
-        "access-rule" ->
-            DecodeComplete.object RawIncludedPostAccessRule
-                |> DecodeComplete.required "attributes"
-                    (DecodeComplete.object RawAccessRule
-                        |> DecodeComplete.required "access_rule_type" Json.Decode.string
-                        |> DecodeComplete.required "amount_cents" (Json.Decode.nullable Json.Decode.int)
-                        |> DecodeComplete.required "currency" Json.Decode.string
-                        |> DecodeComplete.required "post_count" Json.Decode.int
-                        |> DecodeComplete.complete
-                    )
-                |> DecodeComplete.required "relationships"
-                    (DecodeComplete.object (\tier -> { tier = tier })
-                        |> DecodeComplete.required "tier"
-                            (DecodeComplete.object identity
-                                |> DecodeComplete.required "data" (Json.Decode.nullable idAndTypeDecoder)
-                                |> DecodeComplete.discardOptional "links"
-                                |> DecodeComplete.complete
-                            )
-                        |> DecodeComplete.complete
-                    )
-
-        "content-unlock-option" ->
-            DecodeComplete.object (\option {} {} -> RawIncludedContentUnlockOption option)
-                |> DecodeComplete.required "id"
-                    (Json.Decode.string
-                        |> Json.Decode.andThen
-                            (\id ->
-                                if String.startsWith "post_otp:" id then
-                                    Json.Decode.succeed UnlockByPostOneTimePayment
-
-                                else if String.startsWith "patrons:" id then
-                                    Json.Decode.succeed UnlockByPatron
-
-                                else if String.startsWith "tier:" id then
-                                    Json.Decode.succeed UnlockByTier
-
-                                else if String.startsWith "min_cents_pledged:" id then
-                                    Json.Decode.succeed UnlockByMinCentsPledged
-
-                                else
-                                    Json.Decode.fail ("Unknown content-unlock-option type: " ++ id)
-                            )
-                    )
-                |> DecodeComplete.required "attributes"
-                    (DecodeComplete.object {}
-                        |> DecodeComplete.discard "content_unlock_type"
-                        |> DecodeComplete.complete
-                    )
-                |> DecodeComplete.omissible "relationships"
-                    (DecodeComplete.object identity
-                        |> DecodeComplete.required "product_variant"
-                            (DecodeComplete.object {}
-                                |> DecodeComplete.discard "data"
-                                |> DecodeComplete.discard "links"
-                                |> DecodeComplete.complete
-                            )
-                        |> DecodeComplete.complete
-                    )
-                    {}
-
-        "product-variant" ->
-            DecodeComplete.object (\_ -> RawIncludedProductVariant)
-                |> DecodeComplete.required "attributes"
-                    (DecodeComplete.object {}
-                        |> DecodeComplete.complete
-                    )
-
-        "reward" ->
-            DecodeComplete.object RawIncludedReward
-                |> DecodeComplete.required "attributes"
-                    (DecodeComplete.object Reward
-                        |> DecodeComplete.required "amount" Json.Decode.int
-                        |> DecodeComplete.required "amount_cents" Json.Decode.int
-                        |> DecodeComplete.required "created_at" rfc3339Decoder
-                        |> DecodeComplete.required "currency" Json.Decode.string
-                        |> DecodeComplete.discard "declined_patron_count"
-                        |> DecodeComplete.required "description" Json.Decode.string
-                        |> DecodeComplete.required "discord_role_ids" (listOrNull Json.Decode.string)
-                        |> DecodeComplete.required "edited_at" Json.Decode.string
-                        |> DecodeComplete.required "image_url" (Json.Decode.nullable Json.Decode.string)
-                        |> DecodeComplete.required "is_free_tier" Json.Decode.bool
-                        |> DecodeComplete.required "patron_amount_cents" Json.Decode.int
-                        |> DecodeComplete.required "patron_currency" Json.Decode.string
-                        |> DecodeComplete.required "post_count" Json.Decode.int
-                        |> DecodeComplete.required "published" Json.Decode.bool
-                        |> DecodeComplete.required "published_at" rfc3339Decoder
-                        |> DecodeComplete.required "remaining" (Json.Decode.nullable Json.Decode.int)
-                        |> DecodeComplete.required "requires_shipping" Json.Decode.bool
-                        |> DecodeComplete.required "title" Json.Decode.string
-                        |> DecodeComplete.required "unpublished_at" (Json.Decode.nullable rfc3339Decoder)
-                        |> DecodeComplete.required "url" Json.Decode.string
-                        |> DecodeComplete.Extra.omissibleMaybe "welcome_message" Json.Decode.string
-                        |> DecodeComplete.Extra.omissibleNullableMaybe "welcome_message_unsafe" Json.Decode.string
-                        |> DecodeComplete.Extra.omissibleNullableMaybe "welcome_video_embed" Json.Decode.string
-                        |> DecodeComplete.Extra.omissibleNullableMaybe "welcome_video_url" Json.Decode.string
-                        |> DecodeComplete.complete
-                    )
-
-        _ ->
-            DecodeComplete.fail ("Unexpected type: " ++ type_)
-
-
-type alias Media =
-    { display : PostFile
-    , downloadUrl : Maybe Url
-    , fileName : Maybe String
-    , imageUrls : Maybe ImageUrls
-    }
-
-
-type alias RawAccessRule =
-    { accessRuleType : String
-    , amountCents : Maybe Int
-    , currency : String
-    , postCount : Int
-    }
+                OpenApi.Common.Null ->
+                    []
 
 
 type alias AccessRule =
     { accessRuleType : String
-    , amountCents : Maybe Int
+    , amountCents : OpenApi.Common.Nullable Int
     , currency : String
     , postCount : Int
-    , reward : Maybe Reward
+    , reward : Maybe ApiTypes.RewardAttributes
     }
-
-
-type alias Reward =
-    { amount : Int
-    , amountCents : Int
-    , createdAt : Time.Posix
-    , currency : String
-    , description : String
-    , discordRoleIds : List String
-    , editedAt : String
-    , imageUrl : Maybe String
-    , isFreeTier : Bool
-    , patronAmountCents : Int
-    , patronCurrency : String
-    , postCount : Int
-    , published : Bool
-    , publishedAt : Time.Posix
-    , remaining : Maybe Int
-    , requiresShipping : Bool
-    , title : String
-    , unpublishedAt : Maybe Time.Posix
-    , url : String
-    , welcomeMessage : Maybe String
-    , welcomeMessageUnsafe : Maybe String
-    , welcomeVideoEmbed : Maybe String
-    , welcomeVideoUrl : Maybe String
-    }
-
-
-type PostTag
-    = UserDefined String
 
 
 type alias ImageUrls =
@@ -352,46 +252,16 @@ type alias ImageUrls =
     }
 
 
-imageUrlsDecoder : Json.Decode.Decoder ImageUrls
-imageUrlsDecoder =
-    DecodeComplete.object ImageUrls
-        |> DecodeComplete.Extra.omissibleMaybe "default" urlDecoder
-        |> DecodeComplete.Extra.omissibleMaybe "default_blurred" urlDecoder
-        |> DecodeComplete.Extra.omissibleMaybe "default_blurred_small" urlDecoder
-        |> DecodeComplete.Extra.omissibleMaybe "default_large" urlDecoder
-        |> DecodeComplete.required "default_small" urlDecoder
-        |> DecodeComplete.Extra.omissibleMaybe "original" urlDecoder
-        |> DecodeComplete.required "thumbnail" urlDecoder
-        |> DecodeComplete.Extra.omissibleMaybe "thumbnail_large" urlDecoder
-        |> DecodeComplete.Extra.omissibleMaybe "thumbnail_small" urlDecoder
-        |> DecodeComplete.required "url" urlDecoder
-        |> DecodeComplete.complete
-
-
-type alias Page =
-    { data : List RawPost
-    , next : Maybe String
-    , included : SeqDict IdAndType RawIncluded
-    }
-
-
 getPosts :
     { cfg | workDir : String, cookie : Maybe String }
     -> BackendTask FatalError (List Post)
 getPosts config =
     let
-        decodeContent : String -> BackendTask FatalError Page
+        decodeContent : String -> BackendTask FatalError ApiTypes.PostsPage
         decodeContent content =
-            case Json.Decode.decodeString PatreonInternalApi.Json.decodePostsPage content of
-                Err e ->
-                    Json.Decode.errorToString e
-                        |> FatalError.fromString
-                        |> BackendTask.fail
-
-                Ok _ ->
-                    Json.Decode.decodeString pageDecoder content
-                        |> Result.mapError (Json.Decode.errorToString >> FatalError.fromString)
-                        |> BackendTask.fromResult
+            Json.Decode.decodeString PatreonInternalApi.Json.decodePostsPage content
+                |> Result.mapError (Json.Decode.errorToString >> FatalError.fromString)
+                |> BackendTask.fromResult
 
         go :
             String
@@ -399,7 +269,7 @@ getPosts config =
             -> BackendTask FatalError (List Post)
         go cursor acc =
             Do.do (getFromCache config (postsUrl cursor)) <| \content ->
-            Do.do (decodeContent content) <| \{ next, data, included } ->
+            Do.do (decodeContent content) <| \{ meta, data, included } ->
             case Result.Extra.combineMap (rawPostToPost included) data of
                 Err e ->
                     BackendTask.fail e
@@ -410,11 +280,11 @@ getPosts config =
                         finalData =
                             nextData :: acc
                     in
-                    case next of
-                        Just nextCursor ->
+                    case meta.pagination.cursors.next of
+                        OpenApi.Common.Present nextCursor ->
                             go nextCursor finalData
 
-                        Nothing ->
+                        OpenApi.Common.Null ->
                             (finalData
                                 |> List.reverse
                                 |> List.concat
@@ -423,45 +293,6 @@ getPosts config =
                                 |> BackendTask.succeed
     in
     go "" []
-
-
-pageDecoder : Json.Decode.Decoder Page
-pageDecoder =
-    DecodeComplete.object
-        (\data included next ->
-            { data = data
-            , next = next
-            , included = SeqDict.fromList included
-            }
-        )
-        |> DecodeComplete.required "data" (Json.Decode.list rawPostDecoder)
-        |> DecodeComplete.omissible "included"
-            (Json.Decode.list
-                (DecodeComplete.object
-                    (\id type_ ->
-                        { id = id
-                        , type_ = type_
-                        }
-                    )
-                    |> DecodeComplete.required "id" Json.Decode.string
-                    |> DecodeComplete.required "type" Json.Decode.string
-                    |> DecodeComplete.andThen
-                        (\key ->
-                            rawIncludedDecoder key.type_
-                                |> DecodeComplete.andThen
-                                    (\value -> DecodeComplete.object ( key, value ))
-                        )
-                    |> DecodeComplete.complete
-                )
-            )
-            []
-        |> DecodeComplete.required "meta"
-            (Json.Decode.at
-                [ "pagination", "cursors", "next" ]
-                (Json.Decode.nullable Json.Decode.string)
-            )
-        |> DecodeComplete.discardOptional "links"
-        |> DecodeComplete.complete
 
 
 getFromCache : { cfg | workDir : String, cookie : Maybe String } -> String -> BackendTask FatalError String
@@ -535,7 +366,7 @@ postsUrl cursor =
             , include_drops : Maybe Bool
             , include_lives : Maybe Bool
             , is_draft : Maybe Bool
-            , media_types : Maybe (List PatreonInternalApi.Types.MediaType)
+            , media_types : Maybe (List ApiTypes.MediaType)
             }
         filter =
             { accessible_by_user_id = Nothing
@@ -549,74 +380,74 @@ postsUrl cursor =
             }
 
         fields_ :
-            { access_rule : Maybe (List PatreonInternalApi.Types.AccessRuleField)
-            , campaign : Maybe (List PatreonInternalApi.Types.CampaignField)
-            , content_unlock_option : Maybe (List PatreonInternalApi.Types.ContentUnlockOptionField)
-            , livestream : Maybe (List PatreonInternalApi.Types.LivestreamField)
-            , media : Maybe (List PatreonInternalApi.Types.MediaField)
-            , post : Maybe (List PatreonInternalApi.Types.PostField)
-            , post_tag : Maybe (List PatreonInternalApi.Types.PostTagField)
-            , productvariant : Maybe (List PatreonInternalApi.Types.ProductVariantField)
-            , user : Maybe (List PatreonInternalApi.Types.UserField)
+            { access_rule : Maybe (List ApiTypes.AccessRuleField)
+            , campaign : Maybe (List ApiTypes.CampaignField)
+            , content_unlock_option : Maybe (List ApiTypes.ContentUnlockOptionField)
+            , livestream : Maybe (List ApiTypes.LivestreamField)
+            , media : Maybe (List ApiTypes.MediaField)
+            , post : Maybe (List ApiTypes.PostField)
+            , post_tag : Maybe (List ApiTypes.PostTagField)
+            , productvariant : Maybe (List ApiTypes.ProductVariantField)
+            , user : Maybe (List ApiTypes.UserField)
             }
         fields_ =
             { campaign = Nothing
             , livestream = Nothing
             , user = Nothing
             , post =
-                [ PatreonInternalApi.Types.PostField__ChangeVisibilityAt
-                , PatreonInternalApi.Types.PostField__Content
-                , PatreonInternalApi.Types.PostField__CreatedAt
-                , PatreonInternalApi.Types.PostField__Embed
-                , PatreonInternalApi.Types.PostField__Image
-                , PatreonInternalApi.Types.PostField__MetaImageUrl
-                , PatreonInternalApi.Types.PostField__PostFile
-                , PatreonInternalApi.Types.PostField__PostMetadata
-                , PatreonInternalApi.Types.PostField__PublishedAt
-                , PatreonInternalApi.Types.PostField__PatreonUrl
-                , PatreonInternalApi.Types.PostField__PostType
-                , PatreonInternalApi.Types.PostField__PledgeUrl
-                , PatreonInternalApi.Types.PostField__PreviewAssetType
-                , PatreonInternalApi.Types.PostField__Thumbnail
-                , PatreonInternalApi.Types.PostField__ThumbnailUrl
-                , PatreonInternalApi.Types.PostField__Title
-                , PatreonInternalApi.Types.PostField__Url
-                , PatreonInternalApi.Types.PostField__Video
-                , PatreonInternalApi.Types.PostField__VideoPreview
-                , PatreonInternalApi.Types.PostField__ContentUnlockOptions
+                [ ApiTypes.PostField__ChangeVisibilityAt
+                , ApiTypes.PostField__Content
+                , ApiTypes.PostField__CreatedAt
+                , ApiTypes.PostField__Embed
+                , ApiTypes.PostField__Image
+                , ApiTypes.PostField__MetaImageUrl
+                , ApiTypes.PostField__PostFile
+                , ApiTypes.PostField__PostMetadata
+                , ApiTypes.PostField__PublishedAt
+                , ApiTypes.PostField__PatreonUrl
+                , ApiTypes.PostField__PostType
+                , ApiTypes.PostField__PledgeUrl
+                , ApiTypes.PostField__PreviewAssetType
+                , ApiTypes.PostField__Thumbnail
+                , ApiTypes.PostField__ThumbnailUrl
+                , ApiTypes.PostField__Title
+                , ApiTypes.PostField__Url
+                , ApiTypes.PostField__Video
+                , ApiTypes.PostField__VideoPreview
+                , ApiTypes.PostField__ContentUnlockOptions
                 ]
                     |> Just
             , post_tag =
-                [ PatreonInternalApi.Types.PostTagField__TagType
-                , PatreonInternalApi.Types.PostTagField__Value
+                [ ApiTypes.PostTagField__TagType
+                , ApiTypes.PostTagField__Value
                 ]
                     |> Just
             , access_rule =
-                [ PatreonInternalApi.Types.AccessRuleField__AccessRuleType
+                [ ApiTypes.AccessRuleField__AccessRuleType
                 ]
                     |> Just
             , media =
-                [ PatreonInternalApi.Types.MediaField__Id
-                , PatreonInternalApi.Types.MediaField__ImageUrls
-                , PatreonInternalApi.Types.MediaField__Display
-                , PatreonInternalApi.Types.MediaField__DownloadUrl
-                , PatreonInternalApi.Types.MediaField__Metadata
-                , PatreonInternalApi.Types.MediaField__FileName
+                [ ApiTypes.MediaField__Id
+                , ApiTypes.MediaField__ImageUrls
+                , ApiTypes.MediaField__Display
+                , ApiTypes.MediaField__DownloadUrl
+                , ApiTypes.MediaField__Metadata
+                , ApiTypes.MediaField__FileName
                 ]
                     |> Just
             , productvariant =
-                [ PatreonInternalApi.Types.ProductVariantField__PriceCents
-                , PatreonInternalApi.Types.ProductVariantField__CurrencyCode
-                , PatreonInternalApi.Types.ProductVariantField__CheckoutUrl
-                , PatreonInternalApi.Types.ProductVariantField__IsHidden
-                , PatreonInternalApi.Types.ProductVariantField__PublishedAtDatetime
-                , PatreonInternalApi.Types.ProductVariantField__ContentType
-                , PatreonInternalApi.Types.ProductVariantField__OrdersCount
-                , PatreonInternalApi.Types.ProductVariantField__AccessMetadata
+                [ ApiTypes.ProductVariantField__PriceCents
+                , ApiTypes.ProductVariantField__CurrencyCode
+                , ApiTypes.ProductVariantField__CheckoutUrl
+                , ApiTypes.ProductVariantField__IsHidden
+                , ApiTypes.ProductVariantField__PublishedAtDatetime
+                , ApiTypes.ProductVariantField__ContentType
+                , ApiTypes.ProductVariantField__OrdersCount
+                , ApiTypes.ProductVariantField__AccessMetadata
                 ]
                     |> Just
             , content_unlock_option =
-                [ PatreonInternalApi.Types.ContentUnlockOptionField__ContentUnlockType
+                [ ApiTypes.ContentUnlockOptionField__ContentUnlockType
                 ]
                     |> Just
             }
@@ -625,20 +456,20 @@ postsUrl cursor =
         { params =
             { include =
                 Just
-                    [ PatreonInternalApi.Types.Include__AccessRules
-                    , PatreonInternalApi.Types.Include__AccessRulesTier
-                    , PatreonInternalApi.Types.Include__AttachmentsMedia
-                    , PatreonInternalApi.Types.Include__Audio
-                    , PatreonInternalApi.Types.Include__AudioPreviewNull
-                    , PatreonInternalApi.Types.Include__Images
-                    , PatreonInternalApi.Types.Include__Media
-                    , PatreonInternalApi.Types.Include__UserDefinedTags
-                    , PatreonInternalApi.Types.Include__VideoNull
-                    , PatreonInternalApi.Types.Include__ContentUnlockOptionsProductVariantNull
+                    [ ApiTypes.Include__AccessRules
+                    , ApiTypes.Include__AccessRulesTier
+                    , ApiTypes.Include__AttachmentsMedia
+                    , ApiTypes.Include__Audio
+                    , ApiTypes.Include__AudioPreviewNull
+                    , ApiTypes.Include__Images
+                    , ApiTypes.Include__Media
+                    , ApiTypes.Include__UserDefinedTags
+                    , ApiTypes.Include__VideoNull
+                    , ApiTypes.Include__ContentUnlockOptionsProductVariantNull
                     ]
             , fields = Just fields_
             , filter = Just filter
-            , sort = Just PatreonInternalApi.Types.Sort__MinuspublishedAt
+            , sort = Just ApiTypes.Sort__MinuspublishedAt
             , page = Just { cursor = Just cursor }
             , json_api_use_default_includes = Just False
             , json_api_version = Just "1.0"
@@ -649,60 +480,11 @@ postsUrl cursor =
 
 
 type alias Post =
-    { attributes : Attributes
-    , id : String
+    { id : String
+    , type_ : ApiTypes.PostType
+    , attributes : ApiTypes.PostAttributes
     , relationships : Relationships
     }
-
-
-type alias RawPost =
-    { id : String
-    , attributes : Attributes
-    , relationships : RawRelationships
-    }
-
-
-rawPostDecoder : Json.Decode.Decoder RawPost
-rawPostDecoder =
-    DecodeComplete.object RawPost
-        |> DecodeComplete.required "id" Json.Decode.string
-        |> DecodeComplete.required "attributes" attributesDecoder
-        |> DecodeComplete.required "relationships" relationshipsDecoder
-        |> DecodeComplete.discard "type"
-        |> DecodeComplete.complete
-
-
-type alias Attributes =
-    { content : Maybe String
-    , createdAt : Time.Posix
-    , embed : Maybe Embed
-    , image : Maybe Image
-    , metaImageUrl : Url
-    , patreonUrl : String
-    , pledgeUrl : String
-    , postFile : Maybe PostFile
-    , postMetadata : Maybe PostMetadata
-    , postType : PostType
-    , previewAssetType : Maybe String
-    , publishedAt : Time.Posix
-    , thumbnail : Maybe Thumbnail
-    , title : Maybe String
-    , url : Url
-    }
-
-
-type PostType
-    = Podcast
-    | LivestreamYoutube
-    | TextOnly
-    | ImageFile
-    | Link
-    | VideoEmbed
-    | VideoExternalFile
-    | Poll
-    | LivestreamCrowdcast
-    | AudioEmbed
-    | AudioFile
 
 
 type alias Embed =
@@ -726,109 +508,16 @@ type alias Image =
     }
 
 
-type PostFile
-    = PostFileAudioVideo PostAudioVideo
-    | PostFileImage PostImage
-    | PostFileSize PostSize
-
-
-type alias PostSize =
-    { width : Int
-    , height : Int
-    }
-
-
-type alias PostAudioVideo =
-    { defaultThumbnail : Maybe Url
-    , duration : Maybe Float
-    , fullContentDuration : Maybe Float
-    , mediaId : Int
-    , state : String
-    , url : Maybe Url
-    , width : Maybe Int
-    , height : Maybe Int
-    }
-
-
-type alias PostImage =
-    { height : Int
-    , imageColors : ImageColors
-    , mediaId : Int
-    , state : String
-    , url : Maybe Url
-    , width : Int
-    , altText : Maybe String
-    }
-
-
-type PostMetadata
-    = MetadataNone
-    | MetadataWithImageOrder (List String)
-    | MetadataPodcast
-        { episodeNumber : Int
-        , season : Int
-        }
-
-
-type Thumbnail
-    = Thumbnail_Square SquareThumbnail
-    | Thumbnail_Gif GifThumbnail
-
-
-type alias SquareThumbnail =
-    { original : Url
-    , default : Url
-    , default_blurred : Url
-    , default_small : Url
-    , default_large : Url
-    , default_blurred_small : Url
-    , thumbnail : Url
-    , thumbnail_large : Url
-    , thumbnail_small : Url
-    , url : Url
-    , height : Maybe Int
-    , width : Maybe Int
-    }
-
-
-type alias GifThumbnail =
-    { gif_url : Url
-    , height : Int
-    , url : Url
-    , width : Int
-    }
-
-
 type alias Relationships =
     { accessRules : List AccessRule
-    , attachmentsMedia : List Media
-    , audio : Maybe AudioRelationships
-    , audioPreview : Maybe AudioRelationships
-    , images : List Media
-    , video : List Media
-    , media : List Media
-    , userDefinedTags : List PostTag
-    , contentUnlockOptions : List ContentUnlockOption
-    }
-
-
-type ContentUnlockOption
-    = UnlockByPatron
-    | UnlockByPostOneTimePayment
-    | UnlockByTier
-    | UnlockByMinCentsPledged
-
-
-type alias RawRelationships =
-    { accessRules : List IdAndType
-    , attachmentsMedia : List IdAndType
-    , audio : Maybe AudioRelationships
-    , audioPreview : Maybe AudioRelationships
-    , images : List IdAndType
-    , video : List IdAndType
-    , media : List IdAndType
-    , userDefinedTags : List IdAndType
-    , contentUnlockOptions : List IdAndType
+    , attachmentsMedia : List ApiTypes.IncludedMedia
+    , audio : List ApiTypes.IncludedMedia
+    , audioPreview : List ApiTypes.IncludedMedia
+    , images : List ApiTypes.IncludedMedia
+    , video : List ApiTypes.IncludedMedia
+    , media : List ApiTypes.IncludedMedia
+    , userDefinedTags : List ApiTypes.IncludedPostTag
+    , contentUnlockOptions : List ApiTypes.IncludedContentUnlockOption
     }
 
 
@@ -863,338 +552,3 @@ type alias AverageColorsOfCorners =
     , topLeft : String
     , topRight : String
     }
-
-
-attributesDecoder : Json.Decode.Decoder Attributes
-attributesDecoder =
-    DecodeComplete.object Attributes
-        |> DecodeComplete.Extra.omissibleNullableMaybe "content" Json.Decode.string
-        |> DecodeComplete.required "created_at" rfc3339Decoder
-        |> DecodeComplete.Extra.omissibleNullableMaybe "embed" embedDecoder
-        |> DecodeComplete.Extra.omissibleNullableMaybe "image" imageDecoder
-        |> DecodeComplete.required "meta_image_url" urlDecoder
-        |> DecodeComplete.required "patreon_url" Json.Decode.string
-        |> DecodeComplete.required "pledge_url" Json.Decode.string
-        |> DecodeComplete.Extra.omissibleNullableMaybe "post_file" postFileDecoder
-        |> DecodeComplete.Extra.omissibleMaybe "post_metadata" postMetadataDecoder
-        |> DecodeComplete.required "post_type" postTypeDecoder
-        |> DecodeComplete.Extra.omissibleNullableMaybe "preview_asset_type" Json.Decode.string
-        |> DecodeComplete.required "published_at" rfc3339Decoder
-        |> DecodeComplete.Extra.omissibleNullableMaybe "thumbnail" thumbnailDecoder
-        |> DecodeComplete.required "title" (Json.Decode.nullable Json.Decode.string)
-        |> DecodeComplete.required "url" urlDecoder
-        |> DecodeComplete.discard "change_visibility_at"
-        |> DecodeComplete.discard "video_preview"
-        |> DecodeComplete.complete
-
-
-postTypeDecoder : Json.Decode.Decoder PostType
-postTypeDecoder =
-    Json.Decode.string
-        |> Json.Decode.andThen
-            (\type_ ->
-                case type_ of
-                    "podcast" ->
-                        Json.Decode.succeed Podcast
-
-                    "livestream_youtube" ->
-                        Json.Decode.succeed LivestreamYoutube
-
-                    "text_only" ->
-                        Json.Decode.succeed TextOnly
-
-                    "image_file" ->
-                        Json.Decode.succeed ImageFile
-
-                    "link" ->
-                        Json.Decode.succeed Link
-
-                    "video_embed" ->
-                        Json.Decode.succeed VideoEmbed
-
-                    "video_external_file" ->
-                        Json.Decode.succeed VideoExternalFile
-
-                    "poll" ->
-                        Json.Decode.succeed Poll
-
-                    "livestream_crowdcast" ->
-                        Json.Decode.succeed LivestreamCrowdcast
-
-                    "audio_embed" ->
-                        Json.Decode.succeed AudioEmbed
-
-                    "audio_file" ->
-                        Json.Decode.succeed AudioFile
-
-                    _ ->
-                        Json.Decode.fail ("Unexpected post type: " ++ type_)
-            )
-
-
-rfc3339Decoder : Json.Decode.Decoder Time.Posix
-rfc3339Decoder =
-    Json.Decode.string
-        |> Json.Decode.andThen
-            (\raw ->
-                case Parser.Advanced.run Rfc3339.dateTimeOffsetParser raw of
-                    Ok { instant } ->
-                        Json.Decode.succeed instant
-
-                    Err _ ->
-                        Json.Decode.fail ("Invalid timestamp: " ++ raw)
-            )
-
-
-imageDecoder : Json.Decode.Decoder Image
-imageDecoder =
-    DecodeComplete.object Image
-        |> DecodeComplete.Extra.omissibleNullableMaybe "height" Json.Decode.int
-        |> DecodeComplete.Extra.omissibleMaybe "large_url" urlDecoder
-        |> DecodeComplete.Extra.omissibleMaybe "thumb_square_large_url" urlDecoder
-        |> DecodeComplete.Extra.omissibleMaybe "thumb_square_url" urlDecoder
-        |> DecodeComplete.Extra.omissibleMaybe "thumb_url" urlDecoder
-        |> DecodeComplete.required "url" urlDecoder
-        |> DecodeComplete.Extra.omissibleNullableMaybe "width" Json.Decode.int
-        |> DecodeComplete.complete
-
-
-postAudioVideoDecoder : Json.Decode.Decoder PostAudioVideo
-postAudioVideoDecoder =
-    DecodeComplete.object PostAudioVideo
-        |> DecodeComplete.Extra.omissibleMaybe "default_thumbnail" (Json.Decode.field "url" urlDecoder)
-        |> DecodeComplete.Extra.omissibleMaybe "duration" Json.Decode.float
-        |> DecodeComplete.Extra.omissibleMaybe "full_content_duration" Json.Decode.float
-        |> DecodeComplete.required "media_id" Json.Decode.int
-        |> DecodeComplete.required "state" Json.Decode.string
-        |> DecodeComplete.Extra.omissibleMaybe "url" urlDecoder
-        |> DecodeComplete.Extra.omissibleMaybe "width" Json.Decode.int
-        |> DecodeComplete.Extra.omissibleMaybe "height" Json.Decode.int
-        |> DecodeComplete.discardOptional "progress"
-        |> DecodeComplete.discardOptional "closed_captions_enabled"
-        |> DecodeComplete.discardOptional "video_issues"
-        |> DecodeComplete.discardOptional "expires_at"
-        |> DecodeComplete.discardOptional "viewer_playback_data"
-        |> DecodeComplete.discardOptional "storyboard"
-        |> DecodeComplete.discardOptional "transcript_url"
-        |> DecodeComplete.complete
-
-
-postMetadataDecoder : Json.Decode.Decoder PostMetadata
-postMetadataDecoder =
-    Json.Decode.oneOf
-        [ DecodeComplete.object MetadataWithImageOrder
-            |> DecodeComplete.required "image_order" (Json.Decode.list Json.Decode.string)
-            |> DecodeComplete.complete
-        , DecodeComplete.object
-            (\episodeNumber season ->
-                { episodeNumber = episodeNumber
-                , season = season
-                }
-                    |> MetadataPodcast
-            )
-            |> DecodeComplete.required "episode_number" Json.Decode.int
-            |> DecodeComplete.required "season" Json.Decode.int
-            |> DecodeComplete.complete
-        , Json.Decode.succeed MetadataNone
-        ]
-
-
-relationshipsDecoder : Json.Decode.Decoder RawRelationships
-relationshipsDecoder =
-    DecodeComplete.object RawRelationships
-        |> DecodeComplete.required "access_rules" listOfIdAndTypeDecoder
-        |> DecodeComplete.omissible "attachments_media" listOfIdAndTypeDecoder []
-        |> DecodeComplete.omissible "audio"
-            (Json.Decode.oneOf
-                [ Json.Decode.map Just audioRelationshipsDecoder
-                , Json.Decode.field "data" (Json.Decode.null Nothing)
-                ]
-            )
-            Nothing
-        |> DecodeComplete.omissible "audio_preview"
-            (Json.Decode.oneOf
-                [ Json.Decode.map Just audioRelationshipsDecoder
-                , Json.Decode.field "data" (Json.Decode.null Nothing)
-                ]
-            )
-            Nothing
-        |> DecodeComplete.omissible "images" listOfIdAndTypeDecoder []
-        |> DecodeComplete.omissible "video" listOfIdAndTypeDecoder []
-        |> DecodeComplete.omissible "media" listOfIdAndTypeDecoder []
-        |> DecodeComplete.omissible "user_defined_tags" listOfIdAndTypeDecoder []
-        |> DecodeComplete.omissible "content_unlock_options" listOfIdAndTypeDecoder []
-        |> DecodeComplete.complete
-
-
-idAndTypeDecoder : Json.Decode.Decoder IdAndType
-idAndTypeDecoder =
-    DecodeComplete.object IdAndType
-        |> DecodeComplete.required "id" Json.Decode.string
-        |> DecodeComplete.required "type" Json.Decode.string
-        |> DecodeComplete.complete
-
-
-embedDecoder : Json.Decode.Decoder Embed
-embedDecoder =
-    DecodeComplete.object Embed
-        |> DecodeComplete.Extra.omissibleNullableMaybe "description" Json.Decode.string
-        |> DecodeComplete.Extra.omissibleNullableMaybe "html" Json.Decode.string
-        |> DecodeComplete.required "provider" Json.Decode.string
-        |> DecodeComplete.required "provider_url" Json.Decode.string
-        |> DecodeComplete.required "subject" Json.Decode.string
-        |> DecodeComplete.required "url" urlDecoder
-        |> DecodeComplete.discard "linked_object_id"
-        |> DecodeComplete.discard "linked_object_type"
-        |> DecodeComplete.discard "product_variant_id"
-        |> DecodeComplete.complete
-
-
-postFileDecoder : Json.Decode.Decoder PostFile
-postFileDecoder =
-    Json.Decode.oneOf
-        [ Json.Decode.map PostFileAudioVideo postAudioVideoDecoder
-        , Json.Decode.map PostFileImage postImageDecoder
-        , Json.Decode.map PostFileSize postSizeDecoder
-        ]
-
-
-postSizeDecoder : Json.Decode.Decoder PostSize
-postSizeDecoder =
-    DecodeComplete.object PostSize
-        |> DecodeComplete.required "height" Json.Decode.int
-        |> DecodeComplete.required "width" Json.Decode.int
-        |> DecodeComplete.complete
-
-
-postImageDecoder : Json.Decode.Decoder PostImage
-postImageDecoder =
-    DecodeComplete.object PostImage
-        |> DecodeComplete.required "height" Json.Decode.int
-        |> DecodeComplete.required "image_colors" imageColorsDecoder
-        |> DecodeComplete.required "media_id" Json.Decode.int
-        |> DecodeComplete.required "state" Json.Decode.string
-        |> DecodeComplete.Extra.omissibleMaybe "url" urlDecoder
-        |> DecodeComplete.required "width" Json.Decode.int
-        |> DecodeComplete.Extra.omissibleMaybe "alt_text" Json.Decode.string
-        |> DecodeComplete.complete
-
-
-imageColorsDecoder : Json.Decode.Decoder ImageColors
-imageColorsDecoder =
-    DecodeComplete.object ImageColors
-        |> DecodeComplete.required "average_colors_of_corners" averageColorsOfCornersDecoder
-        |> DecodeComplete.required "dominant_color" Json.Decode.string
-        |> DecodeComplete.required "palette" (Json.Decode.list Json.Decode.string)
-        |> DecodeComplete.required "text_color" Json.Decode.string
-        |> DecodeComplete.complete
-
-
-averageColorsOfCornersDecoder : Json.Decode.Decoder AverageColorsOfCorners
-averageColorsOfCornersDecoder =
-    DecodeComplete.object AverageColorsOfCorners
-        |> DecodeComplete.required "bottom_left" Json.Decode.string
-        |> DecodeComplete.required "bottom_right" Json.Decode.string
-        |> DecodeComplete.required "top_left" Json.Decode.string
-        |> DecodeComplete.required "top_right" Json.Decode.string
-        |> DecodeComplete.complete
-
-
-thumbnailDecoder : Json.Decode.Decoder Thumbnail
-thumbnailDecoder =
-    Json.Decode.oneOf
-        [ Json.Decode.map Thumbnail_Square squareThumbnailDecoder
-        , Json.Decode.map Thumbnail_Gif gifThumbnailDecoder
-        ]
-
-
-squareThumbnailDecoder : Json.Decode.Decoder SquareThumbnail
-squareThumbnailDecoder =
-    DecodeComplete.object SquareThumbnail
-        |> DecodeComplete.required "original" urlDecoder
-        |> DecodeComplete.required "default" urlDecoder
-        |> DecodeComplete.required "default_blurred" urlDecoder
-        |> DecodeComplete.required "default_small" urlDecoder
-        |> DecodeComplete.required "default_large" urlDecoder
-        |> DecodeComplete.required "default_blurred_small" urlDecoder
-        |> DecodeComplete.required "thumbnail" urlDecoder
-        |> DecodeComplete.required "thumbnail_large" urlDecoder
-        |> DecodeComplete.required "thumbnail_small" urlDecoder
-        |> DecodeComplete.required "url" urlDecoder
-        |> DecodeComplete.Extra.omissibleNullableMaybe "height" numberAsStringDecoder
-        |> DecodeComplete.Extra.omissibleNullableMaybe "width" numberAsStringDecoder
-        |> DecodeComplete.complete
-
-
-numberAsStringDecoder : Json.Decode.Decoder Int
-numberAsStringDecoder =
-    Json.Decode.oneOf
-        [ Json.Decode.int
-        , Json.Decode.string
-            |> Json.Decode.andThen
-                (\raw ->
-                    case String.toInt raw of
-                        Nothing ->
-                            Json.Decode.fail (raw ++ " is not a valid number")
-
-                        Just i ->
-                            Json.Decode.succeed i
-                )
-        ]
-
-
-gifThumbnailDecoder : Json.Decode.Decoder GifThumbnail
-gifThumbnailDecoder =
-    DecodeComplete.object GifThumbnail
-        |> DecodeComplete.required "gif_url" urlDecoder
-        |> DecodeComplete.required "height" Json.Decode.int
-        |> DecodeComplete.required "url" urlDecoder
-        |> DecodeComplete.required "width" Json.Decode.int
-        |> DecodeComplete.complete
-
-
-urlDecoder : Json.Decode.Decoder Url
-urlDecoder =
-    Json.Decode.string
-        |> Json.Decode.andThen
-            (\raw ->
-                case Url.fromString raw of
-                    Just url ->
-                        Json.Decode.succeed url
-
-                    Nothing ->
-                        Json.Decode.fail "Not a valid URL"
-            )
-
-
-audioRelationshipsDecoder : Json.Decode.Decoder AudioRelationships
-audioRelationshipsDecoder =
-    DecodeComplete.object AudioRelationships
-        |> DecodeComplete.required "data" idAndTypeDecoder
-        |> DecodeComplete.required "links" audioLinksDecoder
-        |> DecodeComplete.complete
-
-
-audioLinksDecoder : Json.Decode.Decoder AudioLinks
-audioLinksDecoder =
-    DecodeComplete.object AudioLinks
-        |> DecodeComplete.required "related" Json.Decode.string
-        |> DecodeComplete.complete
-
-
-listOfIdAndTypeDecoder : Json.Decode.Decoder (List IdAndType)
-listOfIdAndTypeDecoder =
-    DecodeComplete.object identity
-        |> DecodeComplete.required "data"
-            (listOrNull idAndTypeDecoder)
-        |> DecodeComplete.discardOptional "links"
-        |> DecodeComplete.complete
-
-
-listOrNull : Json.Decode.Decoder a -> Json.Decode.Decoder (List a)
-listOrNull inner =
-    Json.Decode.oneOf
-        [ Json.Decode.list inner
-        , Json.Decode.map List.singleton inner
-        , Json.Decode.null []
-        ]

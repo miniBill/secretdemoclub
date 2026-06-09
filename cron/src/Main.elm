@@ -21,10 +21,12 @@ import Json.Decode
 import Json.Encode
 import List.Extra
 import Maybe.Extra
+import OpenApi.Common
 import Pages.Script as Script exposing (Script)
 import Parser exposing ((|.), (|=), Parser, symbol)
 import Parser.Error
 import Parser.Workaround
+import PatreonInternalApi.Types as ApiTypes
 import Result.Extra
 import Rss exposing (Title(..))
 import Rss.Parser
@@ -156,7 +158,7 @@ task config =
                         apiPosts
                             |> List.map
                                 (\apiPost ->
-                                    ( "https://www.patreon.com" ++ apiPost.attributes.patreonUrl, apiPost )
+                                    ( "https://www.patreon.com" ++ apiPost.attributes.patreon_url, apiPost )
                                 )
                             |> Dict.fromList
 
@@ -658,72 +660,73 @@ type CacheResult
 
 cachePost : Config -> Api.Post -> CacheResult
 cachePost config post =
-    case post.attributes.postType of
-        Api.Podcast ->
+    case post.type_ of
+        ApiTypes.PostType__Podcast ->
             innerCachePost config post
 
-        Api.AudioEmbed ->
+        ApiTypes.PostType__AudioEmbed ->
             NotRelevant
 
-        Api.AudioFile ->
+        ApiTypes.PostType__AudioFile ->
             innerCachePost config post
 
-        Api.LivestreamYoutube ->
+        ApiTypes.PostType__LivestreamYoutube ->
             NotRelevant
 
-        Api.TextOnly ->
+        ApiTypes.PostType__TextOnly ->
             NotRelevant
 
-        Api.ImageFile ->
+        ApiTypes.PostType__ImageFile ->
             NotRelevant
 
-        Api.Link ->
+        ApiTypes.PostType__Link ->
             NotRelevant
 
-        Api.VideoEmbed ->
+        ApiTypes.PostType__VideoEmbed ->
             NotRelevant
 
-        Api.VideoExternalFile ->
+        ApiTypes.PostType__VideoExternalFile ->
             NotRelevant
 
-        Api.Poll ->
+        ApiTypes.PostType__Poll ->
             NotRelevant
 
-        Api.LivestreamCrowdcast ->
+        ApiTypes.PostType__LivestreamCrowdcast ->
+            NotRelevant
+
+        ApiTypes.PostType__Post ->
             NotRelevant
 
 
-innerCachePost : Config -> { relationships : Api.Relationships, attributes : Api.Attributes, id : String } -> CacheResult
+innerCachePost : Config -> Api.Post -> CacheResult
 innerCachePost config post =
-    let
-        isOneTimePayment : Bool
-        isOneTimePayment =
-            List.member Api.UnlockByPostOneTimePayment post.relationships.contentUnlockOptions
-    in
-    if isOneTimePayment then
+    if
+        post.relationships.contentUnlockOptions
+            |> List.any isOneTimePayment
+    then
         NotRelevant
 
     else
         let
             mediaUrlResult : Result String (Maybe Url)
             mediaUrlResult =
-                case post.attributes.postType of
-                    Api.AudioEmbed ->
+                case post.type_ of
+                    ApiTypes.PostType__AudioEmbed ->
                         case post.relationships.audio of
-                            Just { links } ->
-                                case Url.fromString links.related of
-                                    Nothing ->
-                                        Err ("Invalid url: " ++ links.related)
+                            _ ->
+                                Debug.todo ("post.relationships.audio " ++ Debug.toString post.relationships.audio)
 
-                                    Just v ->
-                                        Ok (Just v)
-
-                            Nothing ->
-                                Ok Nothing
-
-                    Api.Podcast ->
-                        case post.attributes.postFile of
-                            Just (Api.PostFileAudioVideo { url }) ->
+                    -- Just { links } ->
+                    --     case Url.fromString links.related of
+                    --         Nothing ->
+                    --             Err ("Invalid url: " ++ links.related)
+                    --         Just v ->
+                    --             Ok (Just v)
+                    -- Nothing ->
+                    --     Ok Nothing
+                    ApiTypes.PostType__Podcast ->
+                        case post.attributes.post_file of
+                            Just (ApiTypes.PostAudioVideo_Or_PostImage_Or_PostSize__PostAudioVideo { url }) ->
                                 case url of
                                     Nothing ->
                                         Ok Nothing
@@ -734,22 +737,22 @@ innerCachePost config post =
                             Nothing ->
                                 Ok Nothing
 
-                            Just (Api.PostFileImage _) ->
+                            Just (ApiTypes.PostAudioVideo_Or_PostImage_Or_PostSize__PostImage _) ->
                                 Err ("Post " ++ post.id ++ ", expecting an audio/video file, found image")
 
-                            Just (Api.PostFileSize _) ->
-                                Err ("Post " ++ post.id ++ ", expecting an audio/video file, found size")
+                            Just (ApiTypes.PostAudioVideo_Or_PostImage_Or_PostSize__PostSize _) ->
+                                Err ("Post " ++ post.id ++ ", expecting an audio/video file, found something else")
 
                     _ ->
-                        Err ("Post " ++ post.id ++ " has unexpected postType " ++ Debug.toString post.attributes.postType)
+                        Err ("Post " ++ post.id ++ " has unexpected postType " ++ Debug.toString post.type_)
 
             thumbSquareUrlResult : Result String Url
             thumbSquareUrlResult =
                 case post.attributes.thumbnail of
-                    Just (Api.Thumbnail_Square square) ->
+                    Just (ApiTypes.ThumbnailGif_Or_ThumbnailSquare__ThumbnailSquare square) ->
                         Ok square.thumbnail
 
-                    Just (Api.Thumbnail_Gif _) ->
+                    Just (ApiTypes.ThumbnailGif_Or_ThumbnailSquare__ThumbnailGif _) ->
                         Err ("Post " ++ post.id ++ " has a GIF thumbnail")
 
                     Nothing ->
@@ -778,6 +781,22 @@ innerCachePost config post =
                     |> CanCache
 
 
+isOneTimePayment : ApiTypes.IncludedContentUnlockOption -> Bool
+isOneTimePayment contentUnlockOption =
+    case contentUnlockOption of
+        ApiTypes.UnlockOptionMinCentsPledged_Or_UnlockOptionOneTimePayment_Or_UnlockOptionPatron_Or_UnlockOptionTier__UnlockOptionOneTimePayment _ ->
+            True
+
+        ApiTypes.UnlockOptionMinCentsPledged_Or_UnlockOptionOneTimePayment_Or_UnlockOptionPatron_Or_UnlockOptionTier__UnlockOptionMinCentsPledged _ ->
+            False
+
+        ApiTypes.UnlockOptionMinCentsPledged_Or_UnlockOptionOneTimePayment_Or_UnlockOptionPatron_Or_UnlockOptionTier__UnlockOptionPatron _ ->
+            False
+
+        ApiTypes.UnlockOptionMinCentsPledged_Or_UnlockOptionOneTimePayment_Or_UnlockOptionPatron_Or_UnlockOptionTier__UnlockOptionTier _ ->
+            False
+
+
 missingFileError : ParsedPost -> String
 missingFileError post =
     "Missing file in post \"" ++ post.title ++ "\" - " ++ post.link ++ "\n" ++ Debug.toString post
@@ -800,10 +819,14 @@ postToContent config anonymous { image, media, post } =
         postPath : PostPath
         postPath =
             PostPath
-                { date = Date.fromPosix Time.utc post.attributes.publishedAt
+                { date = Date.fromPosix Time.utc post.attributes.published_at
                 , filename =
-                    post.attributes.title
-                        |> Maybe.withDefault "unnamed"
+                    case post.attributes.title of
+                        OpenApi.Common.Null ->
+                            "unnamed"
+
+                        OpenApi.Common.Present t ->
+                            t
                 , extension = "md"
                 }
 
@@ -814,10 +837,10 @@ postToContent config anonymous { image, media, post } =
         title : Rss.Title
         title =
             case post.attributes.title of
-                Nothing ->
+                OpenApi.Common.Null ->
                     Other ""
 
-                Just t ->
+                OpenApi.Common.Present t ->
                     Parser.run Rss.Parser.titleParser t
                         |> Result.withDefault (Other t)
     in
@@ -832,9 +855,9 @@ postToContent config anonymous { image, media, post } =
             parsedPost =
                 { title = Rss.titleToString title
                 , category = Rss.getAlbum title
-                , date = post.attributes.publishedAt
+                , date = post.attributes.published_at
                 , image = image
-                , link = "https://www.patreon.com" ++ post.attributes.patreonUrl
+                , link = "https://www.patreon.com" ++ post.attributes.patreon_url
                 , media = media
                 , tiers = tiers
                 , number = toNumber title
@@ -1064,12 +1087,16 @@ cache config post url =
 
         date : Date
         date =
-            Date.fromPosix Time.utc post.attributes.publishedAt
+            Date.fromPosix Time.utc post.attributes.published_at
 
         filename : String
         filename =
-            post.attributes.title
-                |> Maybe.withDefault "unnamed"
+            case post.attributes.title of
+                OpenApi.Common.Null ->
+                    "unnamed"
+
+                OpenApi.Common.Present t ->
+                    t
 
         scratchPath : ScratchPath
         scratchPath =

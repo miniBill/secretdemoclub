@@ -342,11 +342,67 @@ components:
                 - $ref: "#/components/schemas/IncludedReward"
                 - $ref: "#/components/schemas/IncludedProductVariant"
         IncludedContentUnlockOption:
+            oneOf:
+                - $ref: "#/components/schemas/UnlockOptionOneTimePayment"
+                - $ref: "#/components/schemas/UnlockOptionPatron"
+                - $ref: "#/components/schemas/UnlockOptionTier"
+                - $ref: "#/components/schemas/UnlockOptionMinCentsPledged"
+        Orientation:
+            type: string
+            enum:
+                - landscape
+                - portrait
+        Variant:
+            type: string
+            enum:
+                - audiogram_v1
+                - audiogram_v2
+        UnlockOptionOneTimePayment:
             type: object
             additionalProperties: false
             properties:
                 id:
                     type: string
+                    pattern: "^post_otp:"
+                type:
+                    type: string
+                    const: content-unlock-option
+            required:
+                - id
+                - type
+        UnlockOptionPatron:
+            type: object
+            additionalProperties: false
+            properties:
+                id:
+                    type: string
+                    pattern: "^patrons:"
+                type:
+                    type: string
+                    const: content-unlock-option
+            required:
+                - id
+                - type
+        UnlockOptionTier:
+            type: object
+            additionalProperties: false
+            properties:
+                id:
+                    type: string
+                    pattern: "^tier:"
+                type:
+                    type: string
+                    const: content-unlock-option
+            required:
+                - id
+                - type
+        UnlockOptionMinCentsPledged:
+            type: object
+            additionalProperties: false
+            properties:
+                id:
+                    type: string
+                    pattern: "^min_cents_pledged:"
                 type:
                     type: string
                     const: content-unlock-option
@@ -362,27 +418,69 @@ components:
                 type:
                     type: string
                     const: media
-                display:
-                    $ref: "#/components/schemas/PostFile"
-                download_url:
-                    type: string
-                    format: uri
-                file_name:
-                    type: string
-                    nullable: true
-                image_urls:
-                    $ref: "#/components/schemas/ImageUrls"
-                metadata:
-                    type: integer
+                attributes:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                        display:
+                            $ref: "#/components/schemas/PostFile"
+                        download_url:
+                            type: string
+                            format: uri
+                        file_name:
+                            type: string
+                            nullable: true
+                        image_urls:
+                            $ref: "#/components/schemas/ImageUrls"
+                        metadata:
+                            type: object
+                            additionalProperties: false
+                            properties:
+                                variant:
+                                    type: string
+                                    $ref: "#/components/schemas/Variant"
+                                orientation:
+                                    $ref: "#/components/schemas/Orientation"
+                                duration:
+                                    type: number
+                                duration_s:
+                                    type: integer
+                                video_preview_end_ms:
+                                    type: "null"
+                                audio_preview_duration:
+                                    type: number
+                                video_preview_start_ms:
+                                    type: "null"
+                                audio_preview_start_time:
+                                    type: number
+                                start_position:
+                                    type: number
+                                dimensions:
+                                    type: object
+                                    additionalProperties: false
+                                    properties:
+                                        h:
+                                            type: integer
+                                        w:
+                                            type: integer
+                                    required:
+                                        - w
+                                        - h
+                    required:
+                        - display
+                        - file_name
             required:
                 - id
                 - type
-                - display
-                - file_name
         IncludedPostAccessRule:
             type: object
             additionalProperties: false
             properties:
+                id:
+                    type: string
+                type:
+                    type: string
+                    const: access-rule
                 attributes:
                     type: object
                     additionalProperties: false
@@ -395,7 +493,7 @@ components:
                         currency:
                             type: string
                         post_count:
-                            type: int
+                            type: integer
                     required:
                         - access_rule_type
                         - amount_cents
@@ -406,26 +504,23 @@ components:
                     additionalProperties: false
                     properties:
                         tier:
-                            type: object
-                            additionalProperties: false
-                            properties:
-                                data:
-                                    type:
-                                        $ref: "#/components/schemas/IdAndType"
-                                    nullable: true
-                                links:
-                                    type: null
-                            required:
-                                - data
+                            $ref: "#/components/schemas/ListOfIdAndType"
                     required:
                         - tier
             required:
+                - id
+                - type
                 - attributes
                 - relationships
         IncludedPostTag:
             type: object
             additionalProperties: false
             properties:
+                id:
+                    type: string
+                type:
+                    type: string
+                    const: post_tag
                 attributes:
                     type: object
                     additionalProperties: false
@@ -438,112 +533,51 @@ components:
                         - tag_type
                         - value
             required:
+                - id
+                - type
                 - attributes
         IncludedProductVariant:
             type: object
             additionalProperties: false
             properties:
+                id:
+                    type: string
+                type:
+                    type: string
+                    const: product-variant
                 attributes:
                     type: object
                     additionalProperties: false
             required:
+                - id
+                - type
                 - attributes
         IncludedReward:
             type: object
             additionalProperties: false
             properties:
+                id:
+                    type: string
+                type:
+                    type: string
+                    const: reward
                 attributes:
-                    type: object
-                    additionalProperties: false
-                    properties:
-                        amount:
-                            type: integer
-                        amount_cents:
-                            type: integer
-                        created_at:
-                            type: rfc3339Decoder
-                        currency:
-                            type: string
-                        declined_patron_count:
-                            type: string
-                        description:
-                            type: string
-                        discord_role_ids:
-                            type: (listOrNull string)
-                        edited_at:
-                            type: string
-                        image_url:
-                            type: string
-                            nullable: true
-                        is_free_tier:
-                            type: boolean
-                        patron_amount_cents:
-                            type: integer
-                        patron_currency:
-                            type: string
-                        post_count:
-                            type: integer
-                        published:
-                            type: boolean
-                        published_at:
-                            type: string
-                            format: date-time
-                        remaining:
-                            type: integer
-                            nullable: true
-                        requires_shipping:
-                            type: boolean
-                        title:
-                            type: string
-                        unpublished_at:
-                            type: string
-                            format: date-time
-                            nullable: true
-                        url:
-                            type: string
-                        welcome_message:
-                            type: string
-                        welcome_message_unsafe:
-                            type: string
-                            nullable: true
-                        welcome_video_embed:
-                            type: string
-                            nullable: true
-                        welcome_video_url:
-                            type: string
-                            nullable: true
-                    required:
-                        - amount
-                        - amount_cents
-                        - created_at
-                        - currency
-                        - description
-                        - discord_role_ids
-                        - edited_at
-                        - image_url
-                        - is_free_tier
-                        - patron_amount_cents
-                        - patron_currency
-                        - post_count
-                        - published
-                        - published_at
-                        - remaining
-                        - requires_shipping
-                        - title
-                        - unpublished_at
-                        - url
+                    $ref: "#/components/schemas/RewardAttributes"
             required:
+                - id
+                - type
                 - attributes
         ListOfIdAndType:
             oneOf:
-                - $ref: "#/components/schemas/EmptyListOfIdAndType"
                 - $ref: "#/components/schemas/NonEmptyListOfIdAndType"
+                - $ref: "#/components/schemas/EmptyListOfIdAndType"
+                - $ref: "#/components/schemas/SingleIdAndType"
         EmptyListOfIdAndType:
             type: object
             additionalProperties: false
             properties:
                 data:
-                    type: null
+                    type: "null"
             required:
                 - data
         NonEmptyListOfIdAndType:
@@ -555,10 +589,43 @@ components:
                     items:
                         $ref: "#/components/schemas/IdAndType"
                 links:
-                    type: integer
+                    type: object
+                    additionalProperties: false
+                    properties:
+                        related:
+                            type: string
+                            format: uri
+                    required:
+                        - related
             required:
                 - data
-                - links
+        SingleIdAndType:
+            type: object
+            additionalProperties: false
+            properties:
+                data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                        id:
+                            type: string
+                        type:
+                            type: string
+                    required:
+                        - id
+                        - type
+                    nullable: true
+                links:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                        related:
+                            type: string
+                            format: uri
+                    required:
+                        - related
+            required:
+                - data
         LivestreamField:
             type: string
             enum:
@@ -656,6 +723,7 @@ components:
             oneOf:
                 - $ref: "#/components/schemas/PostAudioVideo"
                 - $ref: "#/components/schemas/PostImage"
+                - $ref: "#/components/schemas/PostSize"
         PostAudioVideo:
             type: object
             additionalProperties: false
@@ -734,6 +802,17 @@ components:
                 - image_colors
                 - media_id
                 - state
+                - width
+        PostSize:
+            type: object
+            additionalProperties: false
+            properties:
+                height:
+                    type: integer
+                width:
+                    type: integer
+            required:
+                - height
                 - width
         PostMetadata:
             oneOf:
@@ -874,25 +953,9 @@ components:
                 attachments_media:
                     $ref: "#/components/schemas/ListOfIdAndType"
                 audio:
-                    oneOf:
-                        - $ref: "#/components/schemas/AudioRelationships"
-                        - type: object
-                          additionalProperties: false
-                          properties:
-                              data:
-                                  type: "null"
-                          required:
-                              - data
+                    $ref: "#/components/schemas/ListOfIdAndType"
                 audio_preview:
-                    oneOf:
-                        - $ref: "#/components/schemas/AudioRelationships"
-                        - type: object
-                          additionalProperties: false
-                          properties:
-                              data:
-                                  type: "null"
-                          required:
-                              - data
+                    $ref: "#/components/schemas/ListOfIdAndType"
                 images:
                     $ref: "#/components/schemas/ListOfIdAndType"
                 video:
@@ -937,6 +1000,90 @@ components:
                 - orders_count
                 - price_cents
                 - published_at_datetime
+        RewardAttributes:
+            type: object
+            additionalProperties: false
+            properties:
+                amount:
+                    type: integer
+                amount_cents:
+                    type: integer
+                created_at:
+                    type: string
+                    format: date-time
+                currency:
+                    type: string
+                declined_patron_count:
+                    type: integer
+                description:
+                    type: string
+                discord_role_ids:
+                    type: array
+                    items:
+                        type: string
+                    nullable: true
+                edited_at:
+                    type: string
+                image_url:
+                    type: string
+                    nullable: true
+                is_free_tier:
+                    type: boolean
+                patron_amount_cents:
+                    type: integer
+                patron_currency:
+                    type: string
+                post_count:
+                    type: integer
+                published:
+                    type: boolean
+                published_at:
+                    type: string
+                    format: date-time
+                remaining:
+                    type: integer
+                    nullable: true
+                requires_shipping:
+                    type: boolean
+                title:
+                    type: string
+                unpublished_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                url:
+                    type: string
+                welcome_message:
+                    type: string
+                welcome_message_unsafe:
+                    type: string
+                    nullable: true
+                welcome_video_embed:
+                    type: string
+                    nullable: true
+                welcome_video_url:
+                    type: string
+                    nullable: true
+            required:
+                - amount
+                - amount_cents
+                - created_at
+                - currency
+                - description
+                - discord_role_ids
+                - edited_at
+                - image_url
+                - is_free_tier
+                - patron_amount_cents
+                - patron_currency
+                - post_count
+                - published
+                - published_at
+                - remaining
+                - requires_shipping
+                - title
+                - unpublished_at
+                - url
         Sort:
             type: string
             enum:
