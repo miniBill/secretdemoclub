@@ -11,6 +11,7 @@ import Json.Decode
 import Pages.Script as Script
 import Parser.Advanced
 import PatreonInternalApi.Api
+import PatreonInternalApi.Json
 import PatreonInternalApi.Types
 import Result.Extra
 import Rfc3339
@@ -381,9 +382,16 @@ getPosts config =
     let
         decodeContent : String -> BackendTask FatalError Page
         decodeContent content =
-            Json.Decode.decodeString pageDecoder content
-                |> Result.mapError (Json.Decode.errorToString >> FatalError.fromString)
-                |> BackendTask.fromResult
+            case Json.Decode.decodeString PatreonInternalApi.Json.decodePostsPage content of
+                Err e ->
+                    Json.Decode.errorToString e
+                        |> FatalError.fromString
+                        |> BackendTask.fail
+
+                Ok _ ->
+                    Json.Decode.decodeString pageDecoder content
+                        |> Result.mapError (Json.Decode.errorToString >> FatalError.fromString)
+                        |> BackendTask.fromResult
 
         go :
             String
