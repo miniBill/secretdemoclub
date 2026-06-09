@@ -282,6 +282,18 @@ components:
                 - $ref: "#/components/schemas/IncludedReward"
                 - $ref: "#/components/schemas/IncludedProductVariant"
         ListOfIdAndType:
+            oneOf:
+                - $ref: "#/components/schemas/EmptyListOfIdAndType"
+                - $ref: "#/components/schemas/NonEmptyListOfIdAndType"
+        EmptyListOfIdAndType:
+            type: object
+            additionalProperties: false
+            properties:
+                data:
+                    type: null
+            required:
+                - data
+        NonEmptyListOfIdAndType:
             type: object
             additionalProperties: false
             properties:
@@ -348,7 +360,6 @@ components:
                     format: uri
                 patreon_url:
                     type: string
-                    format: uri
                 pledge_url:
                     type: string
                     format: uri
@@ -375,6 +386,7 @@ components:
                     type: string # TODO
                 video_preview:
                     type: string # TODO
+                    nullable: true
             required:
                 - change_visibility_at
                 - created_at
@@ -494,7 +506,9 @@ components:
                     items:
                         $ref: "#/components/schemas/Post"
                 included:
-                    $ref: "#/components/schemas/Included"
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Included"
             required:
                 - data
                 - meta
@@ -604,6 +618,7 @@ components:
         PostType:
             type: string
             enum:
+                - post
                 - podcast
                 - livestream_youtube
                 - text_only
@@ -690,11 +705,11 @@ components:
                     type: string
                     format: uri
                 height:
-                    type: string
-                    pattern: "^\\d+$"
+                    type: integer
+                    # pattern: "^\\d+$"
                 width:
-                    type: string
-                    pattern: "^\\d+$"
+                    type: integer
+                    # pattern: "^\\d+$"
             required:
                 - original
                 - default
