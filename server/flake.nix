@@ -1,47 +1,57 @@
 {
   inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+
     naersk = {
-      url = "github:nix-community/naersk/pull/391/head";
+      url = "github:nix-community/naersk";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+
+    devshell = {
+      url = "github:numtide/devshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
   };
 
   outputs =
-    {
-      self,
-      flake-utils,
-      naersk,
-      nixpkgs,
-    }:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = (import nixpkgs) {
-          inherit system;
-        };
+    inputs@{ naersk, flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } (
+      top@{
+        config,
+        withSystem,
+        moduleWithSystem,
+        ...
+      }:
+      {
+        imports = [ inputs.devshell.flakeModule ];
 
-        naersk' = pkgs.callPackage naersk { };
+        systems = [ "x86_64-linux" ];
 
-        secretdemoclub = naersk'.buildPackage {
-          src = ./.;
-        };
-      in
-      rec {
-        # For `nix build` & `nix run`:
-        packages = {
-          inherit secretdemoclub;
-          default = secretdemoclub;
-        };
+        perSystem =
+          {
+            config,
+            pkgs,
+            ...
+          }:
+          {
+            # For `nix build` & `nix run`:
+            packages = {
+              secretdemoclub = (pkgs.callPackage naersk { }).buildPackage {
+                src = ./.;
+              };
+              default = config.packages.secretdemoclub;
+            };
 
-        # For `nix develop` (optional, can be skipped):
-        devShell = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [
-            rustc
-            cargo
-          ];
-        };
+            # For `nix develop` (optional, can be skipped):
+            devshells.default = {
+              packages = with pkgs; [
+                rustc
+                cargo
+              ];
+            };
+          };
       }
     );
 }
