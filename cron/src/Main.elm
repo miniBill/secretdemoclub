@@ -17,7 +17,6 @@ import Dict exposing (Dict)
 import Diff
 import Diff.ToString
 import FatalError exposing (FatalError)
-import Iso8601
 import Json.Decode
 import Json.Encode
 import List.Extra
