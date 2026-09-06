@@ -1043,7 +1043,7 @@ scratchPathToPath config ((ScratchPath inner) as path) =
 
 pathToFilename : { a | filename : String, extension : String } -> String
 pathToFilename { filename, extension } =
-    (filename ++ "." ++ extension)
+    (String.trim filename ++ "." ++ extension)
         |> String.replace "/" "_"
         |> String.replace "[" ""
         |> String.replace "]" ""
