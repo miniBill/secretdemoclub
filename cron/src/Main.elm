@@ -122,19 +122,19 @@ task config =
                 Api.getPosts { workDir = config.workDir, cookie = Just env.cookie }
                     |> BackendTask.andThen
                         (\p ->
-                            Do.log
-                                ("Got "
-                                    ++ String.fromInt (List.length p)
-                                    ++ " posts, last one from "
-                                    ++ (p
-                                            |> List.Extra.last
-                                            |> Maybe.map .attributes
-                                            |> Maybe.map .created_at
-                                            |> Maybe.map Iso8601.fromTime
-                                            |> Maybe.withDefault "---"
-                                       )
-                                )
-                            <| \_ ->
+                            -- Do.log
+                            --     ("Got "
+                            --         ++ String.fromInt (List.length p)
+                            --         ++ " posts, last one from "
+                            --         ++ (p
+                            --                 |> List.Extra.last
+                            --                 |> Maybe.map .attributes
+                            --                 |> Maybe.map .created_at
+                            --                 |> Maybe.map Iso8601.fromTime
+                            --                 |> Maybe.withDefault "---"
+                            --            )
+                            --     )
+                            -- <| \_ ->
                             BackendTask.succeed p
                         )
             )
@@ -159,36 +159,36 @@ task config =
                         BackendTask.fail (FatalError.fromString message)
 
                     Ok rssPosts ->
-                        Do.log
-                            ("Got "
-                                ++ String.fromInt (List.length rssPosts)
-                                ++ " RSS posts, last one from "
-                                ++ (rssPosts
-                                        |> List.Extra.last
-                                        |> Maybe.map .pubDate
-                                        |> Maybe.map Iso8601.fromTime
-                                        |> Maybe.withDefault "---"
-                                   )
-                            )
-                        <| \_ ->
+                        -- Do.log
+                        --     ("Got "
+                        --         ++ String.fromInt (List.length rssPosts)
+                        --         ++ " RSS posts, last one from "
+                        --         ++ (rssPosts
+                        --                 |> List.Extra.last
+                        --                 |> Maybe.map .pubDate
+                        --                 |> Maybe.map Iso8601.fromTime
+                        --                 |> Maybe.withDefault "---"
+                        --            )
+                        --     )
+                        -- <| \_ ->
                         BackendTask.succeed ( apiPosts, rssPosts )
             )
         |> Spinner.Reader.withStep "Getting posts from the Patreon API (anon)"
             (\_ ( apiPosts, rssPosts ) ->
                 Do.do (Api.getPosts { workDir = config.workDir, cookie = Nothing }) <| \anonPosts ->
-                Do.log
-                    ("Got "
-                        ++ String.fromInt (List.length anonPosts)
-                        ++ " posts, last one from "
-                        ++ (anonPosts
-                                |> List.Extra.last
-                                |> Maybe.map .attributes
-                                |> Maybe.map .created_at
-                                |> Maybe.map Iso8601.fromTime
-                                |> Maybe.withDefault "---"
-                           )
-                    )
-                <| \_ ->
+                -- Do.log
+                --     ("Got "
+                --         ++ String.fromInt (List.length anonPosts)
+                --         ++ " posts, last one from "
+                --         ++ (anonPosts
+                --                 |> List.Extra.last
+                --                 |> Maybe.map .attributes
+                --                 |> Maybe.map .created_at
+                --                 |> Maybe.map Iso8601.fromTime
+                --                 |> Maybe.withDefault "---"
+                --            )
+                --     )
+                -- <| \_ ->
                 BackendTask.succeed ( apiPosts, rssPosts, anonPosts )
             )
         |> Spinner.Reader.withStep "Checking posts' list"
@@ -250,16 +250,16 @@ task config =
                                         )
                                     |> Result.Extra.partition
                         in
-                        Do.log ("Caching " ++ String.fromInt (List.length posts) ++ " posts") <| \_ ->
-                        Do.log
-                            (Debug.toString
-                                (posts
-                                    |> List.map .type_
-                                    |> List.Extra.gatherEquals
-                                    |> List.map (\( k, v ) -> ( k, List.length v + 1 ))
-                                )
-                            )
-                        <| \_ ->
+                        -- Do.log ("Caching " ++ String.fromInt (List.length posts) ++ " posts") <| \_ ->
+                        -- Do.log
+                        --     (Debug.toString
+                        --         (posts
+                        --             |> List.map .type_
+                        --             |> List.Extra.gatherEquals
+                        --             |> List.map (\( k, v ) -> ( k, List.length v + 1 ))
+                        --         )
+                        --     )
+                        -- <| \_ ->
                         Do.do
                             (tasks
                                 |> List.Extra.greedyGroupsOf config.parallel
@@ -268,7 +268,7 @@ task config =
                                 |> BackendTask.map List.concat
                             )
                         <| \cached ->
-                        Do.log ("Cached " ++ String.fromInt (List.length cached) ++ " posts") <| \_ ->
+                        -- Do.log ("Cached " ++ String.fromInt (List.length cached) ++ " posts") <| \_ ->
                         BackendTask.succeed ( cached, warnings )
                 in
                 Do.do (cachePosts apiPosts) <| \( cachedPosts, cachedErrors ) ->
