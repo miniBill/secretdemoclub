@@ -125,7 +125,7 @@ task config =
                             Do.log
                                 ("Got "
                                     ++ String.fromInt (List.length p)
-                                    ++ "  posts, last one from "
+                                    ++ " posts, last one from "
                                     ++ (p
                                             |> List.Extra.last
                                             |> Maybe.map .attributes
@@ -179,7 +179,7 @@ task config =
                 Do.log
                     ("Got "
                         ++ String.fromInt (List.length anonPosts)
-                        ++ "  posts, last one from "
+                        ++ " posts, last one from "
                         ++ (anonPosts
                                 |> List.Extra.last
                                 |> Maybe.map .attributes
@@ -250,11 +250,26 @@ task config =
                                         )
                                     |> Result.Extra.partition
                         in
-                        tasks
-                            |> List.Extra.greedyGroupsOf config.parallel
-                            |> List.map BackendTask.combine
-                            |> BackendTask.sequence
-                            |> BackendTask.map (\ps -> ( List.concat ps, warnings ))
+                        Do.log ("Caching " ++ String.fromInt (List.length posts) ++ " posts") <| \_ ->
+                        Do.log
+                            (Debug.toString
+                                (posts
+                                    |> List.map .type_
+                                    |> List.Extra.gatherEquals
+                                    |> List.map (\( k, v ) -> ( k, List.length v + 1 ))
+                                )
+                            )
+                        <| \_ ->
+                        Do.do
+                            (tasks
+                                |> List.Extra.greedyGroupsOf config.parallel
+                                |> List.map BackendTask.combine
+                                |> BackendTask.sequence
+                                |> BackendTask.map List.concat
+                            )
+                        <| \cached ->
+                        Do.log ("Cached " ++ String.fromInt (List.length cached) ++ " posts") <| \_ ->
+                        BackendTask.succeed ( cached, warnings )
                 in
                 Do.do (cachePosts apiPosts) <| \( cachedPosts, cachedErrors ) ->
                 Do.do (cachePosts anonPosts) <| \( cachedAnonPosts, cachedAnonErrors ) ->
@@ -736,7 +751,7 @@ cachePost config post =
             NotRelevant
 
         ApiTypes.PostType__Post ->
-            NotRelevant
+            innerCachePost config post
 
 
 innerCachePost : Config -> Api.Post -> CacheResult
@@ -766,6 +781,25 @@ innerCachePost config post =
                     -- Nothing ->
                     --     Ok Nothing
                     ApiTypes.PostType__Podcast ->
+                        case post.attributes.post_file of
+                            Just (ApiTypes.PostAudioVideo_Or_PostImage_Or_PostSize__PostAudioVideo { url }) ->
+                                case url of
+                                    Nothing ->
+                                        Ok Nothing
+
+                                    Just u ->
+                                        Ok (Just u)
+
+                            Nothing ->
+                                Ok Nothing
+
+                            Just (ApiTypes.PostAudioVideo_Or_PostImage_Or_PostSize__PostImage _) ->
+                                Err ("Post " ++ post.id ++ ", expecting an audio/video file, found image")
+
+                            Just (ApiTypes.PostAudioVideo_Or_PostImage_Or_PostSize__PostSize _) ->
+                                Err ("Post " ++ post.id ++ ", expecting an audio/video file, found something else")
+
+                    ApiTypes.PostType__Post ->
                         case post.attributes.post_file of
                             Just (ApiTypes.PostAudioVideo_Or_PostImage_Or_PostSize__PostAudioVideo { url }) ->
                                 case url of
