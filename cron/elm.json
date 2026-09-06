@@ -29,6 +29,7 @@
             "miniBill/elm-parser-error-extra": "1.0.1",
             "miniBill/elm-xml-parser": "1.0.2",
             "pithub/elm-parser-bug-workaround": "1.0.0",
+            "rtfeldman/elm-iso8601-date-strings": "1.1.4",
             "wolfadex/elm-ansi": "3.0.1",
             "wolfadex/elm-rfc3339": "2.0.0"
         },
@@ -64,7 +65,6 @@
             "robinheghan/murmur3": "1.0.0",
             "rtfeldman/elm-css": "18.0.0",
             "rtfeldman/elm-hex": "1.0.0",
-            "rtfeldman/elm-iso8601-date-strings": "1.1.4",
             "ryan-haskell/date-format": "1.0.0",
             "stil4m/elm-syntax": "7.3.9",
             "stil4m/structured-writer": "1.0.3",

@@ -17,6 +17,7 @@ import Dict exposing (Dict)
 import Diff
 import Diff.ToString
 import FatalError exposing (FatalError)
+import Iso8601
 import Json.Decode
 import Json.Encode
 import List.Extra
@@ -119,14 +120,29 @@ task config =
         |> Spinner.Reader.withStep "Getting posts from the Patreon API (auth)"
             (\env _ ->
                 Api.getPosts { workDir = config.workDir, cookie = Just env.cookie }
+                    |> BackendTask.andThen
+                        (\p ->
+                            Do.log
+                                ("Got "
+                                    ++ String.fromInt (List.length p)
+                                    ++ "  posts, last one from "
+                                    ++ (p
+                                            |> List.Extra.last
+                                            |> Maybe.map .attributes
+                                            |> Maybe.map .created_at
+                                            |> Maybe.map Iso8601.fromTime
+                                            |> Maybe.withDefault "---"
+                                       )
+                                )
+                            <| \_ ->
+                            BackendTask.succeed p
+                        )
             )
         |> Spinner.Reader.withFatalStep "Downloading RSS feed"
             (\{ rssUrl } apiPosts ->
-                BackendTask.map
-                    (Tuple.pair apiPosts)
-                    (Http.get rssUrl Http.expectString
-                        |> BackendTask.quiet
-                    )
+                Http.get rssUrl Http.expectString
+                    |> BackendTask.quiet
+                    |> BackendTask.map (Tuple.pair apiPosts)
             )
         |> Spinner.Reader.withStep "Parsing RSS feed"
             (\_ ( apiPosts, xml ) ->
@@ -143,11 +159,36 @@ task config =
                         BackendTask.fail (FatalError.fromString message)
 
                     Ok rssPosts ->
+                        Do.log
+                            ("Got "
+                                ++ String.fromInt (List.length rssPosts)
+                                ++ " RSS posts, last one from "
+                                ++ (rssPosts
+                                        |> List.Extra.last
+                                        |> Maybe.map .pubDate
+                                        |> Maybe.map Iso8601.fromTime
+                                        |> Maybe.withDefault "---"
+                                   )
+                            )
+                        <| \_ ->
                         BackendTask.succeed ( apiPosts, rssPosts )
             )
         |> Spinner.Reader.withStep "Getting posts from the Patreon API (anon)"
             (\_ ( apiPosts, rssPosts ) ->
                 Do.do (Api.getPosts { workDir = config.workDir, cookie = Nothing }) <| \anonPosts ->
+                Do.log
+                    ("Got "
+                        ++ String.fromInt (List.length anonPosts)
+                        ++ "  posts, last one from "
+                        ++ (anonPosts
+                                |> List.Extra.last
+                                |> Maybe.map .attributes
+                                |> Maybe.map .created_at
+                                |> Maybe.map Iso8601.fromTime
+                                |> Maybe.withDefault "---"
+                           )
+                    )
+                <| \_ ->
                 BackendTask.succeed ( apiPosts, rssPosts, anonPosts )
             )
         |> Spinner.Reader.withStep "Checking posts' list"
