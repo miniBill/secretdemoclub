@@ -999,13 +999,16 @@ getTier post =
                         "Bronze membership" ->
                             Ok Bronze
 
+                        "Free" ->
+                            Ok Free
+
                         title ->
                             Err title
                 )
             |> Result.map (List.Extra.unique >> List.sortBy tierToString)
     of
         Err e ->
-            Err e
+            Err ("Unexpected tier: " ++ e)
 
         Ok [] ->
             Ok [ Bronze, Gold, Silver ]
@@ -1017,6 +1020,9 @@ getTier post =
             Ok [ Gold, Silver ]
 
         Ok [ Bronze, Gold, Silver ] ->
+            Ok [ Bronze, Gold, Silver ]
+
+        Ok [ Free ] ->
             Ok [ Bronze, Gold, Silver ]
 
         Ok tiers ->
@@ -1041,6 +1047,8 @@ pathToFilename { filename, extension } =
         |> String.replace "/" "_"
         |> String.replace "[" ""
         |> String.replace "]" ""
+        |> String.replace " ." "."
+        |> String.replace " :" ":"
 
 
 scratchPathToDir : Config -> ScratchPath -> String
@@ -1289,6 +1297,7 @@ type Tier
     = Bronze
     | Silver
     | Gold
+    | Free
 
 
 tierToString : Tier -> String
@@ -1303,6 +1312,9 @@ tierToString tier =
         Gold ->
             "Gold"
 
+        Free ->
+            "Free"
+
 
 tierFromString : String -> Maybe Tier
 tierFromString tier =
@@ -1315,6 +1327,9 @@ tierFromString tier =
 
         "Gold" ->
             Just Gold
+
+        "Free" ->
+            Just Free
 
         _ ->
             Nothing
